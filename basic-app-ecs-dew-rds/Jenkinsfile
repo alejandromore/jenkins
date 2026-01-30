@@ -4,20 +4,22 @@ pipeline {
   environment {
     TF_VAR_access_key = credentials('HWC_ACCESS_KEY')
     TF_VAR_secret_key = credentials('HWC_SECRET_KEY')
+    TF_DIR = 'examples/basic-app-ecs-dew-rds'
   }
 
   stages {
 
     stage('Checkout') {
       steps {
-        git credentialsId: 'github-creds',
+        git branch: 'main',
+            credentialsId: 'github-creds',
             url: 'https://github.com/huawei-delivery-peru/huaweicloud-terraform.git'
       }
     }
 
     stage('Terraform Init') {
       steps {
-        dir('examples/basic-app-ecs-dew-rds') {
+        dir("${TF_DIR}") {
           sh 'terraform init'
         }
       }
@@ -25,7 +27,7 @@ pipeline {
     
     stage('Terraform Plan') {
       steps {
-        dir('examples/basic-app-ecs-dew-rds') {
+        dir("${TF_DIR}") {
           sh 'terraform plan -var-file="local.tfvars"'
         }
       }
@@ -33,7 +35,7 @@ pipeline {
     
     stage('Terraform Apply') {
       steps {
-        dir('examples/basic-app-ecs-dew-rds') {
+        dir("${TF_DIR}") {
           sh 'terraform apply -auto-approve -var-file="local.tfvars"'
         }
       }
@@ -41,7 +43,7 @@ pipeline {
     
     stage('Get Terraform Outputs') {
       steps {
-        dir('examples/basic-app-ecs-dew-rds') {
+        dir("${TF_DIR}") {
           script {
             env.ecs_public_name = sh(
               script: "terraform output -raw ecs_public_name",
