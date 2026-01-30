@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'hashicorp/terraform:1.6'
+      args '-u root'
+    }
+  }
 
   environment {
     TF_VAR_access_key = credentials('HWC_ACCESS_KEY')
@@ -54,6 +59,7 @@ pipeline {
               script: "terraform output -raw ecs_public_ip",
               returnStdout: true
             ).trim()
+
           }
         }
       }
