@@ -1,0 +1,68 @@
+pipeline {
+  agent any
+
+  environment {
+    TF_VAR_access_key = credentials('HWC_ACCESS_KEY')
+    TF_VAR_secret_key = credentials('HWC_SECRET_KEY')
+    TF_DIR = 'examples/basic-ecs'
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        git branch: 'main',
+            credentialsId: 'github-creds',
+            url: 'https://github.com/huawei-delivery-peru/huaweicloud-terraform.git'
+      }
+    }
+
+    stage('Terraform Init') {
+      steps {
+        dir("${TF_DIR}") {
+          sh 'terraform init'
+        }
+      }
+    }
+    
+    stage('Terraform Plan') {
+      steps {
+        dir("${TF_DIR}") {
+          sh 'terraform plan -var-file="local.tfvars"'
+        }
+      }
+    }
+    
+    stage('Terraform Apply') {
+      steps {
+        dir("${TF_DIR}") {
+          sh 'terraform apply -auto-approve -var-file="local.tfvars"'
+        }
+      }
+    }
+    
+    stage('Get Terraform Outputs') {
+      steps {
+        dir("${TF_DIR}") {
+          script {
+            env.ecs_public_name = sh(
+              script: "terraform output -raw ecs_public_name",
+              returnStdout: true
+            ).trim()
+
+            env.ecs_public_ip = sh(
+              script: "terraform output -raw ecs_public_ip",
+              returnStdout: true
+            ).trim()
+          }
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      archiveArtifacts artifacts: '**/*.log', allowEmptyArchive: true
+    }
+  }
+}
