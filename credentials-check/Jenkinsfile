@@ -1,0 +1,88 @@
+pipeline {
+  agent any
+
+  stages {
+
+    stage('Validate Jenkins Credentials Exist') {
+      steps {
+        withCredentials([
+          string(credentialsId: 'HWC_ACCESS_KEY', variable: 'AK'),
+          string(credentialsId: 'HWC_SECRET_KEY', variable: 'SK'),
+          usernamePassword(
+            credentialsId: 'github-creds',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_TOKEN'
+          )
+        ]) {
+          sh '''
+            echo "✅ Jenkins credentials loaded"
+
+            if [ -z "$AK" ] || [ -z "$SK" ]; then
+              echo "❌ Huawei Cloud credentials are empty"
+              exit 1
+            fi
+
+            if [ -z "$GIT_TOKEN" ]; then
+              echo "❌ GitHub token is empty"
+              exit 1
+            fi
+
+            echo "AK length: ${#AK}"
+            echo "SK length: ${#SK}"
+            echo "GitHub token length: ${#GIT_TOKEN}"
+          '''
+        }
+      }
+    }
+
+    stage('Validate Network Connectivity') {
+      steps {
+        sh '''
+          echo "🌐 Checking network connectivity..."
+
+          echo "➡️ GitHub"
+          curl -sSf https://api.github.com > /dev/null
+
+          echo "➡️ Huawei Cloud IAM"
+          curl -sSf https://iam.myhuaweicloud.com > /dev/null
+
+          echo "✅ Network connectivity OK"
+        '''
+      }
+    }
+
+    stage('Validate GitHub Authentication') {
+      steps {
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'github-creds',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_TOKEN'
+          )
+        ]) {
+          sh '''
+            echo "🔐 Validating GitHub authentication..."
+
+            git ls-remote https://${GIT_USER}:${GIT_TOKEN}@github.com/${GIT_USER}/repo-test.git > /dev/null \
+              || {
+                echo "❌ GitHub authentication failed"
+                exit 1
+              }
+
+            echo "✅ GitHub authentication OK"
+          '''
+        }
+      }
+    }
+
+  }
+
+  post {
+    success {
+      echo "🎉 Pre-flight validation SUCCESS – ready for Terraform & Ansible"
+    }
+    failure {
+      echo "🔥 Pre-flight validation FAILED – fix before continuing"
+    }
+  }
+}
