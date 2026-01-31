@@ -1,11 +1,4 @@
 pipeline {
-  agent {
-    docker {
-      image 'hashicorp/terraform:1.6'
-      args '-u root'
-    }
-  }
-
   environment {
     TF_VAR_access_key = credentials('HWC_ACCESS_KEY')
     TF_VAR_secret_key = credentials('HWC_SECRET_KEY')
@@ -46,20 +39,55 @@ pipeline {
       }
     }
     
-    stage('Get Terraform Outputs') {
+    stage('Commit Terraform State') {
       steps {
         dir("${TF_DIR}") {
-          script {
-            env.ecs_public_name = sh(
-              script: "terraform output -raw ecs_public_name",
-              returnStdout: true
-            ).trim()
+          withCredentials([usernamePassword(
+            credentialsId: 'github-creds',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_PASS'
+          )]) {
 
-            env.ecs_public_ip = sh(
-              script: "terraform output -raw ecs_public_ip",
-              returnStdout: true
-            ).trim()
+            sh '''
+              git config user.name "jenkins"
+              git config user.email "jenkins@local"
 
+              echo "Git status:"
+              git status
+
+              git add terraform.tfstate terraform.tfstate.backup || true
+
+              git commit -m "Update terraform state from Jenkins build ${BUILD_NUMBER}" \
+                || echo "No changes to commit"
+
+              git push https://${GIT_USER}:${GIT_PASS}@github.com/huawei-delivery-peru/huaweicloud-terraform.git main
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Commit Terraform State') {
+      steps {
+        dir("${TF_DIR}") {
+          withCredentials([usernamePassword(
+            credentialsId: 'github-creds',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_TOKEN'
+          )]) {
+
+            sh '''
+              git config user.name "jenkins"
+              git config user.email "jenkins@local"
+
+              git status
+
+              git add terraform.tfstate terraform.tfstate.backup || true
+
+              git commit -m "Update terraform state from Jenkins build ${BUILD_NUMBER}" || echo "No changes to commit"
+
+              git push https://${GIT_USER}:${GIT_TOKEN}@github.com/huawei-delivery-peru/huaweicloud-terraform.git HEAD:main
+            '''
           }
         }
       }
