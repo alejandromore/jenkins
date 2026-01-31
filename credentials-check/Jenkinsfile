@@ -63,7 +63,7 @@ pipeline {
           sh '''
             echo "🔐 Validating GitHub authentication..."
 
-            git ls-remote https://${GIT_USER}:${GIT_TOKEN}@github.com/${GIT_USER}/huaweicloud-terraform.git > /dev/null \
+            git ls-remote https://${GIT_USER}:${GIT_TOKEN}@github.com/${GIT_USER}/jenkins.git > /dev/null \
               || {
                 echo "❌ GitHub authentication failed"
                 exit 1
