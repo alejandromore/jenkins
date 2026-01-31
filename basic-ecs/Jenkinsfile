@@ -5,7 +5,7 @@ pipeline {
     TF_VAR_access_key = credentials('HWC_ACCESS_KEY')
     TF_VAR_secret_key = credentials('HWC_SECRET_KEY')
     TF_DIR = 'examples/basic-ecs'
-    GIT_REPO = 'https://github.com/alejandromore/jenkins.git'
+    GIT_REPO = 'https://github.com/huawei-delivery-peru/huaweicloud-terraform.git'
   }
 
   stages {
