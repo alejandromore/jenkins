@@ -5,26 +5,35 @@ pipeline {
     TF_VAR_access_key = credentials('HWC_ACCESS_KEY')
     TF_VAR_secret_key = credentials('HWC_SECRET_KEY')
     TF_DIR = 'examples/basic-ecs'
+    GIT_REPO = 'https://github.com/alejandromore/jenkins.git'
   }
 
   stages {
 
-    stage('Checkout') {
+    stage('Checkout main') {
       steps {
-        git branch: 'main',
-            credentialsId: 'github-creds',
-            url: 'https://github.com/${GIT_USER}/jenkins.git'
+        checkout([
+          $class: 'GitSCM',
+          branches: [[name: '*/main']],
+          userRemoteConfigs: [[
+            url: "${GIT_REPO}",
+            credentialsId: 'github-creds'
+          ]]
+        ])
       }
     }
 
     stage('Terraform Init') {
       steps {
         dir("${TF_DIR}") {
-          sh 'terraform init'
+          sh '''
+            rm -rf .terraform
+            terraform init
+          '''
         }
       }
     }
-    
+
     stage('Terraform Plan') {
       steps {
         dir("${TF_DIR}") {
@@ -32,7 +41,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Terraform Apply') {
       steps {
         dir("${TF_DIR}") {
@@ -58,9 +67,9 @@ pipeline {
 
               git add terraform.tfstate terraform.tfstate.backup || true
 
-              git commit -m "Update terraform state from Jenkins build ${BUILD_NUMBER}" || echo "No changes to commit"
+              git diff --cached --quiet || git commit -m "Update terraform state (build ${BUILD_NUMBER})"
 
-              git push https://${GIT_USER}:${GIT_TOKEN}@github.com/${GIT_USER}/jenkins.git HEAD:main
+              git push https://${GIT_USER}:${GIT_TOKEN}@github.com/USUARIO_REAL/jenkins.git HEAD:main
             '''
           }
         }
