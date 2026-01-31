@@ -2,29 +2,82 @@ pipeline {
   agent any
 
   environment {
+    // Credenciales Huawei Cloud
     TF_VAR_access_key = credentials('HWC_ACCESS_KEY')
     TF_VAR_secret_key = credentials('HWC_SECRET_KEY')
-    TF_DIR = 'examples/basic-app-ecs-dew-rds'
+
+    // Repositorios
+    TERRAFORM_REPO = 'https://github.com/huawei-delivery-peru/huaweicloud-terraform.git'
+    ANSIBLE_REPO   = 'https://github.com/alejandromore/ansible.git'
+    //HELM_REPO      = 'https://github.com/tu-org/helm-charts.git'
+
+    // Directorios locales
+    TERRAFORM_DIR = 'terraform'
+    ANSIBLE_DIR   = 'ansible'
+    //HELM_DIR      = 'helm'
+
+    // Subdirectorio Terraform
+    TF_DIR = 'terraform/examples/basic-app-ecs-dew-rds'
   }
 
   stages {
 
-    stage('Checkout') {
+    stage('Checkout Terraform') {
       steps {
-        git branch: 'main',
-            credentialsId: 'github-creds',
-            url: 'https://github.com/huawei-delivery-peru/huaweicloud-terraform.git'
+        dir("${TERRAFORM_DIR}") {
+          checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/main']],
+            userRemoteConfigs: [[
+              url: "${TERRAFORM_REPO}",
+              credentialsId: 'github-creds'
+            ]]
+          ])
+        }
       }
     }
+
+    stage('Checkout Ansible') {
+      steps {
+        dir("${ANSIBLE_DIR}") {
+          checkout([
+            $class: 'GitSCM',
+            branches: [[name: '*/main']],
+            userRemoteConfigs: [[
+              url: "${ANSIBLE_REPO}",
+              credentialsId: 'github-creds'
+            ]]
+          ])
+        }
+      }
+    }
+
+//    stage('Checkout Helm') {
+//      steps {
+//        dir("${HELM_DIR}") {
+//          checkout([
+//            $class: 'GitSCM',
+//            branches: [[name: '*/main']],
+//            userRemoteConfigs: [[
+//              url: "${HELM_REPO}",
+//              credentialsId: 'github-creds'
+//            ]]
+//          ])
+//        }
+//      }
+//    }
 
     stage('Terraform Init') {
       steps {
         dir("${TF_DIR}") {
-          sh 'terraform init'
+          sh '''
+            rm -rf .terraform
+            terraform init
+          '''
         }
       }
     }
-    
+
     stage('Terraform Plan') {
       steps {
         dir("${TF_DIR}") {
@@ -32,7 +85,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Terraform Apply') {
       steps {
         dir("${TF_DIR}") {
@@ -40,41 +93,54 @@ pipeline {
         }
       }
     }
-    
-    stage('Get Terraform Outputs') {
+
+    stage('Terraform Output') {
       steps {
         dir("${TF_DIR}") {
           script {
-            env.ecs_public_name = sh(
-              script: "terraform output -raw ecs_public_name",
-              returnStdout: true
-            ).trim()
-
-            env.ecs_public_ip = sh(
-              script: "terraform output -raw ecs_public_ip",
-              returnStdout: true
-            ).trim()
-
-            env.rds_name = sh(
-              script: "terraform output -raw rds_name",
-              returnStdout: true
-            ).trim()
-
-            env.rds_private_ip = sh(
-              script: "terraform output -raw rds_name_ip",
-              returnStdout: true
-            ).trim()
-            
-            env.rds_public_ip = sh(
-              script: "terraform output -raw rds_public_ip",
-              returnStdout: true
-            ).trim()
-            
-            env.PEM = sh(
-              script: "terraform output -raw ecs_pem_path",
+            env.DB_IP = sh(
+              script: 'terraform output -raw db_private_ip',
               returnStdout: true
             ).trim()
           }
+        }
+      }
+    }
+
+    stage('Commit Terraform State') {
+      steps {
+        dir("${TF_DIR}") {
+          withCredentials([usernamePassword(
+            credentialsId: 'github-creds',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_TOKEN'
+          )]) {
+
+            sh '''
+              git config user.name "jenkins"
+              git config user.email "jenkins@local"
+
+              git status
+
+              git add terraform.tfstate || true
+
+              git diff --cached --quiet || git commit -m "Update terraform state (build ${BUILD_NUMBER})"
+
+              git push https://${GIT_USER}:${GIT_TOKEN}@github.com/huawei-delivery-peru/huaweicloud-terraform.git HEAD:main
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Ansible Configure') {
+      steps {
+        dir("${ANSIBLE_DIR}") {
+          sh """
+            ansible-playbook playbooks/restore-db.yml \
+              -i inventory/hosts \
+              --extra-vars "db_host=${DB_IP}"
+          """
         }
       }
     }
