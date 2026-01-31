@@ -65,11 +65,11 @@ pipeline {
 
               git status
 
-              git add terraform.tfstate terraform.tfstate.backup || true
+              git add terraform.tfstate || true
 
               git diff --cached --quiet || git commit -m "Update terraform state (build ${BUILD_NUMBER})"
 
-              git push https://${GIT_USER}:${GIT_TOKEN}@github.com/USUARIO_REAL/jenkins.git HEAD:main
+              git push https://${GIT_USER}:${GIT_TOKEN}@github.com/huawei-delivery-peru/huaweicloud-terraform.git HEAD:main
             '''
           }
         }
