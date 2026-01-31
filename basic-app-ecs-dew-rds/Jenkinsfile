@@ -99,7 +99,7 @@ pipeline {
         dir("${TF_DIR}") {
           script {
             env.DB_IP = sh(
-              script: 'terraform output -raw db_private_ip',
+              script: 'terraform output -raw rds_public_ip',
               returnStdout: true
             ).trim()
           }
