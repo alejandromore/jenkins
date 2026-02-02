@@ -1,0 +1,31 @@
+replicaCount: 2
+
+image:
+  registry: swr.la-south-2.myhuaweicloud.com
+  namespace: cce-basic-app
+  repository: app-basic-java
+  tag: "2.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: default-secret
+
+app:
+  name: wl-java-app
+  version: v1
+  containerPort: 8081
+  healthPath: /app-java/healthCheck
+
+service:
+  name: sr-java-app
+  type: ClusterIP
+  port: 8081         # Puerto interno del Service
+  targetPort: 8081   # Puerto del contenedor
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "500m"
+    memory: "512Mi"

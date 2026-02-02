@@ -1,0 +1,5 @@
+[db_restore]
+localhost
+
+[obs]
+localhost ansible_connection=local

@@ -1,0 +1,20 @@
+# docker-compose.yml - Tu archivo
+version: '3.8'                          # Versión del formato
+services:                               # Servicios/contenedores a ejecutar
+  jenkins:                              # Nombre del servicio
+    build: .                            # Construir desde Dockerfile en esta carpeta
+    image: jenkins-hwc:1.0              # Nombre de la imagen resultante
+    container_name: jenkins-hwc         # Nombre del contenedor
+    ports:                              # Mapeo de puertos
+      - "8080:8080"                     # Puerto Web UI
+      - "50000:50000"                   # Puerto para agentes Jenkins
+    volumes:                            # Volúmenes persistente
+      - jenkins_data:/var/jenkins_home  # Datos de Jenkins (persistentes)
+    environment:                        # Variables de entorno
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      - JENKINS_ADMIN_ID=alejandro
+      - JENKINS_ADMIN_PASSWORD=ingE2004#
+    restart: unless-stopped             # Reinicio automático
+
+volumes:                                # Volúmenes nombrados
+  jenkins_data:                         # Volumen persistente para datos

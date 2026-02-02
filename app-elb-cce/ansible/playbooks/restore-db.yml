@@ -1,0 +1,38 @@
+---
+- name: Restore PostgreSQL RDS
+  hosts: db_restore
+  become: false
+  gather_facts: false
+
+  vars:
+    dump_src: "{{ playbook_dir }}/../files/db/{{ db_dump_file }}"
+
+  tasks:
+    - name: Copiar dump
+      copy:
+        src: "{{ dump_src }}"
+        dest: "/tmp/{{ db_dump_file }}"
+        mode: '0644'
+
+    - name: Restaurar base de datos
+      community.postgresql.postgresql_db:
+        name: "{{ db_name }}"
+        login_host: "{{ db_host }}"
+        login_port: "{{ db_port }}"
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        state: restore
+        target: "/tmp/{{ db_dump_file }}"
+
+    - name: Contar registros
+      community.postgresql.postgresql_query:
+        login_host: "{{ db_host }}"
+        login_port: "{{ db_port }}"
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        db: "{{ db_name }}"
+        query: "SELECT COUNT(*) AS total FROM dummy_data.cliente;"
+      register: clientes_count
+
+    - debug:
+        msg: "clientes = {{ clientes_count.query_result[0].total }}"

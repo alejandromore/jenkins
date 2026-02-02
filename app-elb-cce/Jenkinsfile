@@ -1,0 +1,148 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: true,
+            description: 'Ejecutar Terraform'
+        )
+
+        booleanParam(
+            name: 'RUN_HELM',
+            defaultValue: false,
+            description: 'Ejecutar Helm'
+        )
+
+        booleanParam(
+            name: 'RUN_ANSIBLE',
+            defaultValue: false,
+            description: 'Ejecutar Ansible'
+        )
+    }
+
+    environment {
+        TF_DIR   = 'terraform'
+        HELM_DIR = 'helm/postgresql'
+        ANS_DIR  = 'ansible'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            when {
+                expression { params.ACTION == 'deploy' || params.ACTION == 'destroy' }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    terraformInit()
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                expression { params.ACTION == 'deploy' }
+                expression { params.RUN_TERRAFORM }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    terraformPlan(
+                        planFile: 'tfplan'
+                    )
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                expression { params.ACTION == 'deploy' }
+                expression { params.RUN_TERRAFORM }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    terraformApply(
+                        planFile: 'tfplan',
+                        autoApprove: true
+                    )
+                }
+            }
+        }
+
+        stage('Helm Deploy PostgreSQL') {
+            when {
+                expression { params.ACTION == 'deploy' }
+                expression { params.RUN_HELM }
+            }
+            steps {
+                dir(env.HELM_DIR) {
+                    helmUpgrade(
+                        releaseName: 'postgresql',
+                        chart: '.',
+                        namespace: 'database',
+                        install: true,
+                        wait: true
+                    )
+                }
+            }
+        }
+
+        stage('Restore Database (Ansible)') {
+            when {
+                expression { params.ACTION == 'deploy' }
+                expression { params.RUN_ANSIBLE }
+            }
+            steps {
+                dir(env.ANS_DIR) {
+                    ansiblePlaybook(
+                        playbook: 'playbooks/restore_db.yml',
+                        inventory: 'inventory/cce.yml',
+                        colorized: true
+                    )
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                expression { params.ACTION == 'destroy' }
+                expression { params.RUN_TERRAFORM }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    terraformDestroy(
+                        autoApprove: true
+                    )
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✔ Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "❌ Error en el pipeline"
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
