@@ -101,6 +101,11 @@ pipeline {
                             returnStdout: true
                         ).trim()
                     }
+
+                    // Pruebas: Guardar en archivos locales (workspace)
+                    writeFile file: 'cluster_id.txt', text: env.cluster_id
+                    writeFile file: 'rds_public_ip.txt', text: env.rds_public_ip
+                    writeFile file: 'db_password.txt', text: env.db_password
                 }
             }
         }
@@ -113,14 +118,22 @@ pipeline {
                 }
             }
             steps {
+                // Pruebas: Leer los archivos locales (workspace)
+                dir(env.TF_DIR) {
+                    script {
+                        env.cluster_id = readFile('cluster_id.txt').trim()
+                        env.rds_public_ip = readFile('rds_public_ip.txt').trim()
+                        env.db_password = readFile('db_password.txt').trim()
+                    }
+                }
                 dir(env.ANS_DIR) {
                     sh '''
                     echo "Starting DB restore"
-                    echo "Target DB host: ${env.rds_public_ip}"
+                    echo "Target DB host: $rds_public_ip"
 
                     # Descargar dump desde OBS
                     obsutil cp \
-                        ${env.DUMP_DB} \
+                        "$DUMP_DB" \
                         ./db_dump.sql \
                         -f
 
@@ -128,7 +141,7 @@ pipeline {
                     ansible-playbook \
                         -i inventory/hosts \
                         playbooks/restore-db.yml \
-                        --extra-vars "db_host=${env.rds_public_ip} db_dump_path=$(env.db_password)/db_dump.sql"
+                        --extra-vars "db_host=$rds_public_ip db_password=$db_password db_dump_path=./db_dump.sql"
                     '''
                 }
             }
@@ -191,13 +204,13 @@ pipeline {
 
     post {
         success {
-            echo "✔ Pipeline ejecutado correctamente (${params.ACTION})"
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
         }
         failure {
-            echo "❌ Error en el pipeline"
+            echo "Error en el pipeline"
         }
-        always {
-            deleteDir()
-        }
+        //always {
+        //    deleteDir()
+        //}
     }
 }
