@@ -9,7 +9,7 @@ data "huaweicloud_availability_zones" "myaz" {}
 # VPC Module
 #######################################
 module "vpc" {
-  source            = "${var.modules_base_path}vpc"
+  source            = "../../terraform-modules/vpc"
   name              = var.vpc_name
   cidr              = var.vpc_cidr
   project_id        = data.huaweicloud_enterprise_project.ep.id
@@ -21,7 +21,7 @@ module "vpc" {
 # Subnets
 #######################################
 module "subnet_public" {
-  source            = "${var.modules_base_path}subnet"
+  source            = "../../terraform-modules/subnet"
   vpc_id            = module.vpc.vpc_id
   subnet_name       = var.vpc_subnet_public_name
   cidr              = var.vpc_subnet_public_cidr
@@ -32,7 +32,7 @@ module "subnet_public" {
 }
 
 module "subnet_cce" {
-  source            = "${var.modules_base_path}subnet"
+  source            = "../../terraform-modules/subnet"
   vpc_id            = module.vpc.vpc_id
   subnet_name       = var.vpc_subnet_cce_name
   cidr              = var.vpc_subnet_cce_cidr
@@ -43,7 +43,7 @@ module "subnet_cce" {
 }
 
 module "subnet_cce_eni" {
-  source            = "${var.modules_base_path}subnet"
+  source            = "../../terraform-modules/subnet"
   vpc_id            = module.vpc.vpc_id
   subnet_name       = var.vpc_subnet_cce_eni_name
   cidr              = var.vpc_subnet_cce_eni_cidr
@@ -54,7 +54,7 @@ module "subnet_cce_eni" {
 }
 
 module "subnet_data" {
-  source            = "${var.modules_base_path}subnet"
+  source            = "../../terraform-modules/subnet"
   vpc_id            = module.vpc.vpc_id
   subnet_name       = var.vpc_subnet_data_name
   cidr              = var.vpc_subnet_data_cidr
@@ -68,25 +68,25 @@ module "subnet_data" {
 # Security Group
 #######################################
 module "sg_public" {
-  source                = "${var.modules_base_path}security_group"
+  source                = "../../terraform-modules/security_group"
   sg_name               = var.security_group_public
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 module "sg_cce_eni" {
-  source                = "${var.modules_base_path}security_group"
+  source                = "../../terraform-modules/security_group"
   sg_name               = var.security_group_cce_eni
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 module "sg_cce" {
-  source                = "${var.modules_base_path}security_group"
+  source                = "../../terraform-modules/security_group"
   sg_name               = var.security_group_cce
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 module "sg_data" {
-  source                = "${var.modules_base_path}security_group"
+  source                = "../../terraform-modules/security_group"
   sg_name               = var.security_group_data
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
@@ -251,7 +251,7 @@ resource "huaweicloud_networking_secgroup_rule" "data_ingress_internet" {
 # ELB
 #######################################
 module "eip_elb_public" {
-  source                = "${var.modules_base_path}eip"
+  source                = "../../terraform-modules/eip"
   eip_name              = "eip-elb-public"
   bandwidth_name        = "mieip-bandwidth"
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
@@ -274,7 +274,7 @@ resource "huaweicloud_vpc_eip_associate" "eip_1" {
 # NAT Gateway
 #######################################
 module "nat_gateway" {
-  source                = "${var.modules_base_path}nat_gateway"
+  source                = "../../terraform-modules/nat_gateway"
   name                  = var.ng_name
   vpc_id                = module.vpc.vpc_id
   subnet_id             = module.subnet_cce.subnet_id
@@ -286,7 +286,7 @@ module "nat_gateway" {
 }
 
 module "eip_nat_gateway" {
-  source                = "${var.modules_base_path}eip"
+  source                = "../../terraform-modules/eip"
   eip_name              = "eip-nat-gateway"
   bandwidth_name        = "mieip-bandwidth"
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
@@ -306,7 +306,7 @@ resource "huaweicloud_nat_snat_rule" "this" {
 # RDS
 #######################################
 module "rds_postgres" {
-  source = "${var.modules_base_path}rds"
+  source = "../../terraform-modules/rds"
 
   name                  = var.rds_postgres_name
   flavor                = var.rds_postgres_flavor
@@ -321,7 +321,7 @@ module "rds_postgres" {
 }
 
 module "eip_rds_postgres" {
-  source                = "${var.modules_base_path}eip"
+  source                = "../../terraform-modules/eip"
   eip_name              = "eip-rds-postgres"
   bandwidth_name        = "eip-rds-postgres-bw"
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
@@ -338,7 +338,7 @@ resource "huaweicloud_rds_instance_eip_associate" "associated" {
 # CCE
 #######################################
 module "eip_cce_cluster" {
-  source                = "${var.modules_base_path}eip"
+  source                = "../../terraform-modules/eip"
   eip_name              = var.eip_cce_name
   bandwidth_name        = "mieip-bandwidth"
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
@@ -346,7 +346,7 @@ module "eip_cce_cluster" {
 }
 
 module "cce_cluster" {
-  source = "${var.modules_base_path}cce_cluster"
+  source = "../../terraform-modules/cce_cluster"
 
   cce_cluster_name         = var.cce_cluster_name
   cce_cluster_type         = var.cce_cluster_type
@@ -423,7 +423,7 @@ locals {
 }
 
 module "dew_secret" {
-  source = "${var.modules_base_path}dew"
+  source = "../../terraform-modules/dew"
 
   secret_name           = var.dew_secret_name
   secret_description    = var.dew_secret_description

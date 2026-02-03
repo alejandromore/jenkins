@@ -52,12 +52,6 @@ variable "dns_list" {
   type        = list(string)
 }
 
-variable "modules_base_path" {
-  description = "Ruta base donde están los módulos"
-  type        = string
-  default     = ""
-}
-
 # ============================================================================
 # SECURITY GROUPS
 # ============================================================================

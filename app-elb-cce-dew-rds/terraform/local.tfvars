@@ -14,8 +14,6 @@ tags                             = {
     costcenter  = "it-001"
 }
 
-modules_base_path                 = "./modules/"
-
 security_group_public             = "sg-app-publi"
 security_group_cce_eni            = "sg-app-cce-eni"
 security_group_cce                = "sg-app-cce-node"
