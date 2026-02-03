@@ -98,7 +98,11 @@ pipeline {
             }
             steps {
                 dir(env.HELM_DIR) {
-                    sh ''
+                    sh '''
+                      helm upgrade --install db-pg helm/postgres \
+                        -n database --create-namespace \
+                        --wait
+                    '''
                 }
             }
         }
