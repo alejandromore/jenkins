@@ -1,67 +1,153 @@
-stage('Terraform Init') {
-    when {
-        allOf {
-            expression { params.RUN_TERRAFORM }
-            expression { params.ACTION in ['deploy', 'destroy'] }
-        }
-    }
-    steps {
-        dir(env.TF_DIR) {
-            terraform(
-                name: 'terraform',
-                init: true
-            )
-        }
-    }
-}
+pipeline {
+    agent any
 
-stage('Terraform Plan') {
-    when {
-        allOf {
-            expression { params.ACTION == 'deploy' }
-            expression { params.RUN_TERRAFORM }
-        }
+    options {
+        disableConcurrentBuilds()
     }
-    steps {
-        dir(env.TF_DIR) {
-            terraform(
-                name: 'terraform',
-                plan: [out: 'tfplan']
-            )
-        }
-    }
-}
 
-stage('Terraform Apply') {
-    when {
-        allOf {
-            expression { params.ACTION == 'deploy' }
-            expression { params.RUN_TERRAFORM }
-        }
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: true,
+            description: 'Ejecutar Terraform'
+        )
+        booleanParam(
+            name: 'RUN_HELM',
+            defaultValue: false,
+            description: 'Ejecutar Helm'
+        )
+        booleanParam(
+            name: 'RUN_ANSIBLE',
+            defaultValue: false,
+            description: 'Ejecutar Ansible'
+        )
     }
-    steps {
-        dir(env.TF_DIR) {
-            terraform(
-                name: 'terraform',
-                apply: [plan: 'tfplan', autoApprove: true]
-            )
-        }
-    }
-}
 
-stage('Terraform Destroy') {
-    when {
-        allOf {
-            expression { params.ACTION == 'destroy' }
-            expression { params.RUN_TERRAFORM }
+    environment {
+        TF_DIR   = 'app-elb-cce/terraform'
+        HELM_DIR = 'app-elb-cce/helm/postgresql'
+        ANS_DIR  = 'app-elb-cce/ansible'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            when {
+                allOf {
+                    expression { params.RUN_TERRAFORM }
+                    expression { params.ACTION in ['deploy', 'destroy'] }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                sh '''
+                    rm -rf .terraform
+                    terraform init
+                '''
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    sh 'terraform plan -var-file="local.tfvars"'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    sh 'terraform apply -auto-approve -var-file="local.tfvars"'
+                }
+            }
+        }
+
+        stage('Helm Deploy PostgreSQL') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_HELM }
+                }
+            }
+            steps {
+                dir(env.HELM_DIR) {
+                    sh '''
+                      helm upgrade postgresql . \
+                        --namespace database \
+                        --install \
+                        --wait
+                    '''
+                }
+            }
+        }
+
+        stage('Restore Database (Ansible)') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE }
+                }
+            }
+            steps {
+                dir(env.ANS_DIR) {
+                    ansiblePlaybook(
+                        playbook: 'playbooks/restore_db.yml',
+                        inventory: 'inventory/cce.yml',
+                        colorized: true
+                    )
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'destroy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
+                }
+            }
         }
     }
-    steps {
-        dir(env.TF_DIR) {
-            terraform(
-                name: 'terraform',
-                destroy: [autoApprove: true]
-            )
+
+    post {
+        success {
+            echo "✔ Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "❌ Error en el pipeline"
+        }
+        always {
+            deleteDir()
         }
     }
 }
