@@ -7,13 +7,39 @@ credentials:
               scope: GLOBAL
               username: ${GITHUB_USER}
               passwordFile: ${GITHUB_TOKEN_FILE}
+              description: GitHub credentials
 
           - string:
               id: hwc-access-key
               scope: GLOBAL
               secretFile: ${HWC_ACCESS_KEY_FILE}
+              description: Huawei Cloud Access Key
 
           - string:
               id: hwc-secret-key
               scope: GLOBAL
               secretFile: ${HWC_SECRET_KEY_FILE}
+              description: Huawei Cloud Secret Key
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+
+          - usernamePassword:
+              id: github-creds
+              scope: GLOBAL
+              username: ${GITHUB_USER}
+              password: ${readFile:/run/secrets/github_token}
+              description: GitHub credentials
+
+          - string:
+              id: hwc-access-key
+              scope: GLOBAL
+              secret: ${readFile:/run/secrets/hwc_access_key}
+              description: Huawei Cloud Access Key
+
+          - string:
+              id: hwc-secret-key
+              scope: GLOBAL
+              secret: ${readFile:/run/secrets/hwc_secret_key}
+              description: Huawei Cloud Secret Key

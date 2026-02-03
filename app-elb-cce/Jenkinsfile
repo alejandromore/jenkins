@@ -141,7 +141,7 @@ pipeline {
             echo "❌ Error en el pipeline"
         }
         always {
-            cleanWs()
+            deleteDir()
         }
     }
 }
