@@ -354,18 +354,3 @@ module "dew_secret" {
 
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
-
-#######################################
-# Output Final
-#######################################
-output "resources" {
-  description = "Resource information"
-  value = {
-#    rds_name         = var.rds_postgres_name
-#    rds_name_ip      = module.rds_postgres.address[0]
-#    rds_public_ip    = module.eip_rds_postgres.address
-
-    cce_name         = var.cce_cluster_name
-    cce_public_ip    = module.eip_cce_cluster.address
-  }
-}

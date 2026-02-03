@@ -1,8 +1,7 @@
-output "ecs_name" {
-  value = var.ecs_public_name
+output "cce_name" {
+  value = var.cce_cluster_name
 }
-/*
-output "ecs_public_ip" {
-  value = module.eip_ecs_publico.address
+
+output "cce_public_ip" {
+  value = module.eip_cce_cluster.address
 }
-*/
