@@ -92,16 +92,12 @@ pipeline {
                             script: 'terraform output -raw cluster_id',
                             returnStdout: true
                         ).trim()
-                        env.cluster_id = sh(
-                            script: 'terraform output -raw cluster_id',
-                            returnStdout: true
-                        ).trim()
                         env.rds_public_ip = sh(
                             script: 'terraform output -raw rds_public_ip',
                             returnStdout: true
                         ).trim()
                         env.db_password = sh(
-                            script: 'terraform output -raw db_password',
+                            script: 'terraform output -raw rds_postgres_password',
                             returnStdout: true
                         ).trim()
                     }
