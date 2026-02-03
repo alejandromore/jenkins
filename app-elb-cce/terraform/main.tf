@@ -74,16 +74,9 @@ module "sg_cce" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
-module "sg_data" {
-  source                = "./modules/security_group"
-  sg_name               = var.security_group_data
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-}
-
 #######################################
 # Security Group Rules - Public
 #######################################
-# Reglas para ELB
 resource "huaweicloud_networking_secgroup_rule" "public_ingress_http" {
   security_group_id = module.sg_public.security_group_id
   direction         = "ingress"
@@ -94,7 +87,7 @@ resource "huaweicloud_networking_secgroup_rule" "public_ingress_http" {
   remote_ip_prefix  = "0.0.0.0/0"
   description       = "Internet → ELB (8080)"
 }
-# ELB necesita comunicarse con ECS para tráfico de aplicación
+
 resource "huaweicloud_networking_secgroup_rule" "public_egress_to_private" {
   security_group_id = module.sg_public.security_group_id
   direction         = "egress"
@@ -106,7 +99,6 @@ resource "huaweicloud_networking_secgroup_rule" "public_egress_to_private" {
   description       = "ELB → CCE (8080)"
 }
 
-# ELB necesita puertos efímeros para health checks y sesiones
 resource "huaweicloud_networking_secgroup_rule" "public_egress_ephemeral_health" {
   security_group_id = module.sg_public.security_group_id
   direction         = "egress"
