@@ -149,7 +149,8 @@ pipeline {
             echo "❌ Error en el pipeline"
         }
         always {
-            node {
+            steps {
+                // Limpieza segura del workspace
                 deleteDir()
             }
         }
