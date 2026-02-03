@@ -13,7 +13,7 @@ resource "huaweicloud_cce_cluster" "this" {
   security_group_id      = var.security_group_id
 
   container_network_type = var.cce_network_type
-#  container_network_cidr = var.cce_network_cidr
+  container_network_cidr = var.cce_network_cidr
   authentication_mode    = var.cce_authentication_mode
   eip                    = var.cce_eip
   charging_mode          = var.cce_charging_mode
@@ -24,9 +24,8 @@ resource "huaweicloud_cce_cluster" "this" {
 
   enterprise_project_id  = var.cce_enteprise_project_id
 
-#  eni_subnet_id          = var.cce_eni_subnet_id
-#  eni_subnet_cidr        = var.cce_eni_subnet_cidr
+  eni_subnet_id          = var.cce_eni_subnet_id
+  eni_subnet_cidr        = var.cce_eni_subnet_cidr
 
   tags                   = var.tags
 }
-

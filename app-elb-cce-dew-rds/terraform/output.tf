@@ -6,8 +6,8 @@ output "cce_public_ip" {
   value = module.eip_cce_cluster.address
 }
 
-output "cce_kubeconfig" {
-  value = module.cce_cluster.kubeconfig
+output "cluster_id" {
+  value = module.cce_cluster.cluster_id
 }
 
 output "rds_public_ip" {
