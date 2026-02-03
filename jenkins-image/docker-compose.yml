@@ -1,20 +1,40 @@
 # docker-compose.yml - Tu archivo
-version: '3.8'                          # Versión del formato
-services:                               # Servicios/contenedores a ejecutar
-  jenkins:                              # Nombre del servicio
-    build: .                            # Construir desde Dockerfile en esta carpeta
-    image: jenkins-hwc:1.0              # Nombre de la imagen resultante
-    container_name: jenkins-hwc         # Nombre del contenedor
-    ports:                              # Mapeo de puertos
-      - "8080:8080"                     # Puerto Web UI
-      - "50000:50000"                   # Puerto para agentes Jenkins
-    volumes:                            # Volúmenes persistente
-      - jenkins_data:/var/jenkins_home  # Datos de Jenkins (persistentes)
-    environment:                        # Variables de entorno
+# version: '3.8'                                          # Versión del formato
+services:                                                 # Servicios/contenedores a ejecutar
+  jenkins:                                                # Nombre del servicio
+    build: .                                              # Construir desde Dockerfile en esta carpeta
+    image: jenkins-hwc:1.0                                # Nombre de la imagen resultante
+    container_name: jenkins-hwc                           # Nombre del contenedor
+    ports:                                                # Mapeo de puertos
+      - "8080:8080"                                       # Puerto Web UI
+      - "50000:50000"                                     # Puerto para agentes Jenkins
+    volumes:                                              # Volúmenes persistente
+      - jenkins_data:/var/jenkins_home                    # Datos de Jenkins (persistentes)
+      - ./casc.yaml:/var/jenkins_home/casc.yaml:ro        # Configuración como código (solo lectura)
+    environment:                                          # Variables de entorno
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
       - JENKINS_ADMIN_ID=alejandro
       - JENKINS_ADMIN_PASSWORD=ingE2004#
-    restart: unless-stopped             # Reinicio automático
+      - AWS_RESPONSE_CHECKSUM_VALIDATION=when_required
+      - AWS_REQUEST_CHECKSUM_CALCULATION=when_required
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc.yaml
+      - GITHUB_USER=alejandromore
+      - GITHUB_TOKEN_FILE=/run/secrets/github_token
+      - HWC_ACCESS_KEY_FILE=/run/secrets/hwc_access_key
+      - HWC_SECRET_KEY_FILE=/run/secrets/hwc_secret_key
+    secrets:
+      - github_token
+      - hwc_access_key
+      - hwc_secret_key
+    restart: unless-stopped                               # Reinicio automático
+                  
+volumes:                                                  # Volúmenes nombrados
+  jenkins_data:                                           # Volumen persistente para datos
 
-volumes:                                # Volúmenes nombrados
-  jenkins_data:                         # Volumen persistente para datos
+secrets:
+  github_token:
+    file: ./secrets/github_token.txt
+  hwc_access_key:
+    file: ./secrets/hwc_access_key.txt
+  hwc_secret_key:
+    file: ./secrets/hwc_secret_key.txt

@@ -21,5 +21,8 @@ ansible
 terraform
 job-dsl
 
-# Notifications (opcional básico)
+# Notifications
 mailer
+
+# JCasC
+configuration-as-code

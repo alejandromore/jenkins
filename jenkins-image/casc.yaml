@@ -1,0 +1,19 @@
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - usernamePassword:
+              id: github-creds
+              scope: GLOBAL
+              username: ${GITHUB_USER}
+              passwordFile: ${GITHUB_TOKEN_FILE}
+
+          - string:
+              id: hwc-access-key
+              scope: GLOBAL
+              secretFile: ${HWC_ACCESS_KEY_FILE}
+
+          - string:
+              id: hwc-secret-key
+              scope: GLOBAL
+              secretFile: ${HWC_SECRET_KEY_FILE}
