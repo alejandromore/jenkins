@@ -16,13 +16,11 @@ pipeline {
             defaultValue: true,
             description: 'Ejecutar Terraform'
         )
-
         booleanParam(
             name: 'RUN_HELM',
             defaultValue: false,
             description: 'Ejecutar Helm'
         )
-
         booleanParam(
             name: 'RUN_ANSIBLE',
             defaultValue: false,
@@ -46,66 +44,77 @@ pipeline {
 
         stage('Terraform Init') {
             when {
-                expression { params.ACTION == 'deploy' || params.ACTION == 'destroy' }
+                allOf {
+                    expression { params.RUN_TERRAFORM }
+                    expression { params.ACTION in ['deploy', 'destroy'] }
+                }
             }
             steps {
                 dir(env.TF_DIR) {
-                    terraformInit()
+                    terraform {
+                        init()
+                    }
                 }
             }
         }
 
         stage('Terraform Plan') {
             when {
-                expression { params.ACTION == 'deploy' }
-                expression { params.RUN_TERRAFORM }
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
             }
             steps {
                 dir(env.TF_DIR) {
-                    terraformPlan(
-                        planFile: 'tfplan'
-                    )
+                    terraform {
+                        plan(out: 'tfplan')
+                    }
                 }
             }
         }
 
         stage('Terraform Apply') {
             when {
-                expression { params.ACTION == 'deploy' }
-                expression { params.RUN_TERRAFORM }
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
             }
             steps {
                 dir(env.TF_DIR) {
-                    terraformApply(
-                        planFile: 'tfplan',
-                        autoApprove: true
-                    )
+                    terraform {
+                        apply(plan: 'tfplan', autoApprove: true)
+                    }
                 }
             }
         }
 
         stage('Helm Deploy PostgreSQL') {
             when {
-                expression { params.ACTION == 'deploy' }
-                expression { params.RUN_HELM }
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_HELM }
+                }
             }
             steps {
                 dir(env.HELM_DIR) {
-                    helmUpgrade(
-                        releaseName: 'postgresql',
-                        chart: '.',
-                        namespace: 'database',
-                        install: true,
-                        wait: true
-                    )
+                    sh '''
+                      helm upgrade postgresql . \
+                        --namespace database \
+                        --install \
+                        --wait
+                    '''
                 }
             }
         }
 
         stage('Restore Database (Ansible)') {
             when {
-                expression { params.ACTION == 'deploy' }
-                expression { params.RUN_ANSIBLE }
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE }
+                }
             }
             steps {
                 dir(env.ANS_DIR) {
@@ -120,14 +129,16 @@ pipeline {
 
         stage('Terraform Destroy') {
             when {
-                expression { params.ACTION == 'destroy' }
-                expression { params.RUN_TERRAFORM }
+                allOf {
+                    expression { params.ACTION == 'destroy' }
+                    expression { params.RUN_TERRAFORM }
+                }
             }
             steps {
                 dir(env.TF_DIR) {
-                    terraformDestroy(
-                        autoApprove: true
-                    )
+                    terraform {
+                        destroy(autoApprove: true)
+                    }
                 }
             }
         }
