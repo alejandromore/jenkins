@@ -3,6 +3,7 @@
 #access_key = "8ENLOAE2QCECKCRKANEU"
 #secret_key = "vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8"
 region     = "la-south-2"
+project_id = "0371a9a7f90b493fadebbf130f6fcd2c"
 
 environment                      = "local"
 enterprise_project_name          = "enterprise-app"
@@ -13,9 +14,12 @@ tags                             = {
     costcenter  = "it-001"
 }
 
+modules_base_path                 = "../../modules/"
+
 security_group_public             = "sg-app-publi"
 security_group_cce_eni            = "sg-app-cce-eni"
 security_group_cce                = "sg-app-cce-node"
+security_group_data               = "sg-app-data"
 
 vpc_name                          = "vpc-basic-app"
 vpc_cidr                          = "10.1.0.0/16"
@@ -32,6 +36,10 @@ vpc_subnet_cce_gateway_ip         = "10.1.32.1"
 vpc_subnet_cce_eni_name           = "vpc-subnet-cce-eni"
 vpc_subnet_cce_eni_cidr           = "10.1.64.0/19"
 vpc_subnet_cce_eni_gateway_ip     = "10.1.64.1"
+
+vpc_subnet_data_name              = "vpc-subnet-data"
+vpc_subnet_data_cidr              = "10.1.96.0/19"
+vpc_subnet_data_gateway_ip        = "10.1.96.1"
 
 cce_network_cidr                  = "172.16.0.0/16"
 

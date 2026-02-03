@@ -31,9 +31,9 @@ pipeline {
     environment {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
-        TF_DIR   = 'app-elb-cce/terraform'
-        HELM_DIR = 'app-elb-cce/helm/postgresql'
-        ANS_DIR  = 'app-elb-cce/ansible'
+        TF_DIR   = 'app-elb-cce-dew-rds/terraform'
+        HELM_DIR = 'app-elb-cce-dew-rds/helm/postgresql'
+        ANS_DIR  = 'app-elb-cce-dew-rds/ansible'
     }
 
     stages {

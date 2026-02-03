@@ -34,3 +34,5 @@ Uso	                        Tipo	                        ID recomendado
 Huawei Cloud Access Key	    Secret Text	                    HWC_ACCESS_KEY
 Huawei Cloud Secret Key	    Secret Text	                    HWC_SECRET_KEY
 GitHub repo	                Username/Password o SSH Key	    github-creds
+
+git update-index --skip-worktree secrets/*.txt
