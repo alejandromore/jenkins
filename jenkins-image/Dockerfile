@@ -23,6 +23,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ===============================
+# Obsutil
+# ===============================
+RUN curl -L \
+    https://obs-community.obs.cn-north-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64 \
+    -o /usr/local/bin/obsutil \
+ && chmod +x /usr/local/bin/obsutil
+
+# ===============================
 # Terraform
 # ===============================
 RUN curl -fsSL \
