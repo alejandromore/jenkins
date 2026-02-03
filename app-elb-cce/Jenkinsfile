@@ -149,7 +149,9 @@ pipeline {
             echo "❌ Error en el pipeline"
         }
         always {
-            deleteDir()
+            node {
+                deleteDir()
+            }
         }
     }
 }
