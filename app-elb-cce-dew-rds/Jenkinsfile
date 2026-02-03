@@ -17,14 +17,14 @@ pipeline {
             description: 'Ejecutar Terraform'
         )
         booleanParam(
-            name: 'RUN_HELM',
-            defaultValue: false,
-            description: 'Ejecutar Helm'
-        )
-        booleanParam(
             name: 'RUN_ANSIBLE',
             defaultValue: false,
             description: 'Ejecutar Ansible'
+        )
+        booleanParam(
+            name: 'RUN_HELM',
+            defaultValue: false,
+            description: 'Ejecutar Helm'
         )
     }
 
@@ -34,6 +34,7 @@ pipeline {
         TF_DIR   = 'app-elb-cce-dew-rds/terraform'
         HELM_DIR = 'app-elb-cce-dew-rds/helm/postgresql'
         ANS_DIR  = 'app-elb-cce-dew-rds/ansible'
+        DUMP_DB  = 'obs://obs-alejandro-db-dumps/pg-cliente-dump.sql'
     }
 
     stages {
@@ -84,12 +85,60 @@ pipeline {
             }
             steps {
                 dir(env.TF_DIR) {
-                    sh 'terraform apply -auto-approve -var-file="local.tfvars"'
+                    script {
+                        sh 'terraform apply -auto-approve -var-file="local.tfvars"'
+
+                        env.cluster_id = sh(
+                            script: 'terraform output -raw cluster_id',
+                            returnStdout: true
+                        ).trim()
+                        env.cluster_id = sh(
+                            script: 'terraform output -raw cluster_id',
+                            returnStdout: true
+                        ).trim()
+                        env.rds_public_ip = sh(
+                            script: 'terraform output -raw rds_public_ip',
+                            returnStdout: true
+                        ).trim()
+                        env.db_password = sh(
+                            script: 'terraform output -raw db_password',
+                            returnStdout: true
+                        ).trim()
+                    }
                 }
             }
         }
 
-        stage('Helm Deploy PostgreSQL') {
+        stage('Restore Database (Ansible)') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE }
+                }
+            }
+            steps {
+                dir(env.ANS_DIR) {
+                    sh '''
+                    echo "Starting DB restore"
+                    echo "Target DB host: ${env.rds_public_ip}"
+
+                    # Descargar dump desde OBS
+                    obsutil cp \
+                        ${env.DUMP_DB} \
+                        ./db_dump.sql \
+                        -f
+
+                    # Ejecutar restore con Ansible
+                    ansible-playbook \
+                        -i inventory/hosts \
+                        playbooks/restore-db.yml \
+                        --extra-vars "db_host=${env.rds_public_ip} db_dump_path=$(env.db_password)/db_dump.sql"
+                    '''
+                }
+            }
+        }
+
+        stage('Get kubeconfig') {
             when {
                 allOf {
                     expression { params.ACTION == 'deploy' }
@@ -99,9 +148,13 @@ pipeline {
             steps {
                 dir(env.HELM_DIR) {
                     sh '''
-                      helm upgrade --install db-pg helm/postgres \
-                        -n database --create-namespace \
-                        --wait
+                    echo "Generating kubeconfig for CCE cluster: ${env.cluster_id}"
+
+                    huaweicloud cce cluster get-kubeconfig \
+                        --cluster-id ${env.cluster_id} \
+                        --file kubeconfig.yaml
+
+                    chmod 600 kubeconfig.yaml
                     '''
                 }
             }
@@ -121,24 +174,6 @@ pipeline {
                         -n app-basic --create-namespace \
                         --wait
                     '''
-                }
-            }
-        }
-
-        stage('Restore Database (Ansible)') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_ANSIBLE }
-                }
-            }
-            steps {
-                dir(env.ANS_DIR) {
-                    ansiblePlaybook(
-                        playbook: 'playbooks/restore_db.yml',
-                        inventory: 'inventory/cce.yml',
-                        colorized: true
-                    )
                 }
             }
         }

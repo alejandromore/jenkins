@@ -13,3 +13,7 @@ output "cluster_id" {
 output "rds_public_ip" {
   value = module.eip_rds_postgres.address
 }
+
+output "rds_postgres_password" {
+  value = var.rds_postgres_password
+}

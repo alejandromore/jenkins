@@ -1,6 +1,0 @@
-apiVersion: v2
-name: postgres
-description: "Helm chart para desplegar PostgreSQL en Huawei Cloud CCE"
-type: application
-version: 1.0.0
-appVersion: "15.4"
