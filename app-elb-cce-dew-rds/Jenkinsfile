@@ -7,22 +7,22 @@ pipeline {
 
     parameters {
         choice(
-            name: 'ACTION',
+            name: '01. ACTION',
             choices: ['deploy', 'destroy'],
             description: 'Acción sobre el ambiente'
         )
         booleanParam(
-            name: 'RUN_TERRAFORM',
+            name: '02. RUN_TERRAFORM',
             defaultValue: true,
             description: 'Ejecutar Terraform'
         )
         booleanParam(
-            name: 'RUN_ANSIBLE',
+            name: '03. RUN_ANSIBLE',
             defaultValue: false,
             description: 'Ejecutar Ansible'
         )
         booleanParam(
-            name: 'RUN_HELM',
+            name: '04. RUN_HELM',
             defaultValue: false,
             description: 'Ejecutar Helm'
         )
