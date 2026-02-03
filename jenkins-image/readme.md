@@ -5,6 +5,7 @@ docker volume ls
 
 1. Crear imagen docker
 docker-compose up -d
+docker-compose up -d --build
 
 2. Detener y borrar el docker
 docker stop jenkins
