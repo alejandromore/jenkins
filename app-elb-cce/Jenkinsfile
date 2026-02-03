@@ -98,10 +98,23 @@ pipeline {
             }
             steps {
                 dir(env.HELM_DIR) {
+                    sh ''
+                }
+            }
+        }
+
+        stage('Helm Deploy App') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_HELM }
+                }
+            }
+            steps {
+                dir(env.HELM_DIR) {
                     sh '''
-                      helm upgrade postgresql . \
-                        --namespace database \
-                        --install \
+                      helm upgrade --install app-basic-java helm/java-app  \
+                        -n app-basic --create-namespace \
                         --wait
                     '''
                 }
@@ -149,10 +162,7 @@ pipeline {
             echo "❌ Error en el pipeline"
         }
         always {
-            steps {
-                // Limpieza segura del workspace
-                deleteDir()
-            }
+            deleteDir()
         }
     }
 }
