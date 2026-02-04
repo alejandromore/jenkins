@@ -198,7 +198,8 @@ pipeline {
 
                         huaweicloud cce cluster get-kubeconfig \
                         --cluster-id "$CLUSTER_ID" \
-                        --file kubeconfig.yaml
+                        --file kubeconfig.yaml \
+                        --yes
 
                         chmod 600 kubeconfig.yaml
                         '''
