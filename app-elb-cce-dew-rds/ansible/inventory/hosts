@@ -1,5 +1,5 @@
 [db_restore]
-localhost
+localhost ansible_connection=local ansible_python_interpreter=/opt/venv/bin/python
 
 [obs]
 localhost ansible_connection=local
