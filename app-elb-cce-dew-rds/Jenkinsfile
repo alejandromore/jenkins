@@ -134,28 +134,34 @@ pipeline {
                         "DB_PASSWORD=${db_password}"
                     ]) {
                         dir(env.ANS_DIR) {
-                            sh """
+                            sh '''
                             set -euo pipefail
 
+                            # Crear home temporal para obsutil
                             export HOME=$(mktemp -d)
 
                             echo "Starting DB restore"
-                            echo "Target DB host: \$RDS_PUBLIC_IP"
+                            echo "Target DB host: $RDS_PUBLIC_IP"
 
+                            # Configurar obsutil
                             obsutil config -i "$OBS_ACCESS_KEY" -k "$OBS_SECRET_KEY" -e obs.la-south-2.myhuaweicloud.com
 
+                            # Descargar dump solo si no existe
                             if [ ! -s db_dump.sql ]; then
                                 obsutil cp "$DUMP_DB" db_dump.sql -f
                             fi
 
+                            # Verificar que el dump existe
                             test -s db_dump.sql || exit 1
 
-                            export DB_HOST="\$RDS_PUBLIC_IP"
-                            export DB_PASSWORD="\$DB_PASSWORD"
+                            # Exportar variables para Ansible
+                            export DB_HOST="$RDS_PUBLIC_IP"
+                            export DB_PASSWORD="$DB_PASSWORD"
 
+                            # Ejecutar playbook
                             ansible-playbook -i inventory/hosts playbooks/restore-db.yml \
-                                --extra-vars "db_dump_file=db_dump.sql db_host=\$DB_HOST db_password=\$DB_PASSWORD"
-                            """
+                                --extra-vars "db_dump_file=db_dump.sql db_host=$DB_HOST db_password=$DB_PASSWORD"
+                            '''
                         }
                     }
                 }
@@ -180,18 +186,18 @@ pipeline {
                     "CLUSTER_ID=${cluster_id}"
                 ]) {
                     dir(env.HELM_DIR) {
-                        sh """
-                        echo "Generating kubeconfig for CCE cluster: ${CLUSTER_ID}"
+                        sh '''
+                        echo "Generating kubeconfig for CCE cluster: $CLUSTER_ID"
 
                         # Aceptar acuerdo legal automáticamente
                         export HUAWEICLOUD_CLI_ASSUME_YES=true
 
                         huaweicloud cce cluster get-kubeconfig \
-                        --cluster-id=${CLUSTER_ID} \
-                        --file-output=kubeconfig.yaml
+                            --cluster-id=$CLUSTER_ID \
+                            --file-output=kubeconfig.yaml
 
                         chmod 600 kubeconfig.yaml
-                        """
+                        '''
                     }
                 }
             }
@@ -211,21 +217,20 @@ pipeline {
                     "KUBECONFIG=${env.HELM_DIR}/kubeconfig.yaml"
                 ]) {
                     dir(env.HELM_DIR) {
-                        sh """
+                        sh '''
                         set -euo pipefail
 
                         echo "Deploying application with Helm"
 
                         helm upgrade --install app-basic-java helm/java-app \
-                        -n app-basic \
-                        --create-namespace \
-                        --wait
-                        """
+                            -n app-basic \
+                            --create-namespace \
+                            --wait
+                        '''
                     }
                 }
             }
         }
-
 
         stage('Terraform Destroy') {
             when {
