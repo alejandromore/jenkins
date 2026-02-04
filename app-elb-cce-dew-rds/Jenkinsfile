@@ -139,6 +139,12 @@ pipeline {
                         echo "Starting DB restore"
                         echo "Target DB host: $rds_public_ip"
 
+                        # Configurar obsutil
+                        obsutil config \
+                        -i "$OBS_ACCESS_KEY" \
+                        -k "$OBS_SECRET_KEY" \
+                        -e obs.la-south-2.myhuaweicloud.com
+
                         # Descargar dump solo si no existe
                         if [ ! -s db_dump.sql ]; then
                             obsutil cp "$DUMP_DB" db_dump.sql -f
