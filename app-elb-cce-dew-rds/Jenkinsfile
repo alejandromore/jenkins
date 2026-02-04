@@ -192,13 +192,14 @@ pipeline {
                 ]) {
                     dir(env.HELM_DIR) {
                         sh '''
-                        set -euo pipefail
-
                         echo "Generating kubeconfig for CCE cluster: ${CLUSTER_ID}"
-                        # Pipeamos "y" para aceptar el acuerdo legal
-                        echo y | huaweicloud cce cluster get-kubeconfig \
-                        --cluster-id ${CLUSTER_ID} \
-                        --file kubeconfig.yaml
+
+                        # Aceptar acuerdo legal automáticamente
+                        export HUAWEICLOUD_CLI_ASSUME_YES=true
+
+                        huaweicloud cce cluster get-kubeconfig \
+                        --cluster-id=${CLUSTER_ID} \
+                        --file=kubeconfig.yaml
 
                         chmod 600 kubeconfig.yaml
                         '''
