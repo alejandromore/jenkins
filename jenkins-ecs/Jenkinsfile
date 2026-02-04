@@ -80,7 +80,7 @@ pipeline {
             steps {
                 dir(env.TF_DIR) {
                     script {
-                        sh 'terraform apply tfplan -auto-approve'
+                        sh 'terraform apply -auto-approve tfplan'
                         env.ecs_public_ip = sh(
                             script: 'terraform output -raw ecs_public_ip',
                             returnStdout: true

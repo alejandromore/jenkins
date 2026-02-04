@@ -1,14 +1,23 @@
+version: "3.8"
+
 services:
   jenkins:
-    build: .
     image: jenkins-hwc:1.0
     container_name: jenkins-hwc
+
+    platform: linux/amd64
+
+    build:
+      context: .
+
     ports:
       - "8080:8080"
       - "50000:50000"
+
     volumes:
       - jenkins_data:/var/jenkins_home
       - ./casc.yaml:/var/jenkins_home/casc.yaml:ro
+
     environment:
       - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
       - JENKINS_ADMIN_ID=alejandro
@@ -17,10 +26,12 @@ services:
       - AWS_REQUEST_CHECKSUM_CALCULATION=when_required
       - CASC_JENKINS_CONFIG=/var/jenkins_home/casc.yaml
       - GITHUB_USER=alejandromore
+
     secrets:
       - github_token
       - hwc_access_key
       - hwc_secret_key
+
     restart: unless-stopped
 
 volumes:
