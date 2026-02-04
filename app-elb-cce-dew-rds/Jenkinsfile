@@ -167,7 +167,8 @@ pipeline {
 
                             ansible-playbook \
                             -i inventory/hosts \
-                            playbooks/restore-db.yml
+                            playbooks/restore-db.yml \
+                            --extra-vars "db_host=db_dump.sql"
                             '''
                         }
                     }
