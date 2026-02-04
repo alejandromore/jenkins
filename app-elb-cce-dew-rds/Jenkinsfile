@@ -14,17 +14,17 @@ pipeline {
         booleanParam(
             name: 'RUN_TERRAFORM',
             defaultValue: true,
-            description: 'Ejecutar Terraform'
+            description: 'Construir infraestructura con Terraform'
         )
         booleanParam(
             name: 'RUN_ANSIBLE',
             defaultValue: false,
-            description: 'Ejecutar Ansible'
+            description: 'Restaurar base de datos con Ansible'
         )
         booleanParam(
             name: 'RUN_HELM',
             defaultValue: false,
-            description: 'Ejecutar Helm'
+            description: 'Desplegar la aplicación con Helm'
         )
     }
 
