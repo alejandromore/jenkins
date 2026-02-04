@@ -170,7 +170,6 @@ pipeline {
                 }
             }
             environment {
-                HUAWEICLOUD_CLI_ASSUME_YES = 'true'
                 HUAWEICLOUD_REGION = 'la-south-2'
             }
             steps {
@@ -193,7 +192,8 @@ pipeline {
                         huaweicloud cce cluster get-kubeconfig \
                         --cluster-id $cluster_id \
                         --file ./kubeconfig \
-                        --region $HUAWEICLOUD_REGION
+                        --region $HUAWEICLOUD_REGION \
+                        --assume-yes
 
                         chmod 600 kubeconfig.yaml
                         '''
