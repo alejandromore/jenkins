@@ -43,6 +43,16 @@ setx HUAWEICLOUD_ACCESS_KEY "8ENLOAE2QCECKCRKANEU"
 setx HUAWEICLOUD_SECRET_KEY "vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8"
 
 
+
+docker tag jenkins-hwc:1.0 swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:1.0.0
+docker login -u la-south-2@HST3W9FX87L8S6OPKGM2 -p 8feccf067751f67ac9f06c0d09bd8a5bb291f1e57436002157cc6fe66435e44e swr.la-south-2.myhuaweicloud.com
+docker push swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:1.0.0
+
+
+
+
+
+
 hcloud cce cluster get-kubeconfig --cluster-id "a8bbfe11-01ef-11f1-8f6f-0255ac10023b" --file ./kubeconfig.yaml --region "$HUAWEICLOUD_REGION" --assume-yes
 hcloud cce cluster get-kubeconfig --cluster-id=a8bbfe11-01ef-11f1-8f6f-0255ac10023b --file=./kubeconfig.yaml --region=la-south-2
 hcloud CCE ShowClusterConfig --cluster_id="a8bbfe11-01ef-11f1-8f6f-0255ac10023b" --cli-region="la-south-2" > kubeconfig.yaml

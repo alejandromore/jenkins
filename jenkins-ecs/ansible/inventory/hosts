@@ -1,0 +1,2 @@
+[ecs]
+ecs_host ansible_host={{ ecs_ip }}

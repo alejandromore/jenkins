@@ -1,0 +1,67 @@
+---
+- name: Deploy application container on ECS
+  hosts: ecs
+  become: true
+
+  vars:
+    container_name: jenkins-app
+    container_port: 8080
+
+    swr_registry: swr.la-south-2.myhuaweicloud.com
+    swr_image: "swr.la-south-2.myhuaweicloud.com/org/jenkins-app:{{ image_tag }}"
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - python3-docker
+          - curl
+        state: present
+
+    - name: Ensure docker python sdk is installed
+      pip:
+        name: docker
+
+    - name: Enable and start Docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Login to Huawei Cloud SWR
+      docker_login:
+        registry_url: "{{ swr_registry }}"
+        username: "{{ swr_ak }}"
+        password: "{{ swr_sk }}"
+      no_log: true
+
+    - name: Remove old container if exists
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent
+
+    - name: Pull and run application container
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ swr_image }}"
+        state: started
+        restart_policy: always
+        pull: true
+        published_ports:
+          - "{{ container_port }}:{{ container_port }}"
+
+    - name: Wait for application to be available
+      uri:
+        url: "http://{{ ansible_host }}:{{ container_port }}/health"
+        status_code: 200
+      register: app_check
+      retries: 10
+      delay: 5
+      until: app_check.status == 200

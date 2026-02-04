@@ -1,0 +1,168 @@
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: true,
+            description: 'Construir infraestructura con Terraform'
+        )
+        booleanParam(
+            name: 'RUN_ANSIBLE',
+            defaultValue: false,
+            description: 'Instalar Docker e imagen Jenkins'
+        )
+    }
+
+    environment {
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+        TF_DIR   = 'jenkins-ecs/terraform'
+        ANS_DIR  = 'jenkins-ecs/ansible'
+        IMAGE    = 'obs://obs-alejandro-db-dumps/pg-cliente-dump.sql'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            when {
+                allOf {
+                    expression { params.RUN_TERRAFORM }
+                    expression { params.ACTION in ['deploy', 'destroy'] }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                sh '''
+                    rm -rf .terraform
+                    terraform init
+                '''
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    sh 'terraform plan -var-file="local.tfvars"'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    script {
+                        sh 'terraform apply -auto-approve -var-file="local.tfvars"'
+                        env.ecs_public_ip = sh(
+                            script: 'terraform output -raw ecs_public_ip',
+                            returnStdout: true
+                        ).trim()
+                    }
+
+                    // Pruebas: Guardar en archivos locales (workspace)
+                    writeFile file: "${WORKSPACE}/ecs_public_ip.txt", text: env.cluster_id
+                }
+            }
+        }
+
+
+
+        stage('Deploy App with Ansible') {
+
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE }
+                }
+            }
+
+            steps {
+
+                // Leer outputs generados previamente
+                script {
+                    env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
+                    echo "ECS Public IP: ${env.ecs_public_ip}"
+                }
+
+                dir(env.ANS_DIR) {
+
+                    withCredentials([
+                        string(credentialsId: 'hwc-access-key', variable: 'OBS_ACCESS_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'OBS_SECRET_KEY')
+                    ]) {
+
+                        sh '''
+                            set -e
+
+                            # Permisos correctos para la key
+                            chmod 400 ${TF_DIR}/keys/pk-ecs-jenkins.pem
+
+                            # Ejecutar playbook
+                            ANSIBLE_PRIVATE_KEY_FILE=${TF_DIR}/keys/pk-ecs-jenkins.pem \
+                            ansible-playbook playbooks/deploy-app.yml \
+                            -i inventory/hosts \
+                            -e "ecs_ip=${ecs_public_ip}" \
+                            -e "swr_ak=${OBS_ACCESS_KEY}" \
+                            -e "swr_sk=${OBS_SECRET_KEY}" \
+                            -e "image_tag=1.0.0"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'destroy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+        always {
+            //deleteDir()
+        }
+    }
+}
