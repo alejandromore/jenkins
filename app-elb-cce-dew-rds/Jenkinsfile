@@ -188,12 +188,15 @@ pipeline {
                         set -euo pipefail
                         echo "Generating kubeconfig for CCE cluster: $cluster_id"
 
+                        # Aceptar disclaimer del KooCLI (NECESARIO en Jenkins)
+                        mkdir -p "$HOME/.huaweicloud"
+                        huaweicloud configure set cli.accept=true
+
                         # Generar kubeconfig 
                         huaweicloud cce cluster get-kubeconfig \
                         --cluster-id $cluster_id \
                         --file ./kubeconfig \
-                        --region $HUAWEICLOUD_REGION \
-                        --assume-yes
+                        --region $HUAWEICLOUD_REGION 
 
                         chmod 600 kubeconfig.yaml
                         '''
