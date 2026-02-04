@@ -54,25 +54,21 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/sta
 RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # ===============================
-# Huawei Cloud CLI - SIN CONFIGURACIÓN INICIAL
+# Huawei Cloud CLI (KooCLI)
+# Instalación sin configuración
 # ===============================
 RUN echo "=== Instalando Huawei Cloud CLI ===" && \
-    # Solo instalar, no configurar
     curl -sSL https://ap-southeast-3-hwcloudcli.obs.ap-southeast-3.myhuaweicloud.com/cli/latest/hcloud_install.sh \
-    -o /tmp/hcloud_install.sh && \
+      -o /tmp/hcloud_install.sh && \
     chmod +x /tmp/hcloud_install.sh && \
     echo "y" | /tmp/hcloud_install.sh -y && \
-    # Crear alias
-    chmod +x /usr/local/bin/hcloud && \
-    ln -sf /usr/local/bin/hcloud /usr/local/bin/huaweicloud && \
-    chmod +x /usr/local/bin/huaweicloud && \
-    # Eliminar configuración corrupta si existe
-    rm -rf /root/.hcloud 2>/dev/null || true && \
-    # Verificar sin configuración (puede fallar pero el CLI está instalado)
-    echo "CLI instalado en:" && \
-    ls -la /usr/local/bin/hcloud && \
-    echo "Para usar: huaweicloud --version"
+    rm -f /tmp/hcloud_install.sh
 
+# ===============================
+# Aceptar disclaimer del KooCLI
+# (clave para CI/CD)
+# ===============================
+RUN echo "y" | hcloud --version || true
 
 # ===============================
 # Python virtualenv para Jenkins

@@ -37,3 +37,10 @@ Huawei Cloud Secret Key	    Secret Text	                    HWC_SECRET_KEY
 GitHub repo	                Username/Password o SSH Key	    github-creds
 
 git update-index --skip-worktree secrets/*.txt
+
+setx HUAWEICLOUD_REGION "la-south-2"
+setx HUAWEICLOUD_ACCESS_KEY "8ENLOAE2QCECKCRKANEU"
+setx HUAWEICLOUD_SECRET_KEY "vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8"
+
+
+hcloud cce cluster get-kubeconfig --cluster-id "a8bbfe11-01ef-11f1-8f6f-0255ac10023b" --file ./kubeconfig.yaml --region "$HUAWEICLOUD_REGION" --assume-yes

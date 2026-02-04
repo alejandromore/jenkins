@@ -190,7 +190,7 @@ pipeline {
                         echo "Generating kubeconfig for CCE cluster: $cluster_id"
 
                         # Forzar aceptación del disclaimer (única forma soportada)
-                        printf "y\n" | huaweicloud cce cluster get-kubeconfig \
+                        hcloud cce cluster get-kubeconfig \
                         --cluster-id "$cluster_id" \
                         --file ./kubeconfig.yaml \
                         --region "$HUAWEICLOUD_REGION"
