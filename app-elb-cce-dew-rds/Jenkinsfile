@@ -175,6 +175,10 @@ pipeline {
                     expression { params.RUN_HELM }
                 }
             }
+            environment {
+                HUAWEICLOUD_CLI_ASSUME_YES = 'true'
+                HUAWEICLOUD_REGION = 'la-south-2'
+            }
             steps {
                 // Leer outputs generados previamente
                 script {
@@ -193,10 +197,6 @@ pipeline {
                         dir(env.HELM_DIR) {
                             sh '''
                             echo "Generating kubeconfig for CCE cluster: $CLUSTER_ID"
-
-                            # Aceptar acuerdo legal automáticamente
-                            export HUAWEICLOUD_CLI_ASSUME_YES=true
-                            export HUAWEICLOUD_REGION=la-south-2
 
                             # Generar kubeconfig 
                             huaweicloud cce cluster get-kubeconfig \
