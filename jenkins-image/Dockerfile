@@ -23,12 +23,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # ===============================
-# Obsutil
+# Obsutil (Huawei OBS)
 # ===============================
 RUN curl -fL https://obs-community.obs.cn-north-1.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz \
     -o /tmp/obsutil.tar.gz \
  && tar -xzf /tmp/obsutil.tar.gz -C /tmp \
- && mv /tmp/obsutil_linux_amd64/obsutil /usr/local/bin/obsutil \
+ && find /tmp -type f -name obsutil -exec mv {} /usr/local/bin/obsutil \; \
  && chmod +x /usr/local/bin/obsutil \
  && rm -rf /tmp/obsutil*
 

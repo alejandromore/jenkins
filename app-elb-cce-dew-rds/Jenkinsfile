@@ -118,46 +118,44 @@ pipeline {
                 }
             }
             steps {
-
-                // Leer outputs generados previamente
                 dir(env.ANS_DIR) {
                     script {
-                        env.cluster_id     = readFile("${WORKSPACE}/cluster_id.txt").trim()
-                        env.rds_public_ip  = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
-                        env.db_password    = readFile("${WORKSPACE}/db_password.txt").trim()
+                        cluster_id    = readFile("${WORKSPACE}/cluster_id.txt").trim()
+                        rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
+                        db_password   = readFile("${WORKSPACE}/db_password.txt").trim()
                     }
                 }
 
-                // Inyectar AK / SK desde Jenkins Credentials
                 withCredentials([
                     string(credentialsId: 'hwc-access-key', variable: 'OBS_ACCESS_KEY'),
                     string(credentialsId: 'hwc-secret-key', variable: 'OBS_SECRET_KEY')
                 ]) {
-
                     dir(env.ANS_DIR) {
                         sh '''
-                        set -e
+                        set -euo pipefail
+
+                        export HOME=$(mktemp -d)
 
                         echo "Starting DB restore"
                         echo "Target DB host: $rds_public_ip"
 
-                        # Configurar obsutil (runtime, sin hardcode)
                         obsutil config \
                         -i "$OBS_ACCESS_KEY" \
                         -k "$OBS_SECRET_KEY" \
                         -e obs.la-south-2.myhuaweicloud.com
 
-                        # Descargar dump desde OBS
-                        obsutil cp \
-                        "$DUMP_DB" \
-                        ./db_dump.sql \
-                        -f
+                        if [ ! -s db_dump.sql ]; then
+                        obsutil cp "$DUMP_DB" db_dump.sql -f
+                        fi
 
-                        # Ejecutar restore con Ansible
+                        test -s db_dump.sql || exit 1
+
+                        export DB_HOST="$rds_public_ip"
+                        export DB_PASSWORD="$db_password"
+
                         ansible-playbook \
                         -i inventory/hosts \
-                        playbooks/restore-db.yml \
-                        --extra-vars "db_host=$rds_public_ip db_password=$db_password db_dump_path=$(pwd)/db_dump.sql"
+                        playbooks/restore-db.yml
                         '''
                     }
                 }
