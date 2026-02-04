@@ -181,22 +181,31 @@ pipeline {
                     cluster_id = readFile("${WORKSPACE}/cluster_id.txt").trim()
                 }
 
-                // Exportar Groovy → ENV
-                withEnv([
-                    "CLUSTER_ID=${cluster_id}"
+                // Exportar kubeconfig
+                withCredentials([
+                    string(credentialsId: 'hwc-access-key', variable: 'HUAWEICLOUD_ACCESS_KEY'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'HUAWEICLOUD_SECRET_KEY')
                 ]) {
-                    dir(env.HELM_DIR) {
-                        sh '''
-                        echo "Generating kubeconfig for CCE cluster: $CLUSTER_ID"
+                    withEnv([
+                        "RDS_PUBLIC_IP=${rds_public_ip}",
+                        "DB_PASSWORD=${db_password}"
+                    ]) {
+                        dir(env.HELM_DIR) {
+                            sh '''
+                            echo "Generating kubeconfig for CCE cluster: $CLUSTER_ID"
 
-                        # Aceptar acuerdo legal automáticamente
-                        export HUAWEICLOUD_CLI_ASSUME_YES=true
+                            # Aceptar acuerdo legal automáticamente
+                            export HUAWEICLOUD_CLI_ASSUME_YES=true
+                            export HUAWEICLOUD_REGION=la-south-2
 
-                        # Generar kubeconfig y redirigir stdout
-                        huaweicloud cce cluster get-kubeconfig --cluster-id=$CLUSTER_ID > kubeconfig.yaml
+                            # Generar kubeconfig 
+                            huaweicloud cce cluster get-kubeconfig \
+                            --cluster-id $CLUSTER_ID \
+                            --file ./kubeconfig
 
-                        chmod 600 kubeconfig.yaml
-                        '''
+                            chmod 600 kubeconfig.yaml
+                            '''
+                        }
                     }
                 }
             }
