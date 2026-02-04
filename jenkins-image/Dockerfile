@@ -63,13 +63,16 @@ RUN echo "=== Instalando Huawei Cloud CLI ===" && \
     chmod +x /tmp/hcloud_install.sh && \
     echo "y" | /tmp/hcloud_install.sh -y && \
     # Crear alias
+    chmod +x /usr/local/bin/hcloud && \
     ln -sf /usr/local/bin/hcloud /usr/local/bin/huaweicloud && \
+    chmod +x /usr/local/bin/huaweicloud && \
     # Eliminar configuración corrupta si existe
     rm -rf /root/.hcloud 2>/dev/null || true && \
     # Verificar sin configuración (puede fallar pero el CLI está instalado)
     echo "CLI instalado en:" && \
     ls -la /usr/local/bin/hcloud && \
     echo "Para usar: huaweicloud --version"
+
 
 # ===============================
 # Python virtualenv para Jenkins
