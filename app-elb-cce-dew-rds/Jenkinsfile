@@ -118,45 +118,58 @@ pipeline {
                 }
             }
             steps {
+
+                // Leer outputs generados previamente
                 dir(env.ANS_DIR) {
                     script {
-                        cluster_id    = readFile("${WORKSPACE}/cluster_id.txt").trim()
                         rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
                         db_password   = readFile("${WORKSPACE}/db_password.txt").trim()
                     }
                 }
 
+                // Inyectar AK / SK desde Jenkins Credentials
                 withCredentials([
                     string(credentialsId: 'hwc-access-key', variable: 'OBS_ACCESS_KEY'),
                     string(credentialsId: 'hwc-secret-key', variable: 'OBS_SECRET_KEY')
                 ]) {
-                    dir(env.ANS_DIR) {
-                        sh '''
-                        set -euo pipefail
 
-                        export HOME=$(mktemp -d)
+                    // Exportar variables Groovy → ENV para el shell
+                    withEnv([
+                        "RDS_PUBLIC_IP=${rds_public_ip}",
+                        "DB_PASSWORD=${db_password}"
+                    ]) {
 
-                        echo "Starting DB restore"
-                        echo "Target DB host: $rds_public_ip"
+                        dir(env.ANS_DIR) {
+                            sh '''
+                            set -euo pipefail
 
-                        obsutil config \
-                        -i "$OBS_ACCESS_KEY" \
-                        -k "$OBS_SECRET_KEY" \
-                        -e obs.la-south-2.myhuaweicloud.com
+                            export HOME=$(mktemp -d)
 
-                        if [ ! -s db_dump.sql ]; then
-                        obsutil cp "$DUMP_DB" db_dump.sql -f
-                        fi
+                            echo "Starting DB restore"
+                            echo "Target DB host: $RDS_PUBLIC_IP"
 
-                        test -s db_dump.sql || exit 1
+                            # Configurar obsutil (sin persistir credenciales)
+                            obsutil config \
+                            -i "$OBS_ACCESS_KEY" \
+                            -k "$OBS_SECRET_KEY" \
+                            -e obs.la-south-2.myhuaweicloud.com
 
-                        export DB_HOST="$rds_public_ip"
-                        export DB_PASSWORD="$db_password"
+                            # Descargar dump solo si no existe
+                            if [ ! -s db_dump.sql ]; then
+                            obsutil cp "$DUMP_DB" db_dump.sql -f
+                            fi
 
-                        ansible-playbook \
-                        -i inventory/hosts \
-                        playbooks/restore-db.yml
-                        '''
+                            test -s db_dump.sql || exit 1
+
+                            # Variables para Ansible
+                            export DB_HOST="$RDS_PUBLIC_IP"
+                            export DB_PASSWORD="$DB_PASSWORD"
+
+                            ansible-playbook \
+                            -i inventory/hosts \
+                            playbooks/restore-db.yml
+                            '''
+                        }
                     }
                 }
             }
@@ -171,6 +184,13 @@ pipeline {
                 }
             }
             steps {
+                // Leer outputs generados previamente
+                dir(env.ANS_DIR) {
+                    script {
+                        cluster_id    = readFile("${WORKSPACE}/cluster_id.txt").trim()
+                    }
+                }
+                // Exportar variable Groovy → ENV para el shell
                 dir(env.HELM_DIR) {
                     sh '''
                     echo "Generating kubeconfig for CCE cluster: ${env.cluster_id}"
