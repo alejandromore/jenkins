@@ -196,10 +196,10 @@ pipeline {
 
                         echo "Generating kubeconfig for CCE cluster: $CLUSTER_ID"
 
+                        export HUAWEICLOUD_CLI_ASSUME_YES=true
                         huaweicloud cce cluster get-kubeconfig \
                         --cluster-id "$CLUSTER_ID" \
-                        --file kubeconfig.yaml \
-                        --yes
+                        --file kubeconfig.yaml
 
                         chmod 600 kubeconfig.yaml
                         '''
