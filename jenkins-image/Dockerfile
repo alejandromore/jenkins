@@ -64,6 +64,9 @@ RUN echo "=== Instalando Huawei Cloud CLI ===" && \
     echo "y" | /tmp/hcloud_install.sh -y && \
     rm -f /tmp/hcloud_install.sh
 
+# Forzar permisos ejecutables
+RUN chmod 755 /usr/local/bin/hcloud
+
 # ===============================
 # Aceptar disclaimer del KooCLI
 # (clave para CI/CD)

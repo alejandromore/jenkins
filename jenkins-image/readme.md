@@ -44,3 +44,38 @@ setx HUAWEICLOUD_SECRET_KEY "vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8"
 
 
 hcloud cce cluster get-kubeconfig --cluster-id "a8bbfe11-01ef-11f1-8f6f-0255ac10023b" --file ./kubeconfig.yaml --region "$HUAWEICLOUD_REGION" --assume-yes
+hcloud cce cluster get-kubeconfig --cluster-id=a8bbfe11-01ef-11f1-8f6f-0255ac10023b --file=./kubeconfig.yaml --region=la-south-2
+hcloud CCE ShowClusterConfig --cluster_id="a8bbfe11-01ef-11f1-8f6f-0255ac10023b" --cli-region="la-south-2" > kubeconfig.yaml
+hcloud CCE ShowNodePool --cli-region="la-south-2"
+
+hcloud CCE ShowClusterConfig --cli-region="la-south-2" --Content-Type="application/json"
+hcloud CCE CreateClusterKubeconfig --clusterid="a8bbfe11-01ef-11f1-8f6f-0255ac10023b" --cli-output=json
+
+curl -s -X POST https://iam.myhuaweicloud.com/v3/auth/tokens
+{
+  "auth": {
+      "identity": {
+          "methods": ["hw_ak_sk"],
+          "hw_ak_sk": {
+              "access": {
+                  "key": "8ENLOAE2QCECKCRKANEU"
+              },
+              "secret": {
+                  "key": "vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8"
+              }
+          }
+      },
+      "scope": {
+          "project": {
+              "name": "la-south-2"
+          }
+      }
+  }
+}
+
+curl -s -X POST \
+  https://cce.la-south-2.myhuaweicloud.com/api/v3/projects/${PROJECT_ID}/clusters/${CLUSTER_ID}/clustercert \
+  -H "X-Auth-Token: $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"validity": 180}' \
+  > kubeconfig.yaml
