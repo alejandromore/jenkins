@@ -192,9 +192,8 @@ pipeline {
                         # Aceptar acuerdo legal automáticamente
                         export HUAWEICLOUD_CLI_ASSUME_YES=true
 
-                        huaweicloud cce cluster get-kubeconfig \
-                            --cluster-id=$CLUSTER_ID \
-                            --file-output=kubeconfig.yaml
+                        # Generar kubeconfig y redirigir stdout
+                        huaweicloud cce cluster get-kubeconfig --cluster-id=$CLUSTER_ID > kubeconfig.yaml
 
                         chmod 600 kubeconfig.yaml
                         '''
