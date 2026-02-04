@@ -129,44 +129,33 @@ pipeline {
                     string(credentialsId: 'hwc-access-key', variable: 'OBS_ACCESS_KEY'),
                     string(credentialsId: 'hwc-secret-key', variable: 'OBS_SECRET_KEY')
                 ]) {
-
-                    // Exportar variables Groovy → ENV para el shell
                     withEnv([
                         "RDS_PUBLIC_IP=${rds_public_ip}",
                         "DB_PASSWORD=${db_password}"
                     ]) {
-
                         dir(env.ANS_DIR) {
-                            sh '''
+                            sh """
                             set -euo pipefail
 
                             export HOME=$(mktemp -d)
 
                             echo "Starting DB restore"
-                            echo "Target DB host: $RDS_PUBLIC_IP"
+                            echo "Target DB host: \$RDS_PUBLIC_IP"
 
-                            # Configurar obsutil (sin persistir credenciales)
-                            obsutil config \
-                            -i "$OBS_ACCESS_KEY" \
-                            -k "$OBS_SECRET_KEY" \
-                            -e obs.la-south-2.myhuaweicloud.com
+                            obsutil config -i "$OBS_ACCESS_KEY" -k "$OBS_SECRET_KEY" -e obs.la-south-2.myhuaweicloud.com
 
-                            # Descargar dump solo si no existe
                             if [ ! -s db_dump.sql ]; then
-                            obsutil cp "$DUMP_DB" db_dump.sql -f
+                                obsutil cp "$DUMP_DB" db_dump.sql -f
                             fi
 
                             test -s db_dump.sql || exit 1
 
-                            # Variables para Ansible
-                            export DB_HOST="$RDS_PUBLIC_IP"
-                            export DB_PASSWORD="$DB_PASSWORD"
+                            export DB_HOST="\$RDS_PUBLIC_IP"
+                            export DB_PASSWORD="\$DB_PASSWORD"
 
-                            ansible-playbook \
-                            -i inventory/hosts \
-                            playbooks/restore-db.yml \
-                            --extra-vars "db_dump_file=db_dump.sql db_host=$DB_HOST db_password=$DB_PASSWORD"
-                            '''
+                            ansible-playbook -i inventory/hosts playbooks/restore-db.yml \
+                                --extra-vars "db_dump_file=db_dump.sql db_host=\$DB_HOST db_password=\$DB_PASSWORD"
+                            """
                         }
                     }
                 }
@@ -191,7 +180,7 @@ pipeline {
                     "CLUSTER_ID=${cluster_id}"
                 ]) {
                     dir(env.HELM_DIR) {
-                        sh '''
+                        sh """
                         echo "Generating kubeconfig for CCE cluster: ${CLUSTER_ID}"
 
                         # Aceptar acuerdo legal automáticamente
@@ -202,7 +191,7 @@ pipeline {
                         --file-output=kubeconfig.yaml
 
                         chmod 600 kubeconfig.yaml
-                        '''
+                        """
                     }
                 }
             }
@@ -222,7 +211,7 @@ pipeline {
                     "KUBECONFIG=${env.HELM_DIR}/kubeconfig.yaml"
                 ]) {
                     dir(env.HELM_DIR) {
-                        sh '''
+                        sh """
                         set -euo pipefail
 
                         echo "Deploying application with Helm"
@@ -231,7 +220,7 @@ pipeline {
                         -n app-basic \
                         --create-namespace \
                         --wait
-                        '''
+                        """
                     }
                 }
             }
