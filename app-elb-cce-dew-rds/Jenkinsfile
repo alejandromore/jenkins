@@ -118,13 +118,10 @@ pipeline {
                 }
             }
             steps {
-
                 // Leer outputs generados previamente
-                dir(env.ANS_DIR) {
-                    script {
-                        rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
-                        db_password   = readFile("${WORKSPACE}/db_password.txt").trim()
-                    }
+                script {
+                    rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
+                    db_password   = readFile("${WORKSPACE}/db_password.txt").trim()
                 }
 
                 // Inyectar AK / SK desde Jenkins Credentials
@@ -176,7 +173,6 @@ pipeline {
             }
         }
 
-
         stage('Get kubeconfig') {
             when {
                 allOf {
@@ -186,25 +182,31 @@ pipeline {
             }
             steps {
                 // Leer outputs generados previamente
-                dir(env.ANS_DIR) {
-                    script {
-                        cluster_id    = readFile("${WORKSPACE}/cluster_id.txt").trim()
-                    }
+                script {
+                    cluster_id = readFile("${WORKSPACE}/cluster_id.txt").trim()
                 }
-                // Exportar variable Groovy → ENV para el shell
-                dir(env.HELM_DIR) {
-                    sh '''
-                    echo "Generating kubeconfig for CCE cluster: ${env.cluster_id}"
 
-                    huaweicloud cce cluster get-kubeconfig \
-                        --cluster-id ${env.cluster_id} \
+                // Exportar Groovy → ENV
+                withEnv([
+                    "CLUSTER_ID=${cluster_id}"
+                ]) {
+                    dir(env.HELM_DIR) {
+                        sh '''
+                        set -euo pipefail
+
+                        echo "Generating kubeconfig for CCE cluster: $CLUSTER_ID"
+
+                        huaweicloud cce cluster get-kubeconfig \
+                        --cluster-id "$CLUSTER_ID" \
                         --file kubeconfig.yaml
 
-                    chmod 600 kubeconfig.yaml
-                    '''
+                        chmod 600 kubeconfig.yaml
+                        '''
+                    }
                 }
             }
         }
+
 
         stage('Helm Deploy App') {
             when {
@@ -214,15 +216,26 @@ pipeline {
                 }
             }
             steps {
-                dir(env.HELM_DIR) {
-                    sh '''
-                      helm upgrade --install app-basic-java helm/java-app  \
-                        -n app-basic --create-namespace \
+
+                withEnv([
+                    "KUBECONFIG=${env.HELM_DIR}/kubeconfig.yaml"
+                ]) {
+                    dir(env.HELM_DIR) {
+                        sh '''
+                        set -euo pipefail
+
+                        echo "Deploying application with Helm"
+
+                        helm upgrade --install app-basic-java helm/java-app \
+                        -n app-basic \
+                        --create-namespace \
                         --wait
-                    '''
+                        '''
+                    }
                 }
             }
         }
+
 
         stage('Terraform Destroy') {
             when {
