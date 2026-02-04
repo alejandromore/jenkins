@@ -190,7 +190,7 @@ pipeline {
 
                         # Aceptar disclaimer del KooCLI (NECESARIO en Jenkins)
                         mkdir -p "$HOME/.huaweicloud"
-                        huaweicloud configure set cli.accept=true
+                        huaweicloud configure set --cli.accept=true
 
                         # Generar kubeconfig 
                         huaweicloud cce cluster get-kubeconfig \
