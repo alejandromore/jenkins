@@ -168,7 +168,7 @@ pipeline {
                             ansible-playbook \
                             -i inventory/hosts \
                             playbooks/restore-db.yml \
-                            --extra-vars "db_dump_file=db_dump.sql"
+                            --extra-vars "db_dump_file=db_dump.sql db_host=$DB_HOST db_password=$DB_PASSWORD"
                             '''
                         }
                     }
