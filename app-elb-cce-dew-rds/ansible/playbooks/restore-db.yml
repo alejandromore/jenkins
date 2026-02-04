@@ -5,7 +5,7 @@
   gather_facts: false
 
   vars:
-    dump_src: "{{ playbook_dir }}/../files/db/{{ db_dump_file }}"
+    dump_src: "{{ playbook_dir }}/../{{ db_dump_file }}"
 
   tasks:
     - name: Copiar dump
