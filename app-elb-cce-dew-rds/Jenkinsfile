@@ -120,8 +120,8 @@ pipeline {
             steps {
                 // Leer outputs generados previamente
                 script {
-                    rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
-                    db_password   = readFile("${WORKSPACE}/db_password.txt").trim()
+                    env.rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
+                    env.db_password   = readFile("${WORKSPACE}/db_password.txt").trim()
                 }
 
                 // Inyectar AK / SK desde Jenkins Credentials
@@ -129,40 +129,28 @@ pipeline {
                     string(credentialsId: 'hwc-access-key', variable: 'OBS_ACCESS_KEY'),
                     string(credentialsId: 'hwc-secret-key', variable: 'OBS_SECRET_KEY')
                 ]) {
-                    withEnv([
-                        "RDS_PUBLIC_IP=${rds_public_ip}",
-                        "DB_PASSWORD=${db_password}"
-                    ]) {
-                        dir(env.ANS_DIR) {
-                            sh '''
-                            set -euo pipefail
+                    dir(env.ANS_DIR) {
+                        sh '''
+                        set -eo pipefail
 
-                            # Crear home temporal para obsutil
-                            export HOME=$(mktemp -d)
+                        # Crear home temporal para obsutil
+                        export HOME=$(mktemp -d)
 
-                            echo "Starting DB restore"
-                            echo "Target DB host: $RDS_PUBLIC_IP"
+                        echo "Starting DB restore"
+                        echo "Target DB host: $rds_public_ip"
 
-                            # Configurar obsutil
-                            obsutil config -i "$OBS_ACCESS_KEY" -k "$OBS_SECRET_KEY" -e obs.la-south-2.myhuaweicloud.com
+                        # Descargar dump solo si no existe
+                        if [ ! -s db_dump.sql ]; then
+                            obsutil cp "$DUMP_DB" db_dump.sql -f
+                        fi
 
-                            # Descargar dump solo si no existe
-                            if [ ! -s db_dump.sql ]; then
-                                obsutil cp "$DUMP_DB" db_dump.sql -f
-                            fi
+                        # Verificar que el dump existe
+                        test -s db_dump.sql || exit 1
 
-                            # Verificar que el dump existe
-                            test -s db_dump.sql || exit 1
-
-                            # Exportar variables para Ansible
-                            export DB_HOST="$RDS_PUBLIC_IP"
-                            export DB_PASSWORD="$DB_PASSWORD"
-
-                            # Ejecutar playbook
-                            ansible-playbook -i inventory/hosts playbooks/restore-db.yml \
-                                --extra-vars "db_dump_file=db_dump.sql db_host=$DB_HOST db_password=$DB_PASSWORD"
-                            '''
-                        }
+                        # Ejecutar playbook
+                        ansible-playbook -i inventory/hosts playbooks/restore-db.yml \
+                            --extra-vars "db_dump_file=db_dump.sql db_host=$rds_public_ip db_password=$db_password"
+                        '''
                     }
                 }
             }
@@ -190,22 +178,18 @@ pipeline {
                     string(credentialsId: 'hwc-access-key', variable: 'HUAWEICLOUD_ACCESS_KEY'),
                     string(credentialsId: 'hwc-secret-key', variable: 'HUAWEICLOUD_SECRET_KEY')
                 ]) {
-                    withEnv([
-                        "RDS_PUBLIC_IP=${rds_public_ip}",
-                        "DB_PASSWORD=${db_password}"
-                    ]) {
-                        dir(env.HELM_DIR) {
-                            sh '''
-                            echo "Generating kubeconfig for CCE cluster: $CLUSTER_ID"
+                    dir(env.HELM_DIR) {
+                        sh '''
+                        echo "Generating kubeconfig for CCE cluster: $CLUSTER_ID"
 
-                            # Generar kubeconfig 
-                            huaweicloud cce cluster get-kubeconfig \
-                            --cluster-id $CLUSTER_ID \
-                            --file ./kubeconfig
+                        # Generar kubeconfig 
+                        huaweicloud cce cluster get-kubeconfig \
+                        --cluster-id $CLUSTER_ID \
+                        --file ./kubeconfig \
+                        --region $HUAWEICLOUD_REGION
 
-                            chmod 600 kubeconfig.yaml
-                            '''
-                        }
+                        chmod 600 kubeconfig.yaml
+                        '''
                     }
                 }
             }
