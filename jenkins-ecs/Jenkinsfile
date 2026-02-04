@@ -148,7 +148,7 @@ pipeline {
             }
             steps {
                 dir(env.TF_DIR) {
-                    sh 'terraform destroy -auto-approve -out=tfplan'
+                    sh 'terraform destroy -auto-approve'
                 }
             }
         }
