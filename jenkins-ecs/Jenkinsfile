@@ -65,7 +65,7 @@ pipeline {
             }
             steps {
                 dir(env.TF_DIR) {
-                    sh 'terraform plan -var-file="local.tfvars"'
+                    sh 'terraform plan -out=tfplan -var-file="local.tfvars"'
                 }
             }
         }
@@ -80,7 +80,7 @@ pipeline {
             steps {
                 dir(env.TF_DIR) {
                     script {
-                        sh 'terraform apply -auto-approve -var-file="local.tfvars"'
+                        sh 'terraform apply tfplan -auto-approve'
                         env.ecs_public_ip = sh(
                             script: 'terraform output -raw ecs_public_ip',
                             returnStdout: true
@@ -88,7 +88,7 @@ pipeline {
                     }
 
                     // Pruebas: Guardar en archivos locales (workspace)
-                    writeFile file: "${WORKSPACE}/ecs_public_ip.txt", text: env.cluster_id
+                    writeFile file: "${WORKSPACE}/ecs_public_ip.txt", text: env.ecs_public_ip
                 }
             }
         }
