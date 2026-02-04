@@ -148,7 +148,7 @@ pipeline {
             }
             steps {
                 dir(env.TF_DIR) {
-                    sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
+                    sh 'terraform destroy -auto-approve -out=tfplan'
                 }
             }
         }
@@ -161,8 +161,8 @@ pipeline {
         failure {
             echo "Error en el pipeline"
         }
-        //always {
-            //deleteDir()
-        //}
+        always {
+            deleteDir()
+        }
     }
 }
