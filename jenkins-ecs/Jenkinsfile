@@ -126,8 +126,8 @@ pipeline {
                             set -e
 
                             # Cargar PEM file
-                            chmod 400 ${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem
-                            ANSIBLE_PRIVATE_KEY_FILE=${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem
+                            chmod 400 "${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem"
+                            ANSIBLE_PRIVATE_KEY_FILE="${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem"
 
                             # Ejecutar playbook con todas las credenciales
                             ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \
