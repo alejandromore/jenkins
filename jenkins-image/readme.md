@@ -42,16 +42,23 @@ setx HUAWEICLOUD_REGION "la-south-2"
 setx HUAWEICLOUD_ACCESS_KEY "8ENLOAE2QCECKCRKANEU"
 setx HUAWEICLOUD_SECRET_KEY "vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8"
 
-
+# compatible con SWR
 setx DOCKER_BUILDKIT 1
 setx BUILDKIT_PROVENANCE false
 setx BUILDKIT_SBOM false
+setx BUILDKIT_OUTPUT_FORMAT docker
+setx DOCKER_DEFAULT_PLATFORM linux/amd64
+
+setx DOCKER_BUILDKIT 0
+
+docker compose build --no-cache
+docker compose push
 
 docker-compose up -d --build
 
 docker tag jenkins-hwc:1.0 swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:1.0.0
 
-docker login -u la-south-2@HST3W9FX87L8S6OPKGM2 -p 8feccf067751f67ac9f06c0d09bd8a5bb291f1e57436002157cc6fe66435e44e swr.la-south-2.myhuaweicloud.com
+docker login -u la-south-2@HST3WZLQY47S41GW38DJ -p 7f1a60eeb60c684566511e1e9c68fe13a352cb6755ed1cc4d763c7a7ef9a6185 swr.la-south-2.myhuaweicloud.com
 
 docker push swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:1.0.0
 
