@@ -89,17 +89,16 @@
         mode: "0755"
 
     - name: Copy Jenkins files to ECS
-      copy:
+      synchronize:
         src: ../
         dest: "{{ app_dir }}"
-        owner: ubuntu
-        group: ubuntu
-        mode: "0755"
-        exclude:
-          - .git
-          - ansible
-          - .terraform
-          - "*.tfstate*"
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=ansible"
+          - "--exclude=.terraform"
+          - "--exclude=*.tfstate*"
+      delegate_to: localhost
+      become: false
 
     # -----------------------------
     # Secrets como env vars
