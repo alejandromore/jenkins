@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  jenkins:
+    image: jenkins-hwc:1.0
+    container_name: jenkins-hwc
+    platform: linux/amd64
+
+    build:
+      context: ./docker
+
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - ./docker/casc.yaml:/var/jenkins_home/casc.yaml:ro
+
+    env_file:
+      - ./secrets.env
+
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      CASC_JENKINS_CONFIG: /var/jenkins_home/casc.yaml
+      AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+      AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+
+    restart: unless-stopped
+
+volumes:
+  jenkins_data:

@@ -1,2 +1,2 @@
 [ecs]
-ecs_host ansible_host={{ ecs_ip }}
+jenkins ansible_host=1.2.3.4 ansible_user=ubuntu

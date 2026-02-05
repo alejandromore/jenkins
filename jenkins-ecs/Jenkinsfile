@@ -24,6 +24,9 @@ pipeline {
     }
 
     environment {
+        TF_IN_AUTOMATION = "true"
+        TF_CLI_ARGS = "-no-color"
+
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
         TF_DIR   = 'jenkins-ecs/terraform'
@@ -105,7 +108,6 @@ pipeline {
             }
 
             steps {
-
                 // Leer outputs generados previamente
                 script {
                     env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
@@ -115,24 +117,28 @@ pipeline {
                 dir(env.ANS_DIR) {
 
                     withCredentials([
-                        string(credentialsId: 'hwc-access-key', variable: 'OBS_ACCESS_KEY'),
-                        string(credentialsId: 'hwc-secret-key', variable: 'OBS_SECRET_KEY')
+                        usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN'),
+                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY')
                     ]) {
 
                         sh '''
                             set -e
 
-                            # Permisos correctos para la key
+                            # Cargar PEM file
                             chmod 400 ${TF_DIR}/keys/pk-ecs-jenkins.pem
-
-                            # Ejecutar playbook
                             ANSIBLE_PRIVATE_KEY_FILE=${TF_DIR}/keys/pk-ecs-jenkins.pem \
-                            ansible-playbook playbooks/deploy-app.yml \
-                            -i inventory/hosts \
-                            -e "ecs_ip=${ecs_public_ip}" \
-                            -e "swr_ak=${OBS_ACCESS_KEY}" \
-                            -e "swr_sk=${OBS_SECRET_KEY}" \
-                            -e "image_tag=1.0.0"
+
+                            # Ejecutar playbook con todas las credenciales
+                            ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \
+                                --extra-vars "ansible_host=${env.ecs_public_ip} \
+                                            app_dir=/opt/jenkins \
+                                            github_user=${GITHUB_USER} \
+                                            github_token=${GITHUB_TOKEN} \
+                                            hwc_access_key=${HWC_ACCESS_KEY} \
+                                            hwc_secret_key=${HWC_SECRET_KEY} \
+                                            jenkins_admin_id=alejandro \
+                                            jenkins_admin_password=ingE2004#"
                         '''
                     }
                 }

@@ -1,0 +1,101 @@
+---
+- name: Deploy Jenkins on ECS using Docker Compose
+  hosts: ecs
+  become: true
+
+  vars:
+    app_dir: /opt/jenkins
+    compose_file: docker-compose.yml
+
+  tasks:
+
+    # -----------------------------
+    # Sistema base
+    # -----------------------------
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - docker.io
+          - docker-compose-plugin
+          - python3-pip
+          - curl
+        state: present
+
+    - name: Ensure docker python sdk is installed
+      pip:
+        name: docker
+
+    - name: Enable and start Docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    # -----------------------------
+    # Directorio aplicación
+    # -----------------------------
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: "0755"
+
+    - name: Copy Jenkins files to ECS
+      synchronize:
+        src: ../
+        dest: "{{ app_dir }}"
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=ansible"
+      delegate_to: localhost
+
+    # -----------------------------
+    # Secrets como env vars
+    # -----------------------------
+    - name: Create secrets.env
+      copy:
+        dest: "{{ app_dir }}/secrets.env"
+        owner: ubuntu
+        group: ubuntu
+        mode: "0600"
+        content: |
+          GITHUB_TOKEN={{ github_token }}
+          HWC_ACCESS_KEY={{ hwc_access_key }}
+          HWC_SECRET_KEY={{ hwc_secret_key }}
+          JENKINS_ADMIN_ID={{ jenkins_admin_id }}
+          JENKINS_ADMIN_PASSWORD={{ jenkins_admin_password }}
+          GITHUB_USER={{ github_user }}
+      no_log: true
+
+    # -----------------------------
+    # Jenkins deploy
+    # -----------------------------
+    - name: Build and start Jenkins container
+      command: docker compose up -d --build
+      args:
+        chdir: "{{ app_dir }}"
+
+    # -----------------------------
+    # Health check
+    # -----------------------------
+    - name: Wait for Jenkins to be available
+      uri:
+        url: "http://{{ ansible_host }}:8080/login"
+        status_code: 200
+      register: jenkins_check
+      retries: 20
+      delay: 10
+      until: jenkins_check.status == 200
