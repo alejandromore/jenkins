@@ -3,6 +3,9 @@
   hosts: ecs
   become: true
 
+  collections:
+    - community.docker
+
   vars:
     app_dir: /opt/jenkins
     compose_file: docker-compose.yml
@@ -119,7 +122,7 @@
     # Jenkins deploy
     # -----------------------------
     - name: Build and start Jenkins container
-      community.docker.docker_compose_v2:
+      docker_compose_v2:
         project_src: "{{ app_dir }}"
         state: present
         build: always

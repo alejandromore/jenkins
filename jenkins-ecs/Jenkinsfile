@@ -124,7 +124,6 @@ pipeline {
 
                         sh """
                             set -e
-                            ansible-galaxy collection install community.docker
 
                             # Cargar PEM file
                             chmod 400 "${env.pem_file}"

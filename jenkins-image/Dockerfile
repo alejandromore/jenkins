@@ -92,6 +92,11 @@ RUN /opt/venv/bin/pip install --upgrade pip && \
         boto3
 
 # ===============================
+# Ansible collections
+# ===============================
+RUN /opt/venv/bin/ansible-galaxy collection install community.docker
+
+# ===============================
 # Permisos Jenkins
 # ===============================
 RUN chown -R jenkins:jenkins /opt/venv
