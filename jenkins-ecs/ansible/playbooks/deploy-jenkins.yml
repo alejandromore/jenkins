@@ -25,6 +25,7 @@
           - gnupg
           - lsb-release
           - software-properties-common
+          - rsync
         state: present
 
     - name: Add Docker GPG key
