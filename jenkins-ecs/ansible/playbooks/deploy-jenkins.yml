@@ -89,17 +89,13 @@
         group: ubuntu
         mode: "0755"
 
-    - name: Copy Jenkins files to ECS
-      synchronize:
-        src: ../
-        dest: "{{ app_dir }}"
-        rsync_opts:
-          - "--exclude=.git"
-          - "--exclude=ansible"
-          - "--exclude=.terraform"
-          - "--exclude=*.tfstate*"
-      delegate_to: localhost
-      become: false
+    - name: Copy docker files to ECS
+      copy:
+        src: ../../docker/
+        dest: "{{ app_dir }}/"
+        owner: ubuntu
+        group: ubuntu
+
 
     # -----------------------------
     # Secrets como env vars
@@ -123,16 +119,10 @@
     # Jenkins deploy
     # -----------------------------
     - name: Build and start Jenkins container
-      docker_compose:
+      community.docker.docker_compose_v2:
         project_src: "{{ app_dir }}"
         state: present
-        build: yes
-        # Para Ubuntu 24.04, docker-compose-plugin crea el comando 'docker compose' (con espacio)
-        # pero el módulo ansible docker_compose usa 'docker-compose' (con guión)
-        # Si hay problemas, usar este workaround:
-      # command: docker compose up -d --build
-      # args:
-      #   chdir: "{{ app_dir }}"
+        build: always
 
     # -----------------------------
     # Health check
