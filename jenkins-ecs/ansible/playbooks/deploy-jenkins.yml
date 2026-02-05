@@ -98,6 +98,7 @@
           - "--exclude=.terraform"
           - "--exclude=*.tfstate*"
       delegate_to: localhost
+      become: false
 
     # -----------------------------
     # Secrets como env vars
