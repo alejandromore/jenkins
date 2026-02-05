@@ -21,10 +21,14 @@
       apt:
         name:
           - docker.io
-          - docker-compose-plugin
           - python3-pip
           - curl
         state: present
+
+    - name: Install docker-compose
+      pip:
+        name: docker-compose
+        executable: pip3
 
     - name: Ensure docker python sdk is installed
       pip:
@@ -84,9 +88,10 @@
     # Jenkins deploy
     # -----------------------------
     - name: Build and start Jenkins container
-      command: docker compose up -d --build
-      args:
-        chdir: "{{ app_dir }}"
+      docker_compose:
+        project_src: "{{ app_dir }}"
+        state: present
+        build: yes
 
     # -----------------------------
     # Health check
