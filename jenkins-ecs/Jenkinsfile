@@ -98,53 +98,53 @@ pipeline {
 
 
 
-        stage('Deploy App with Ansible') {
+            stage('Deploy App with Ansible') {
 
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_ANSIBLE }
-                }
-            }
-
-            steps {
-                // Leer outputs generados previamente
-                script {
-                    env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
-                    echo "ECS Public IP: ${env.ecs_public_ip}"
-                    env.pem_file = "${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem"
+                when {
+                    allOf {
+                        expression { params.ACTION == 'deploy' }
+                        expression { params.RUN_ANSIBLE }
+                    }
                 }
 
-                dir(env.ANS_DIR) {
+                steps {
+                    // Leer outputs generados previamente
+                    script {
+                        env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
+                        echo "ECS Public IP: ${env.ecs_public_ip}"
+                        env.pem_file = "${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem"
+                    }
 
-                    withCredentials([
-                        usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN'),
-                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
-                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY')
-                    ]) {
+                    dir(env.ANS_DIR) {
 
-                        sh '''
-                            set -e
+                        withCredentials([
+                            usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN'),
+                            string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
+                            string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY')
+                        ]) {
 
-                            # Cargar PEM file
-                            chmod 400 "${env.pem_file}"
-                            ANSIBLE_PRIVATE_KEY_FILE="${env.pem_file}"
+                            sh """
+                                set -e
 
-                            # Ejecutar playbook con todas las credenciales
-                            ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \
-                                --extra-vars "ansible_host=${env.ecs_public_ip} \
-                                            app_dir=/opt/jenkins \
-                                            github_user=${GITHUB_USER} \
-                                            github_token=${GITHUB_TOKEN} \
-                                            hwc_access_key=${HWC_ACCESS_KEY} \
-                                            hwc_secret_key=${HWC_SECRET_KEY} \
-                                            jenkins_admin_id=alejandro \
-                                            jenkins_admin_password=ingE2004#"
-                        '''
+                                # Cargar PEM file
+                                chmod 400 "${env.pem_file}"
+                                export ANSIBLE_PRIVATE_KEY_FILE="${env.pem_file}"
+
+                                # Ejecutar playbook con todas las credenciales
+                                ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \\
+                                    --extra-vars "ansible_host=${env.ecs_public_ip} \\
+                                                app_dir=/opt/jenkins \\
+                                                github_user=${GITHUB_USER} \\
+                                                github_token=${GITHUB_TOKEN} \\
+                                                hwc_access_key=${HWC_ACCESS_KEY} \\
+                                                hwc_secret_key=${HWC_SECRET_KEY} \\
+                                                jenkins_admin_id=alejandro \\
+                                                jenkins_admin_password=ingE2004#"
+                            """
+                        }
                     }
                 }
             }
-        }
 
         stage('Terraform Destroy') {
             when {
