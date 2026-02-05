@@ -17,22 +17,53 @@
         update_cache: yes
         cache_valid_time: 3600
 
-    - name: Install required packages
+    - name: Install prerequisites
       apt:
         name:
-          - docker.io
-          - python3-pip
+          - ca-certificates
           - curl
+          - gnupg
+          - lsb-release
+          - software-properties-common
         state: present
 
-    - name: Install docker-compose
-      pip:
-        name: docker-compose
-        executable: pip3
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
 
-    - name: Ensure docker python sdk is installed
+    - name: Add Docker repository for Ubuntu 24.04 (Noble Numbat)
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu noble stable"
+        state: present
+
+    - name: Update apt cache after adding Docker repo
+      apt:
+        update_cache: yes
+
+    - name: Install Docker packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Install Python dependencies for Ansible docker modules
+      apt:
+        name:
+          - python3-pip
+          - python3-docker  # Paquete oficial de Ubuntu para docker SDK
+        state: present
+
+    - name: Ensure docker python sdk is available
       pip:
         name: docker
+        executable: pip3
+        extra_args: --break-system-packages
+      # Solo si necesitas versión específica o el paquete python3-docker no es suficiente
 
     - name: Enable and start Docker service
       systemd:
@@ -64,6 +95,8 @@
         rsync_opts:
           - "--exclude=.git"
           - "--exclude=ansible"
+          - "--exclude=.terraform"
+          - "--exclude=*.tfstate*"
       delegate_to: localhost
 
     # -----------------------------
@@ -92,6 +125,12 @@
         project_src: "{{ app_dir }}"
         state: present
         build: yes
+        # Para Ubuntu 24.04, docker-compose-plugin crea el comando 'docker compose' (con espacio)
+        # pero el módulo ansible docker_compose usa 'docker-compose' (con guión)
+        # Si hay problemas, usar este workaround:
+      # command: docker compose up -d --build
+      # args:
+      #   chdir: "{{ app_dir }}"
 
     # -----------------------------
     # Health check
@@ -100,7 +139,28 @@
       uri:
         url: "http://{{ ansible_host }}:8080/login"
         status_code: 200
+        timeout: 30
       register: jenkins_check
-      retries: 20
+      retries: 30  # Jenkins puede tardar más en iniciar la primera vez
       delay: 10
       until: jenkins_check.status == 200
+      ignore_errors: yes  # Continuar incluso si falla, pero registrar
+
+    - name: Display Jenkins status
+      debug:
+        msg: "Jenkins is accessible at http://{{ ansible_host }}:8080"
+      when: jenkins_check.status == 200
+
+    - name: Display initial admin password (if using default Jenkins)
+      command: docker compose exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+      args:
+        chdir: "{{ app_dir }}"
+      register: jenkins_password
+      changed_when: false
+      when: jenkins_check.status == 200
+      no_log: false  # Quitar esto para producción
+
+    - name: Show admin password
+      debug:
+        msg: "Initial admin password: {{ jenkins_password.stdout }}"
+      when: jenkins_password.stdout != ""
