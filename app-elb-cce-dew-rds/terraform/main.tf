@@ -266,7 +266,7 @@ resource "huaweicloud_lb_loadbalancer" "elb_public" {
 }
 
 resource "time_sleep" "after_eip_detach" {
-  depends_on = [huaweicloud_vpc_eip_associate.this]
+  depends_on = [huaweicloud_vpc_eip_associate.eip_1]
   destroy_duration = "45s"
 }
 
