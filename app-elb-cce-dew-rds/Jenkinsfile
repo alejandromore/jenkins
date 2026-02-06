@@ -103,6 +103,14 @@ pipeline {
                                 script: 'terraform output -raw rds_postgres_password',
                                 returnStdout: true
                             ).trim()
+                            env.db_password = sh(
+                                script: 'terraform output -raw elb_public_id',
+                                returnStdout: true
+                            ).trim()
+                            env.db_password = sh(
+                                script: 'terraform output -raw elb_public_ip',
+                                returnStdout: true
+                            ).trim()
                         }
 
                         writeFile file: "${WORKSPACE}/cluster_id.txt", text: env.cluster_id
