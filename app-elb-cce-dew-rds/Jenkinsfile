@@ -35,6 +35,7 @@ pipeline {
         HELM_DIR = 'app-elb-cce-dew-rds/helm'
         ANS_DIR  = 'app-elb-cce-dew-rds/ansible'
         DUMP_DB  = 'obs://obs-alejandro-db-dumps/pg-cliente-dump.sql'
+        REGION   = 'la-south-2'
     }
 
     stages {
@@ -138,47 +139,12 @@ pipeline {
                             obsutil config \
                               -i "$OBS_ACCESS_KEY" \
                               -k "$OBS_SECRET_KEY" \
-                              -e obs.la-south-2.myhuaweicloud.com
+                              -e obs.$REGION.myhuaweicloud.com
 
                             obsutil cp "$DUMP_DB" db_dump.sql -f
 
                             ansible-playbook -i inventory/hosts playbooks/restore-db.yml \
                               --extra-vars "db_dump_file=db_dump.sql db_host=$rds_public_ip db_password=$db_password"
-                            '''
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Get kubeconfig') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_HELM }
-                }
-            }
-            environment {
-                HUAWEICLOUD_REGION = 'la-south-2'
-            }
-            steps {
-                script {
-                    env.cluster_id = readFile("${WORKSPACE}/cluster_id.txt").trim()
-                }
-
-                withCredentials([
-                    string(credentialsId: 'hwc-access-key', variable: 'HUAWEICLOUD_ACCESS_KEY'),
-                    string(credentialsId: 'hwc-secret-key', variable: 'HUAWEICLOUD_SECRET_KEY')
-                ]) {
-                    ansiColor('xterm') {
-                        dir(env.HELM_DIR) {
-                            sh '''
-                            hcloud cce cluster get-kubeconfig \
-                              --cluster-id "$cluster_id" \
-                              --file ./kubeconfig.yaml \
-                              --region "$HUAWEICLOUD_REGION"
-
-                            chmod 600 kubeconfig.yaml
                             '''
                         }
                     }
@@ -195,15 +161,11 @@ pipeline {
             }
             steps {
                 ansiColor('xterm') {
-                    withEnv(["KUBECONFIG=${env.HELM_DIR}/kubeconfig.yaml"]) {
-                        dir(env.HELM_DIR) {
-                            sh '''
-                            helm upgrade --install app-basic-java helm/java-app \
-                              -n app-basic \
-                              --create-namespace \
-                              --wait
-                            '''
-                        }
+                    withCredentials([file(credentialsId: 'cce-kubeconfig', variable: 'KUBECONFIG')]) {
+                        sh '''
+                        export KUBECONFIG=$KUBECONFIG
+                        kubectl get nodes
+                        '''
                     }
                 }
             }
