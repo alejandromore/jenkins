@@ -121,11 +121,10 @@
     # -----------------------------
     # Jenkins deploy
     # -----------------------------
-    - name: Build and start Jenkins container
-      docker_compose_v2:
-        project_src: "{{ app_dir }}"
-        state: present
-        build: always
+    - name: Build and deploy with Docker Compose
+      command: docker compose up -d --build
+      args:
+        chdir: /opt/jenkins
 
     # -----------------------------
     # Health check
