@@ -19,7 +19,7 @@ vpc_name                          = "vpc-jenkins"
 vpc_cidr                          = "10.2.0.0/16"
 dns_list                          = ["100.125.1.250", "100.125.21.250"]
 
-vpc_subnet_public_name            = "vpc-subnet-jenkins-public"
+vpc_subnet_public_name            = "vpc-subnet-app-public"
 vpc_subnet_public_cidr            = "10.2.32.0/19"
 vpc_subnet_public_gateway_ip      = "10.2.32.1"
 
