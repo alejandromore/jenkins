@@ -167,7 +167,7 @@ pipeline {
                             export KUBECONFIG=$KUBECONFIG
                             kubectl get nodes
 
-                            helm upgrade --install app-basic-java helm/java-app \
+                            helm upgrade --install app-basic-java . \
                             -n app-basic \
                             --create-namespace \
                             --wait
