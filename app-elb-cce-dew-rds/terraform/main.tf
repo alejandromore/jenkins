@@ -263,17 +263,10 @@ resource "huaweicloud_lb_loadbalancer" "elb_public" {
   vip_subnet_id      = module.subnet_public.ipv4_subnet_id
   security_group_ids = [module.sg_public.security_group_id]
   tags               = var.tags
-
-  depends_on = [
-    time_sleep.wait_before_elb_delete
-  ]
 }
 
-resource "time_sleep" "wait_before_elb_delete" {
-  depends_on = [
-    huaweicloud_vpc_eip_associate.eip_1
-  ]
-
+resource "time_sleep" "after_eip_detach" {
+  depends_on = [huaweicloud_vpc_eip_associate.this]
   destroy_duration = "45s"
 }
 
