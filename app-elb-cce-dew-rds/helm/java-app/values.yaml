@@ -23,7 +23,8 @@ service:
   targetPort: 8081    # Puerto interno del contenedor
 
 elb:
-  id: "c1cb8fdd-4d80-42c0-94d2-9436854c1595"
+  #id: "c1cb8fdd-4d80-42c0-94d2-9436854c1595"
+  id: ""
   type: performance
   bandwidth: 5
   eipType: "5_bgp"

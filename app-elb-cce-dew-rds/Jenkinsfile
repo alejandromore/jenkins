@@ -108,6 +108,7 @@ pipeline {
                         writeFile file: "${WORKSPACE}/cluster_id.txt", text: env.cluster_id
                         writeFile file: "${WORKSPACE}/rds_public_ip.txt", text: env.rds_public_ip
                         writeFile file: "${WORKSPACE}/db_password.txt", text: env.db_password
+                        writeFile file: "${WORKSPACE}/elb_public_id.txt", text: env.elb_public_id
                     }
                 }
             }
@@ -161,6 +162,10 @@ pipeline {
             }
             steps {
                 ansiColor('xterm') {
+                    script {
+                        env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    }
+
                     dir(env.HELM_DIR) {
                         withCredentials([file(credentialsId: 'cce-kubeconfig', variable: 'KUBECONFIG')]) {
                             sh '''
@@ -170,7 +175,8 @@ pipeline {
                             helm upgrade --install app-basic-java ./java-app \
                             -n app-basic \
                             --create-namespace \
-                            --wait
+                            --wait \
+                            --set elb.id=${elb_public_id}
                             '''
                         }
                     }
