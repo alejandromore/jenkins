@@ -3,7 +3,6 @@ pipeline {
 
     options {
         disableConcurrentBuilds()
-        ansiColor('xterm')
     }
 
     parameters {
@@ -48,17 +47,16 @@ pipeline {
 
         stage('Terraform Init') {
             when {
-                allOf {
-                    expression { params.RUN_TERRAFORM }
-                    expression { params.ACTION in ['deploy', 'destroy'] }
-                }
+                expression { params.RUN_TERRAFORM }
             }
             steps {
-                dir(env.TF_DIR) {
-                sh '''
-                    rm -rf .terraform
-                    terraform init
-                '''
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        sh '''
+                        rm -rf .terraform
+                        terraform init
+                        '''
+                    }
                 }
             }
         }
@@ -71,8 +69,10 @@ pipeline {
                 }
             }
             steps {
-                dir(env.TF_DIR) {
-                    sh 'terraform plan -var-file="local.tfvars"'
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        sh 'terraform plan -var-file="local.tfvars"'
+                    }
                 }
             }
         }
@@ -85,28 +85,29 @@ pipeline {
                 }
             }
             steps {
-                dir(env.TF_DIR) {
-                    script {
-                        sh 'terraform apply -auto-approve -var-file="local.tfvars"'
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        script {
+                            sh 'terraform apply -auto-approve -var-file="local.tfvars"'
 
-                        env.cluster_id = sh(
-                            script: 'terraform output -raw cluster_id',
-                            returnStdout: true
-                        ).trim()
-                        env.rds_public_ip = sh(
-                            script: 'terraform output -raw rds_public_ip',
-                            returnStdout: true
-                        ).trim()
-                        env.db_password = sh(
-                            script: 'terraform output -raw rds_postgres_password',
-                            returnStdout: true
-                        ).trim()
+                            env.cluster_id = sh(
+                                script: 'terraform output -raw cluster_id',
+                                returnStdout: true
+                            ).trim()
+                            env.rds_public_ip = sh(
+                                script: 'terraform output -raw rds_public_ip',
+                                returnStdout: true
+                            ).trim()
+                            env.db_password = sh(
+                                script: 'terraform output -raw rds_postgres_password',
+                                returnStdout: true
+                            ).trim()
+                        }
+
+                        writeFile file: "${WORKSPACE}/cluster_id.txt", text: env.cluster_id
+                        writeFile file: "${WORKSPACE}/rds_public_ip.txt", text: env.rds_public_ip
+                        writeFile file: "${WORKSPACE}/db_password.txt", text: env.db_password
                     }
-
-                    // Pruebas: Guardar en archivos locales (workspace)
-                    writeFile file: "${WORKSPACE}/cluster_id.txt", text: env.cluster_id
-                    writeFile file: "${WORKSPACE}/rds_public_ip.txt", text: env.rds_public_ip
-                    writeFile file: "${WORKSPACE}/db_password.txt", text: env.db_password
                 }
             }
         }
@@ -119,45 +120,32 @@ pipeline {
                 }
             }
             steps {
-                // Leer outputs generados previamente
                 script {
                     env.rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
                     env.db_password   = readFile("${WORKSPACE}/db_password.txt").trim()
                 }
 
-                // Inyectar AK / SK desde Jenkins Credentials
                 withCredentials([
                     string(credentialsId: 'hwc-access-key', variable: 'OBS_ACCESS_KEY'),
                     string(credentialsId: 'hwc-secret-key', variable: 'OBS_SECRET_KEY')
                 ]) {
-                    dir(env.ANS_DIR) {
-                        sh '''
-                        set -eo pipefail
+                    ansiColor('xterm') {
+                        dir(env.ANS_DIR) {
+                            sh '''
+                            set -eo pipefail
+                            export HOME=$(mktemp -d)
 
-                        # Crear home temporal para obsutil
-                        export HOME=$(mktemp -d)
+                            obsutil config \
+                              -i "$OBS_ACCESS_KEY" \
+                              -k "$OBS_SECRET_KEY" \
+                              -e obs.la-south-2.myhuaweicloud.com
 
-                        echo "Starting DB restore"
-                        echo "Target DB host: $rds_public_ip"
-
-                        # Configurar obsutil
-                        obsutil config \
-                        -i "$OBS_ACCESS_KEY" \
-                        -k "$OBS_SECRET_KEY" \
-                        -e obs.la-south-2.myhuaweicloud.com
-
-                        # Descargar dump solo si no existe
-                        if [ ! -s db_dump.sql ]; then
                             obsutil cp "$DUMP_DB" db_dump.sql -f
-                        fi
 
-                        # Verificar que el dump existe
-                        test -s db_dump.sql || exit 1
-
-                        # Ejecutar playbook
-                        ansible-playbook -i inventory/hosts playbooks/restore-db.yml \
-                            --extra-vars "db_dump_file=db_dump.sql db_host=$rds_public_ip db_password=$db_password"
-                        '''
+                            ansible-playbook -i inventory/hosts playbooks/restore-db.yml \
+                              --extra-vars "db_dump_file=db_dump.sql db_host=$rds_public_ip db_password=$db_password"
+                            '''
+                        }
                     }
                 }
             }
@@ -174,35 +162,29 @@ pipeline {
                 HUAWEICLOUD_REGION = 'la-south-2'
             }
             steps {
-                // Leer outputs generados previamente
                 script {
                     env.cluster_id = readFile("${WORKSPACE}/cluster_id.txt").trim()
                 }
 
-                // Exportar kubeconfig
                 withCredentials([
                     string(credentialsId: 'hwc-access-key', variable: 'HUAWEICLOUD_ACCESS_KEY'),
                     string(credentialsId: 'hwc-secret-key', variable: 'HUAWEICLOUD_SECRET_KEY')
                 ]) {
-                    dir(env.HELM_DIR) {
-                        sh '''
-                        set -euo pipefail
+                    ansiColor('xterm') {
+                        dir(env.HELM_DIR) {
+                            sh '''
+                            hcloud cce cluster get-kubeconfig \
+                              --cluster-id "$cluster_id" \
+                              --file ./kubeconfig.yaml \
+                              --region "$HUAWEICLOUD_REGION"
 
-                        echo "Generating kubeconfig for CCE cluster: $cluster_id"
-
-                        # Forzar aceptación del disclaimer (única forma soportada)
-                        hcloud cce cluster get-kubeconfig \
-                        --cluster-id "$cluster_id" \
-                        --file ./kubeconfig.yaml \
-                        --region "$HUAWEICLOUD_REGION"
-
-                        chmod 600 kubeconfig.yaml
-                        '''
+                            chmod 600 kubeconfig.yaml
+                            '''
+                        }
                     }
                 }
             }
         }
-
 
         stage('Helm Deploy App') {
             when {
@@ -212,21 +194,16 @@ pipeline {
                 }
             }
             steps {
-
-                withEnv([
-                    "KUBECONFIG=${env.HELM_DIR}/kubeconfig.yaml"
-                ]) {
-                    dir(env.HELM_DIR) {
-                        sh '''
-                        set -euo pipefail
-
-                        echo "Deploying application with Helm"
-
-                        helm upgrade --install app-basic-java helm/java-app \
-                            -n app-basic \
-                            --create-namespace \
-                            --wait
-                        '''
+                ansiColor('xterm') {
+                    withEnv(["KUBECONFIG=${env.HELM_DIR}/kubeconfig.yaml"]) {
+                        dir(env.HELM_DIR) {
+                            sh '''
+                            helm upgrade --install app-basic-java helm/java-app \
+                              -n app-basic \
+                              --create-namespace \
+                              --wait
+                            '''
+                        }
                     }
                 }
             }
@@ -240,8 +217,10 @@ pipeline {
                 }
             }
             steps {
-                dir(env.TF_DIR) {
-                    sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
+                    }
                 }
             }
         }
@@ -254,8 +233,5 @@ pipeline {
         failure {
             echo "Error en el pipeline"
         }
-        //always {
-        //    deleteDir()
-        //}
     }
 }
