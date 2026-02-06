@@ -127,13 +127,13 @@ pipeline {
 
                             # Cargar PEM file
                             chmod 400 "${env.pem_file}"
-                            export ANSIBLE_PRIVATE_KEY_FILE="${env.pem_file}"
 
                             # Deshabilitar host key checking
                             export ANSIBLE_HOST_KEY_CHECKING=False
 
                             # Ejecutar playbook con todas las credenciales
                             ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \\
+                                --private-key "$pem_file" \\
                                 --extra-vars "ansible_host=${env.ecs_public_ip} \\
                                             app_dir=/opt/jenkins \\
                                             github_user=${GITHUB_USER} \\
