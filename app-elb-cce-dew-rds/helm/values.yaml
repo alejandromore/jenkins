@@ -13,14 +13,21 @@ imagePullSecrets:
 app:
   name: wl-java-app
   version: v1
-  containerPort: 8081
+  containerPort: 8081  # Puerto interno del contenedor
   healthPath: /app-java/healthCheck
 
 service:
   name: sr-java-app
-  type: ClusterIP
-  port: 8081         # Puerto interno del Service
-  targetPort: 8081   # Puerto del contenedor
+  type: LoadBalancer
+  port: 80            # Puerto externo del ELB (acceso público)
+  targetPort: 8081    # Puerto interno del contenedor
+
+elb:
+  id: "c1cb8fdd-4d80-42c0-94d2-9436854c1595"
+  type: performance
+  bandwidth: 5
+  eipType: "5_bgp"
+  bandwidthShareType: "PER"
 
 resources:
   requests:

@@ -5,8 +5,14 @@ metadata:
   labels:
     app: {{ .Values.app.name }}
     version: {{ .Values.app.version }}
+  annotations:
+    kubernetes.io/elb.class: union
+    kubernetes.io/elb.id: {{ .Values.elb.id | quote }}
+    kubernetes.io/elb.lb-algorithm: ROUND_ROBIN
+    kubernetes.io/elb.health-check-flag: "on"
+
 spec:
-  type: {{ .Values.app.type }}
+  type: LoadBalancer
   selector:
     app: {{ .Values.app.name }}
     version: {{ .Values.app.version }}
@@ -14,4 +20,3 @@ spec:
     - name: http
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
-      protocol: TCP

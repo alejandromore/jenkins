@@ -34,7 +34,7 @@ spec:
             httpGet:
               path: {{ .Values.app.healthPath }}
               port: {{ .Values.app.containerPort }}
-            initialDelaySeconds: 180
+            initialDelaySeconds: 60
             periodSeconds: 20
             timeoutSeconds: 2
             failureThreshold: 5
@@ -43,7 +43,7 @@ spec:
             httpGet:
               path: {{ .Values.app.healthPath }}
               port: {{ .Values.app.containerPort }}
-            initialDelaySeconds: 90
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 3
@@ -52,10 +52,10 @@ spec:
             httpGet:
               path: {{ .Values.app.healthPath }}
               port: {{ .Values.app.containerPort }}
-            initialDelaySeconds: 60
+            initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 2
-            failureThreshold: 12   # 60 + (12×10) = 180s
+            failureThreshold: 12   # 20 + (12×10) = 140s
 
           env:
           - name: JAVA_OPTS
