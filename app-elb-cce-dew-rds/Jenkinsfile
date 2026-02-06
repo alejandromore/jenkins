@@ -161,11 +161,18 @@ pipeline {
             }
             steps {
                 ansiColor('xterm') {
-                    withCredentials([file(credentialsId: 'cce-kubeconfig', variable: 'KUBECONFIG')]) {
-                        sh '''
-                        export KUBECONFIG=$KUBECONFIG
-                        kubectl get nodes
-                        '''
+                    dir(env.HELM_DIR) {
+                        withCredentials([file(credentialsId: 'cce-kubeconfig', variable: 'KUBECONFIG')]) {
+                            sh '''
+                            export KUBECONFIG=$KUBECONFIG
+                            kubectl get nodes
+
+                            helm upgrade --install app-basic-java helm/java-app \
+                            -n app-basic \
+                            --create-namespace \
+                            --wait
+                            '''
+                        }
                     }
                 }
             }
