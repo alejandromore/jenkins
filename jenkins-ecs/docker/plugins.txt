@@ -2,6 +2,7 @@
 workflow-aggregator
 pipeline-model-definition
 pipeline-stage-view
+ansicolor
 
 # Cloud & Containers
 kubernetes
