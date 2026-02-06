@@ -18,7 +18,7 @@ pipeline {
         )
         booleanParam(
             name: 'RUN_ANSIBLE',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Instalar Docker e imagen Jenkins'
         )
     }
