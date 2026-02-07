@@ -52,7 +52,11 @@ pipeline {
                         dir: env.TF_DIR,
                         varsFile: 'local.tfvars',
                         action: params.ACTION,
-                        outputs: ['cce_public_ip', 'elb_public_ip']   // aquí defines qué outputs capturar
+                        outputs: [
+                            'cce_public_ip', 
+                            'elb_public_ip', 
+                            'elb_public_id'
+                        ]   // aquí defines qué outputs capturar
                     )
 
                 }

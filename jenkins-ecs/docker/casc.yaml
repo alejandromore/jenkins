@@ -21,3 +21,10 @@ credentials:
               scope: GLOBAL
               secret: ${HWC_SECRET_KEY}
               description: Huawei Cloud Secret Key
+
+          - file:
+              id: cce-kubeconfig
+              scope: GLOBAL
+              fileName: kubeconfig
+              secretBytes: ""
+              description: CCE Kubeconfig file
