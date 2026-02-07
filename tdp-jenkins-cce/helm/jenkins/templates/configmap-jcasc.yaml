@@ -4,4 +4,4 @@ metadata:
   name: {{ .Release.Name }}-jcasc
 data:
   jcasc.yaml: |
-{{ .Files.Get "jcasc.yaml" | indent 4 }}
+{{ .Values.jcasc | indent 4 }}

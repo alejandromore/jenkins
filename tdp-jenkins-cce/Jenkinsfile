@@ -63,6 +63,37 @@ pipeline {
             }
         }
 
+        stage('Build Jenkins Docker') {
+            when {
+                expression { params.RUN_HELM }
+            }
+            agent {
+                docker {
+                    image 'docker:24-dind'  // contenedor con Docker
+                    args '--privileged'
+                }
+            }
+            steps {
+                ansiColor('xterm') {
+                    dir("${HELM_DIR}") {
+                        script {
+                            sh """
+                                echo "=========================================="
+                                echo "Login en el registry de Huawei Cloud..."
+                                echo "=========================================="
+                                docker login la-south-2.swr.myhuaweicloud.com -u ${env.TF_VAR_access_key} -p ${env.TF_VAR_secret_key}
+
+                                echo "=========================================="
+                                echo "Build and push de la imagen Docker personalizada..."
+                                echo "=========================================="
+                                docker build -t la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1 -f docker/Dockerfile docker/
+                                docker push la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1
+                            """
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Deploy Jenkins to CCE') {
             when {
@@ -79,49 +110,48 @@ pipeline {
                         echo "ELB ID  : ${env.elb_public_id}"
                         echo "ELB IP  : ${env.elb_public_ip}"
 
-                        withCredentials([
-                            file(credentialsId: config.kubeconfigCred, variable: 'KUBECONFIG')
-                        ]) {
+                        withCredentials([file(credentialsId: config.kubeconfigCred, variable: 'KUBECONFIG')]) {
 
-                            sh """
-                                export KUBECONFIG=\$KUBECONFIG
+                            dir("${HELM_DIR}") {
 
-                                echo "=========================================="
-                                echo "Validando acceso al cluster CCE..."
-                                echo "=========================================="
-                                kubectl get nodes
+                                sh """
+                                    export KUBECONFIG=\$KUBECONFIG
 
-                                echo "=========================================="
-                                echo "Creando namespace jenkins..."
-                                echo "=========================================="
-                                kubectl create namespace jenkins || true
+                                    echo "=========================================="
+                                    echo "Validando acceso al cluster CCE..."
+                                    echo "=========================================="
+                                    kubectl get nodes
 
-                                echo "=========================================="
-                                echo "Validando Helm chart..."
-                                echo "=========================================="
-                                helm lint ./jenkins
+                                    echo "=========================================="
+                                    echo "Creando namespace jenkins..."
+                                    echo "=========================================="
+                                    kubectl create namespace jenkins || true
 
-                                echo "=========================================="
-                                echo "Desplegando Jenkins (chart propio)..."
-                                echo "=========================================="
-                                helm upgrade --install jenkins ./jenkins \\
-                                    -n jenkins \\
-                                    -f helm/jenkins/values.yaml \\
-                                    --set service.annotations."kubernetes\\.io/elb\\.id"=${env.elb_public_id}
+                                    echo "=========================================="
+                                    echo "Linting Helm chart..."
+                                    echo "=========================================="
+                                    helm lint .
 
-                                echo "=========================================="
-                                echo "Esperando rollout..."
-                                echo "=========================================="
-                                kubectl rollout status deployment/jenkins-jenkins -n jenkins
-                            """
+                                    echo "=========================================="
+                                    echo "Desplegando Jenkins (imagen custom)..."
+                                    echo "=========================================="
+                                    helm upgrade --install jenkins ./jenkins \\
+                                        -n jenkins \\
+                                        -f values.yaml \\
+                                        --set service.annotations."kubernetes\\.io/elb\\.id"=${env.elb_public_id}
+
+                                    echo "=========================================="
+                                    echo "Esperando rollout..."
+                                    echo "=========================================="
+                                    kubectl rollout status deployment/jenkins-jenkins -n jenkins
+                                """
+                            }
                         }
                     }
                 }
             }
         }
 
-
-    }
 
     post {
         success {

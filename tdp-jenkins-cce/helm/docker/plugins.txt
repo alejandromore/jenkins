@@ -1,11 +1,10 @@
-kubernetes
 workflow-aggregator
-pipeline-stage-view
 git
-docker-workflow
-credentials-binding
+ssh-slaves
 ssh-agent
+credentials-binding
 configuration-as-code
 blueocean
+docker-workflow
 terraform
 ansible

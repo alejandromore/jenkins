@@ -1,8 +1,8 @@
 replicaCount: 1
 
 image:
-  repository: jenkins/jenkins
-  tag: lts
+  repository: la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh
+  tag: 2.452.1
   pullPolicy: IfNotPresent
 
 service:
@@ -12,7 +12,7 @@ service:
   annotations:
     kubernetes.io/elb.class: "performance"
     kubernetes.io/elb.autocreate: "true"
-    kubernetes.io/elb.id: ""   # lo seteas por --set
+    kubernetes.io/elb.id: ""
 
 resources:
   requests:
@@ -31,8 +31,18 @@ persistence:
 env:
   JAVA_OPTS: "-Xms512m -Xmx1024m"
 
-nodeSelector: {}
+jcasc: |
+  jenkins:
+    systemMessage: "Jenkins Huawei CCE - SSH Ephemeral Agents"
+    numExecutors: 0
 
-tolerations: []
-
-affinity: {}
+    nodes:
+      - permanent:
+          name: "ssh-agent-template"
+          remoteFS: "/home/jenkins"
+          launcher:
+            ssh:
+              host: "dynamic-host"
+              port: 22
+              credentialsId: "ssh-credentials"
+              sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"

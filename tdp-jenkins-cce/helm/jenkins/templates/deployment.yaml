@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "jenkins.fullname" . }}
+  name: {{ .Release.Name }}-jenkins
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "jenkins.name" . }}
+      app: jenkins
   template:
     metadata:
       labels:
-        app: {{ include "jenkins.name" . }}
+        app: jenkins
     spec:
       containers:
         - name: jenkins
@@ -20,23 +20,19 @@ spec:
           env:
             - name: CASC_JENKINS_CONFIG
               value: /var/jenkins_home/casc_configs/jcasc.yaml
+            - name: JAVA_OPTS
+              value: "{{ .Values.env.JAVA_OPTS }}"
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+{{ toYaml .Values.resources | indent 12 }}
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
             - name: jcasc-config
               mountPath: /var/jenkins_home/casc_configs
-            - name: plugins-config
-              mountPath: /usr/share/jenkins/ref/plugins.txt
-              subPath: plugins.txt
       volumes:
         - name: jenkins-home
           persistentVolumeClaim:
-            claimName: {{ include "jenkins.fullname" . }}
+            claimName: {{ .Release.Name }}-jenkins
         - name: jcasc-config
           configMap:
             name: {{ .Release.Name }}-jcasc
-        - name: plugins-config
-          configMap:
-            name: {{ .Release.Name }}-plugins
