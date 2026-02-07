@@ -13,18 +13,17 @@ imagePullSecrets:
 app:
   name: wl-java-app
   version: v1
-  containerPort: 8081  # Puerto interno del contenedor
-  healthPath: /app-java/healthCheck
+  containerPort: 8081
+  healthPath: /app-java/healthCheck   # Se puede sobrescribir desde Jenkins
 
 service:
   name: sr-java-app
   type: LoadBalancer
-  port: 80            # Puerto externo del ELB (acceso público)
-  targetPort: 8081    # Puerto interno del contenedor
+  port: 80
+  targetPort: 8081
 
 elb:
-  #id: "c1cb8fdd-4d80-42c0-94d2-9436854c1595"
-  id: ""
+  id: ""                # Se inyecta dinámicamente desde Jenkins
   type: performance
   bandwidth: 5
   eipType: "5_bgp"

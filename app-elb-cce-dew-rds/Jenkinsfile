@@ -1,3 +1,5 @@
+@Library('shared-lib') _
+
 pipeline {
     agent any
 
@@ -46,84 +48,31 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform Deploy') {
             when {
                 expression { params.RUN_TERRAFORM }
             }
             steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh '''
-                        rm -rf .terraform
-                        terraform init
-                        '''
-                    }
+                script {
+
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: [
+                            'cluster_id', 
+                            'rds_public_ip', 
+                            'rds_postgres_password', 
+                            'elb_public_id', 
+                            'elb_public_ip'
+                        ]   // aquí defines qué outputs capturar
+                    )
+
                 }
             }
         }
 
-        stage('Terraform Plan') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh 'terraform plan -var-file="local.tfvars"'
-                    }
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        script {
-                            sh 'terraform apply -auto-approve -var-file="local.tfvars"'
-
-                            env.cluster_id = sh(
-                                script: 'terraform output -raw cluster_id',
-                                returnStdout: true
-                            ).trim()
-                            env.rds_public_ip = sh(
-                                script: 'terraform output -raw rds_public_ip',
-                                returnStdout: true
-                            ).trim()
-                            env.db_password = sh(
-                                script: 'terraform output -raw rds_postgres_password',
-                                returnStdout: true
-                            ).trim()
-                            env.elb_public_id = sh(
-                                script: 'terraform output -raw elb_public_id',
-                                returnStdout: true
-                            ).trim()
-                            env.elb_public_ip = sh(
-                                script: 'terraform output -raw elb_public_ip',
-                                returnStdout: true
-                            ).trim()
-                        }
-
-                        writeFile file: "${WORKSPACE}/cluster_id.txt", text: env.cluster_id
-                        writeFile file: "${WORKSPACE}/rds_public_ip.txt", text: env.rds_public_ip
-                        writeFile file: "${WORKSPACE}/db_password.txt", text: env.db_password
-                        writeFile file: "${WORKSPACE}/elb_public_id.txt", text: env.elb_public_id
-                        writeFile file: "${WORKSPACE}/elb_public_ip.txt", text: env.elb_public_ip
-                    }
-                }
-            }
-        }
-
-        stage('Restore Database (Ansible)') {
+        stage('Restore Database') {
             when {
                 allOf {
                     expression { params.ACTION == 'deploy' }
@@ -132,37 +81,47 @@ pipeline {
             }
             steps {
                 script {
-                    env.rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
-                    env.db_password   = readFile("${WORKSPACE}/db_password.txt").trim()
-                }
 
-                withCredentials([
-                    string(credentialsId: 'hwc-access-key', variable: 'OBS_ACCESS_KEY'),
-                    string(credentialsId: 'hwc-secret-key', variable: 'OBS_SECRET_KEY')
-                ]) {
-                    ansiColor('xterm') {
-                        dir(env.ANS_DIR) {
-                            sh '''
-                            set -eo pipefail
-                            export HOME=$(mktemp -d)
+                    ansibleRestoreDb(
+                        dir: env.ANS_DIR,
+                        dump: env.DUMP_DB,
+                        dbHost: env.rds_public_ip,
+                        dbPassword: env.rds_postgres_password,
+                        accessKeyCred: 'hwc-access-key',
+                        secretKeyCred: 'hwc-secret-key'
+                    )
 
-                            obsutil config \
-                              -i "$OBS_ACCESS_KEY" \
-                              -k "$OBS_SECRET_KEY" \
-                              -e obs.$REGION.myhuaweicloud.com
-
-                            obsutil cp "$DUMP_DB" db_dump.sql -f
-
-                            ansible-playbook -i inventory/hosts playbooks/restore-db.yml \
-                              --extra-vars "db_dump_file=db_dump.sql db_host=$rds_public_ip db_password=$db_password"
-                            '''
-                        }
-                    }
                 }
             }
         }
 
-        stage('Helm Deploy App') {
+        stage('Restore Database') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE }
+                }
+            }
+            steps {
+                script {
+
+                    // Leer outputs generados por terraformDeploy
+                    env.rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
+                    env.rds_postgres_password = readFile("${WORKSPACE}/rds_postgres_password.txt").trim()
+
+                    ansibleRestoreDb(
+                        dir: env.ANS_DIR,
+                        dump: env.DUMP_DB,
+                        dbHost: env.rds_public_ip,
+                        dbPassword: env.rds_postgres_password,
+                        accessKeyCred: 'hwc-access-key',
+                        secretKeyCred: 'hwc-secret-key'
+                    )
+                }
+            }
+        }
+
+        stage('Helm Deploy Application') {
             when {
                 allOf {
                     expression { params.ACTION == 'deploy' }
@@ -170,59 +129,26 @@ pipeline {
                 }
             }
             steps {
-                ansiColor('xterm') {
-                    script {
-                        env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
-                        env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
-                    }
+                script {
 
-                    dir(env.HELM_DIR) {
-                        withCredentials([file(credentialsId: 'cce-kubeconfig', variable: 'KUBECONFIG')]) {
-                            sh '''
-                            export KUBECONFIG=$KUBECONFIG
+                    env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
 
-                            echo "Checking cluster access..."
-                            kubectl get nodes
-
-                            echo "Deploying Helm chart..."
-                            helm upgrade --install app-basic-java ./java-app \
-                            -n app-basic \
-                            --create-namespace \
-                            --wait \
-                            --set elb.id=$elb_public_id
-
-                            echo "Waiting for application to be ready..."
-                            for i in {1..20}; do
-                            echo "Health check attempt $i..."
-                            if curl -sf http://$elb_public_ip/app-java/healthCheck; then
-                                echo "Application is UP"
-                                exit 0
-                            fi
-                            sleep 10
-                            done
-
-                            '''
-                        }
-                    }
+                    helmDeployApp(
+                        dir: env.HELM_DIR,
+                        chartDir: 'java-app',
+                        kubeconfigCred: 'cce-kubeconfig',
+                        elbId: env.elb_public_id,
+                        elbIp: env.elb_public_ip,
+                        releaseName: 'app-basic-java',
+                        namespace: 'app-basic',
+                        healthEndpoint: '/app-java/healthCheck',
+                        timeoutSeconds: 200
+                    )
                 }
             }
         }
 
-        stage('Terraform Destroy') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'destroy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
-                    }
-                }
-            }
-        }
     }
 
     post {
