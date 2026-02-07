@@ -47,7 +47,6 @@ pipeline {
             }
             steps {
                 script {
-
                     terraformDeploy(
                         dir: env.TF_DIR,
                         varsFile: 'local.tfvars',
@@ -56,9 +55,8 @@ pipeline {
                             'cce_public_ip', 
                             'elb_public_ip', 
                             'elb_public_id'
-                        ]   // aquí defines qué outputs capturar
+                        ]
                     )
-
                 }
             }
         }
@@ -69,7 +67,7 @@ pipeline {
             }
             agent {
                 docker {
-                    image 'docker:24-dind'  // contenedor con Docker
+                    image 'docker:24-dind'
                     args '--privileged'
                 }
             }
@@ -77,18 +75,23 @@ pipeline {
                 ansiColor('xterm') {
                     dir("${HELM_DIR}") {
                         script {
-                            sh """
-                                echo "=========================================="
-                                echo "Login en el registry de Huawei Cloud..."
-                                echo "=========================================="
-                                docker login la-south-2.swr.myhuaweicloud.com -u ${env.TF_VAR_access_key} -p ${env.TF_VAR_secret_key}
+                            // Usamos withCredentials para no exponer secrets
+                            withCredentials([string(credentialsId: 'hwc-access-key', variable: 'SWR_USER'),
+                                             string(credentialsId: 'hwc-secret-key', variable: 'SWR_PASS')]) {
 
-                                echo "=========================================="
-                                echo "Build and push de la imagen Docker personalizada..."
-                                echo "=========================================="
-                                docker build -t la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1 -f docker/Dockerfile docker/
-                                docker push la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1
-                            """
+                                sh """
+                                    echo "=========================================="
+                                    echo "Login en el registry de Huawei Cloud..."
+                                    echo "=========================================="
+                                    docker login la-south-2.swr.myhuaweicloud.com -u \$SWR_USER -p \$SWR_PASS
+
+                                    echo "=========================================="
+                                    echo "Build y push de la imagen Docker personalizada..."
+                                    echo "=========================================="
+                                    docker build -t la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1 -f docker/Dockerfile docker/
+                                    docker push la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1
+                                """
+                            }
                         }
                     }
                 }
@@ -103,7 +106,6 @@ pipeline {
             steps {
                 ansiColor('xterm') {
                     script {
-
                         env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                         env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
 
@@ -113,7 +115,6 @@ pipeline {
                         withCredentials([file(credentialsId: 'cce-jenkins-kubeconfig', variable: 'KUBECONFIG')]) {
 
                             dir("${HELM_DIR}") {
-
                                 sh """
                                     export KUBECONFIG=\$KUBECONFIG
 
@@ -135,15 +136,15 @@ pipeline {
                                     echo "=========================================="
                                     echo "Desplegando Jenkins (imagen custom)..."
                                     echo "=========================================="
-                                    helm upgrade --install jenkins ./jenkins \\
-                                        -n jenkins \\
-                                        -f values.yaml \\
-                                        --set service.annotations."kubernetes\\.io/elb\\.id"=${env.elb_public_id}
+                                    helm upgrade --install jenkins ./jenkins \
+                                        -n jenkins \
+                                        -f values.yaml \
+                                        --set service.annotations."kubernetes.io/elb.id"=${env.elb_public_id}
 
                                     echo "=========================================="
                                     echo "Esperando rollout..."
                                     echo "=========================================="
-                                    kubectl rollout status deployment/jenkins-jenkins -n jenkins
+                                    kubectl rollout status deployment/jenkins-jenkins -n jenkins --timeout=5m
                                 """
                             }
                         }
@@ -151,7 +152,7 @@ pipeline {
                 }
             }
         }
-
+    }
 
     post {
         success {
