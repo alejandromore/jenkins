@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   jenkins:
     image: jenkins-hwc:1.0
@@ -17,7 +15,6 @@ services:
     volumes:
       - jenkins_data:/var/jenkins_home
       - ./casc.yaml:/var/jenkins_home/casc.yaml:ro
-      - /var/run/docker.sock:/var/run/docker.sock  # Monta el socket Docker del host
 
     env_file:
       - ./secrets.env
@@ -25,10 +22,6 @@ services:
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
       CASC_JENKINS_CONFIG: /var/jenkins_home/casc.yaml
-      DOCKER_HOST: unix:///var/run/docker.sock  # Opcional, asegura que Jenkins use Docker
-
-    user: root  # Para poder acceder al socket la primera vez
-    privileged: true  # Permite DinD si lo necesitas en algún job
 
     restart: unless-stopped
 

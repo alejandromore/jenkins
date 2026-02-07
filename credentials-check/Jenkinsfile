@@ -6,8 +6,8 @@ pipeline {
     stage('Validate Jenkins Credentials Exist') {
       steps {
         withCredentials([
-          string(credentialsId: 'HWC_ACCESS_KEY', variable: 'AK'),
-          string(credentialsId: 'HWC_SECRET_KEY', variable: 'SK'),
+          string(credentialsId: 'hwc-access-key', variable: 'AK'),
+          string(credentialsId: 'hwc-secret-key', variable: 'SK'),
           usernamePassword(
             credentialsId: 'github-creds',
             usernameVariable: 'GIT_USER',
