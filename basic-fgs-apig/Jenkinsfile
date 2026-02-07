@@ -21,7 +21,7 @@ pipeline {
     environment {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
-        TF_DIR   = 'basic-ecs/terraform'
+        TF_DIR   = 'basic-fgs-apig/terraform'
         REGION   = 'la-south-2'
     }
 

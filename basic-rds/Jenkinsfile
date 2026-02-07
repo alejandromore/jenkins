@@ -21,7 +21,7 @@ pipeline {
     environment {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
-        TF_DIR   = 'basic-ecs/terraform'
+        TF_DIR   = 'basic-rds/terraform'
         REGION   = 'la-south-2'
     }
 
@@ -78,8 +78,8 @@ pipeline {
                         script {
                             sh 'terraform apply -auto-approve -var-file="local.tfvars"'
 
-                            env.ecs_public_ip = sh(
-                                script: 'terraform output -raw ecs_public_ip',
+                            env.rds_public_ip = sh(
+                                script: 'terraform output -raw rds_public_ip',
                                 returnStdout: true
                             ).trim()
 
@@ -89,7 +89,7 @@ pipeline {
             }
         }
 
-        stage('Validate ECS Port 22') {
+        stage('Validate RDS Port 5432') {
             when {
                 allOf {
                     expression { params.ACTION == 'deploy' }
@@ -101,14 +101,14 @@ pipeline {
                     dir(env.TF_DIR) {
                         script {
 
-                            echo "Validating port 22 on $ecs_public_ip..."
+                            echo "Validating port 5432 on $rds_public_ip..."
 
                             sh """
                                 set -e
-                                nc -zv ${ecs_public_ip} 22
+                                nc -zv ${rds_public_ip} 5432
                             """
 
-                            echo "Port 22 is open on ${ecs_public_ip}"
+                            echo "Port 5432 is open on ${rds_public_ip}"
                         }
                     }
                 }

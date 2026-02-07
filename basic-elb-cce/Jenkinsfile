@@ -21,7 +21,7 @@ pipeline {
     environment {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
-        TF_DIR   = 'basic-ecs/terraform'
+        TF_DIR   = 'basic-elb-cce/terraform'
         REGION   = 'la-south-2'
     }
 
@@ -78,18 +78,22 @@ pipeline {
                         script {
                             sh 'terraform apply -auto-approve -var-file="local.tfvars"'
 
-                            env.ecs_public_ip = sh(
-                                script: 'terraform output -raw ecs_public_ip',
+                            env.cce_public_ip = sh(
+                                script: 'terraform output -raw cce_public_ip',
                                 returnStdout: true
                             ).trim()
 
+                            env.elb_public_ip = sh(
+                                script: 'terraform output -raw elb_public_ip',
+                                returnStdout: true
+                            ).trim()
                         }
                     }
                 }
             }
         }
 
-        stage('Validate ECS Port 22') {
+        stage('Validate CCE Port 80') {
             when {
                 allOf {
                     expression { params.ACTION == 'deploy' }
@@ -101,14 +105,14 @@ pipeline {
                     dir(env.TF_DIR) {
                         script {
 
-                            echo "Validating port 22 on $ecs_public_ip..."
+                            echo "Validating port 80 on $cce_public_ip..."
 
                             sh """
                                 set -e
-                                nc -zv ${ecs_public_ip} 22
+                                nc -zv ${cce_public_ip} 80
                             """
 
-                            echo "Port 22 is open on ${ecs_public_ip}"
+                            echo "Port 80 is open on ${cce_public_ip}"
                         }
                     }
                 }
