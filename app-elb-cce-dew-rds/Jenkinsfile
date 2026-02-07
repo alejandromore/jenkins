@@ -82,29 +82,6 @@ pipeline {
             steps {
                 script {
 
-                    ansibleRestoreDb(
-                        dir: env.ANS_DIR,
-                        dump: env.DUMP_DB,
-                        dbHost: env.rds_public_ip,
-                        dbPassword: env.rds_postgres_password,
-                        accessKeyCred: 'hwc-access-key',
-                        secretKeyCred: 'hwc-secret-key'
-                    )
-
-                }
-            }
-        }
-
-        stage('Restore Database') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_ANSIBLE }
-                }
-            }
-            steps {
-                script {
-
                     // Leer outputs generados por terraformDeploy
                     env.rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
                     env.rds_postgres_password = readFile("${WORKSPACE}/rds_postgres_password.txt").trim()
