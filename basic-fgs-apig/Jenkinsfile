@@ -78,8 +78,8 @@ pipeline {
                         script {
                             sh 'terraform apply -auto-approve -var-file="local.tfvars"'
 
-                            env.ecs_public_ip = sh(
-                                script: 'terraform output -raw ecs_public_ip',
+                            env.function_urn = sh(
+                                script: 'terraform output -raw function_urn',
                                 returnStdout: true
                             ).trim()
 
