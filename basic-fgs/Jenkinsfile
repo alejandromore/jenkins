@@ -46,7 +46,7 @@ pipeline {
                         dir: env.TF_DIR,
                         varsFile: 'local.tfvars',
                         action: params.ACTION,
-                        outputs: ['ecs_public_ip']   // aquí defines qué outputs capturar
+                        outputs: ['function_urn']   // aquí defines qué outputs capturar
                     )
 
                 }
