@@ -19,11 +19,6 @@ pipeline {
             description: 'Construir infraestructura con Terraform'
         )
         booleanParam(
-            name: 'RUN_BUILD',
-            defaultValue: false,
-            description: 'Construir la imagen Docker de Jenkins'
-        )
-        booleanParam(
             name: 'RUN_HELM',
             defaultValue: false,
             description: 'Desplegar Jenkins con Helm (usa kubeconfig en secreto)'
@@ -65,44 +60,6 @@ pipeline {
                             'elb_public_id'
                         ]
                     )
-                }
-            }
-        }
-
-        // -----------------------------
-        // Build Docker
-        // -----------------------------
-        stage('Build Jenkins Docker') {
-            when {
-                expression { params.RUN_BUILD }
-            }
-            agent {
-                docker {
-                    image 'docker:24-dind'
-                    args '--privileged'
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir("${HELM_DIR}") {
-                        script {
-                            withCredentials([
-                                string(credentialsId: 'hwc-access-key', variable: 'SWR_USER'),
-                                string(credentialsId: 'hwc-secret-key', variable: 'SWR_PASS')
-                            ]) {
-                                sh """
-                                    echo "=========================================="
-                                    echo "Login en el registry de Huawei Cloud..."
-                                    docker login la-south-2.swr.myhuaweicloud.com -u \$SWR_USER -p \$SWR_PASS
-
-                                    echo "=========================================="
-                                    echo "Build y push de la imagen Docker personalizada..."
-                                    docker build -t la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1 -f docker/Dockerfile docker/
-                                    docker push la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1
-                                """
-                            }
-                        }
-                    }
                 }
             }
         }
