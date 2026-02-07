@@ -110,7 +110,7 @@ pipeline {
                         echo "ELB ID  : ${env.elb_public_id}"
                         echo "ELB IP  : ${env.elb_public_ip}"
 
-                        withCredentials([file(credentialsId: config.kubeconfigCred, variable: 'KUBECONFIG')]) {
+                        withCredentials([file(credentialsId: 'cce-jenkins-kubeconfig', variable: 'KUBECONFIG')]) {
 
                             dir("${HELM_DIR}") {
 
