@@ -19,7 +19,7 @@ security_group_cce_eni            = "sg-app-cce-eni"
 security_group_cce                = "sg-app-cce-node"
 security_group_data               = "sg-app-data"
 
-vpc_name                          = "vpc-basic-app"
+vpc_name                          = "vpc-app"
 vpc_cidr                          = "10.1.0.0/16"
 dns_list                          = ["100.125.1.250", "100.125.21.250"]
 
