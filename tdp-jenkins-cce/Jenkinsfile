@@ -59,6 +59,7 @@ pipeline {
             }
         }
 
+
         stage('Deploy Jenkins to CCE') {
             when {
                 expression { params.RUN_HELM }
@@ -68,7 +69,6 @@ pipeline {
                 ansiColor('xterm') {
                     script {
 
-                        // Leer variables desde archivos
                         env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                         env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
 
@@ -79,47 +79,45 @@ pipeline {
                             file(credentialsId: config.kubeconfigCred, variable: 'KUBECONFIG')
                         ]) {
 
-                            dir(env.HELM_DIR) {
+                            sh """
+                                export KUBECONFIG=\$KUBECONFIG
 
-                                sh """
-                                    export KUBECONFIG=\$KUBECONFIG
+                                echo "=========================================="
+                                echo "Validando acceso al cluster CCE..."
+                                echo "=========================================="
+                                kubectl get nodes
 
-                                    echo "=========================================="
-                                    echo "Validando acceso al cluster CCE..."
-                                    echo "=========================================="
-                                    kubectl get nodes
+                                echo "=========================================="
+                                echo "Creando namespace jenkins..."
+                                echo "=========================================="
+                                kubectl create namespace jenkins || true
 
-                                    echo "=========================================="
-                                    echo "Agregando repo Helm Jenkins..."
-                                    echo "=========================================="
-                                    helm repo add jenkins https://charts.jenkins.io || true
-                                    helm repo update
+                                echo "=========================================="
+                                echo "Validando Helm chart..."
+                                echo "=========================================="
+                                helm lint ./jenkins
 
-                                    echo "=========================================="
-                                    echo "Creando namespace jenkins..."
-                                    echo "=========================================="
-                                    kubectl create namespace jenkins || true
+                                echo "=========================================="
+                                echo "Desplegando Jenkins (chart propio)..."
+                                echo "=========================================="
+                                helm upgrade --install jenkins ./jenkins \\
+                                    -n jenkins \\
+                                    -f helm/jenkins/values.yaml \\
+                                    --set service.annotations."kubernetes\\.io/elb\\.id"=${env.elb_public_id}
 
-                                    echo "=========================================="
-                                    echo "Desplegando Jenkins en CCE..."
-                                    echo "=========================================="
-                                    helm upgrade --install jenkins helm/jenkins \\
-                                        -n jenkins \\
-                                        -f values.yaml \\
-                                        --set controller.service.annotations."kubernetes\\.io/elb\\.id"=${env.elb_public_id}
-
-                                    echo "=========================================="
-                                    echo "Esperando rollout..."
-                                    echo "=========================================="
-                                    kubectl rollout status deployment/jenkins -n jenkins
-                                """
-                            }
+                                echo "=========================================="
+                                echo "Esperando rollout..."
+                                echo "=========================================="
+                                kubectl rollout status deployment/jenkins-jenkins -n jenkins
+                            """
                         }
                     }
                 }
             }
         }
 
+
+    }
 
     post {
         success {
