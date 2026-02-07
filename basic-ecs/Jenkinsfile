@@ -1,0 +1,143 @@
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: true,
+            description: 'Construir infraestructura con Terraform'
+        )
+    }
+
+    environment {
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+        TF_DIR   = 'app-elb-cce-dew-rds/terraform'
+        REGION   = 'la-south-2'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            when {
+                expression { params.RUN_TERRAFORM }
+            }
+            steps {
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        sh '''
+                        rm -rf .terraform
+                        terraform init
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        sh 'terraform plan -var-file="local.tfvars"'
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        script {
+                            sh 'terraform apply -auto-approve -var-file="local.tfvars"'
+
+                            env.ecs_public_ip = sh(
+                                script: 'terraform output -raw ecs_public_ip',
+                                returnStdout: true
+                            ).trim()
+
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Validate ECS Port 22') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        script {
+
+                            echo "Validating port 22 on $ecs_public_ip..."
+
+                            sh """
+                                set -e
+                                nc -zv ${ecs_public_ip} 22
+                            """
+
+                            echo "Port 22 is open on ${ecs_public_ip}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'destroy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                ansiColor('xterm') {
+                    dir(env.TF_DIR) {
+                        sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+    }
+}
