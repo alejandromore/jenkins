@@ -53,32 +53,6 @@ pipeline {
             }
         }
 
-        stage('Validate CCE Port 80') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        script {
-
-                            echo "Validating port 80 on $cce_public_ip..."
-
-                            sh """
-                                set -e
-                                nc -zv ${cce_public_ip} 80
-                            """
-
-                            echo "Port 80 is open on ${cce_public_ip}"
-                        }
-                    }
-                }
-            }
-        }
-
     }
 
     post {

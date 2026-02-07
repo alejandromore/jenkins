@@ -1,0 +1,17 @@
+apiVersion: v2
+name: jenkins
+description: Jenkins Controller for Huawei Cloud CCE
+type: application
+version: 0.1.0
+appVersion: "2.452.1"
+
+keywords:
+  - jenkins
+  - ci
+  - cd
+  - cce
+  - huaweicloud
+
+maintainers:
+  - name: Alejandro
+    email: alejandro@example.com

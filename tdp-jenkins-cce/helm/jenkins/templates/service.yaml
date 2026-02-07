@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jenkins.fullname" . }}
+  annotations:
+    {{- range $key, $value := .Values.service.annotations }}
+    {{ $key }}: "{{ $value }}"
+    {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+      protocol: TCP
+  selector:
+    app: {{ include "jenkins.name" . }}

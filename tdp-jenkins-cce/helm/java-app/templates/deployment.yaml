@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}
+  labels:
+    app: {{ .Values.app.name }}
+    version: {{ .Values.app.version }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+      version: {{ .Values.app.version }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        version: {{ .Values.app.version }}
+    spec:
+      imagePullSecrets:
+{{- range .Values.imagePullSecrets }}
+        - name: {{ .name | default . }}
+{{- end }}
+      containers:
+        - name: container-1
+          image: "{{ .Values.image.registry }}/{{ .Values.image.namespace }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.app.containerPort }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.app.healthPath }}
+              port: {{ .Values.app.containerPort }}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 2
+            failureThreshold: 5
+
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.app.healthPath }}
+              port: {{ .Values.app.containerPort }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          startupProbe:
+            httpGet:
+              path: {{ .Values.app.healthPath }}
+              port: {{ .Values.app.containerPort }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 12   # 20 + (12×10) = 140s
+
+          env:
+          - name: JAVA_OPTS
+            value: >
+              -XX:+UseContainerSupport
+              -XX:MaxRAMPercentage=70
+              -XX:InitialRAMPercentage=50
+              -XX:+ExitOnOutOfMemoryError

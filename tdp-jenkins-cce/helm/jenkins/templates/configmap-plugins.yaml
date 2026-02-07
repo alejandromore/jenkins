@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-plugins
+data:
+  plugins.txt: |
+{{ .Files.Get "plugins.txt" | indent 4 }}

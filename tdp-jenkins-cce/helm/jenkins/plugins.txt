@@ -1,0 +1,11 @@
+kubernetes
+workflow-aggregator
+pipeline-stage-view
+git
+docker-workflow
+credentials-binding
+ssh-agent
+configuration-as-code
+blueocean
+terraform
+ansible

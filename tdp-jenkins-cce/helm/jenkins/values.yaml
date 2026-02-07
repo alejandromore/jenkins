@@ -1,0 +1,38 @@
+replicaCount: 1
+
+image:
+  repository: jenkins/jenkins
+  tag: lts
+  pullPolicy: IfNotPresent
+
+service:
+  type: LoadBalancer
+  port: 8080
+  targetPort: 8080
+  annotations:
+    kubernetes.io/elb.class: "performance"
+    kubernetes.io/elb.autocreate: "true"
+    kubernetes.io/elb.id: ""   # lo seteas por --set
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1"
+    memory: "2Gi"
+
+persistence:
+  enabled: true
+  storageClass: csi-disk
+  accessMode: ReadWriteOnce
+  size: 20Gi
+
+env:
+  JAVA_OPTS: "-Xms512m -Xmx1024m"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

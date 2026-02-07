@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-jcasc
+data:
+  jcasc.yaml: |
+{{ .Files.Get "jcasc.yaml" | indent 4 }}

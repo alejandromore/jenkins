@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jenkins.fullname" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "jenkins.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "jenkins.name" . }}
+    spec:
+      containers:
+        - name: jenkins
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: CASC_JENKINS_CONFIG
+              value: /var/jenkins_home/casc_configs/jcasc.yaml
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+            - name: jcasc-config
+              mountPath: /var/jenkins_home/casc_configs
+            - name: plugins-config
+              mountPath: /usr/share/jenkins/ref/plugins.txt
+              subPath: plugins.txt
+      volumes:
+        - name: jenkins-home
+          persistentVolumeClaim:
+            claimName: {{ include "jenkins.fullname" . }}
+        - name: jcasc-config
+          configMap:
+            name: {{ .Release.Name }}-jcasc
+        - name: plugins-config
+          configMap:
+            name: {{ .Release.Name }}-plugins

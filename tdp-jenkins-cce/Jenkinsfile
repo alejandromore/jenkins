@@ -1,0 +1,132 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform'
+        )
+        booleanParam(
+            name: 'RUN_HELM',
+            defaultValue: false,
+            description: 'Desplegar la aplicación con Helm, se debe cargar el kubeconfig en el secreto cce-kubeconfig'
+        )
+    }
+
+    environment {
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+        TF_DIR   = 'tdp-jenkins-cce/terraform'
+        HELM_DIR = 'tdp-jenkins-cce/helm'
+        REGION   = 'la-south-2'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Deploy') {
+            when {
+                expression { params.RUN_TERRAFORM }
+            }
+            steps {
+                script {
+
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: ['cce_public_ip', 'elb_public_ip']   // aquí defines qué outputs capturar
+                    )
+
+                }
+            }
+        }
+
+        stage('Deploy Jenkins to CCE') {
+            when {
+                expression { params.RUN_HELM }
+            }
+            agent any
+            steps {
+                ansiColor('xterm') {
+                    script {
+
+                        // Leer variables desde archivos
+                        env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                        env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
+
+                        echo "ELB ID  : ${env.elb_public_id}"
+                        echo "ELB IP  : ${env.elb_public_ip}"
+
+                        withCredentials([
+                            file(credentialsId: config.kubeconfigCred, variable: 'KUBECONFIG')
+                        ]) {
+
+                            dir(env.HELM_DIR) {
+
+                                sh """
+                                    export KUBECONFIG=\$KUBECONFIG
+
+                                    echo "=========================================="
+                                    echo "Validando acceso al cluster CCE..."
+                                    echo "=========================================="
+                                    kubectl get nodes
+
+                                    echo "=========================================="
+                                    echo "Agregando repo Helm Jenkins..."
+                                    echo "=========================================="
+                                    helm repo add jenkins https://charts.jenkins.io || true
+                                    helm repo update
+
+                                    echo "=========================================="
+                                    echo "Creando namespace jenkins..."
+                                    echo "=========================================="
+                                    kubectl create namespace jenkins || true
+
+                                    echo "=========================================="
+                                    echo "Desplegando Jenkins en CCE..."
+                                    echo "=========================================="
+                                    helm upgrade --install jenkins helm/jenkins \\
+                                        -n jenkins \\
+                                        -f values.yaml \\
+                                        --set controller.service.annotations."kubernetes\\.io/elb\\.id"=${env.elb_public_id}
+
+                                    echo "=========================================="
+                                    echo "Esperando rollout..."
+                                    echo "=========================================="
+                                    kubectl rollout status deployment/jenkins -n jenkins
+                                """
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+    post {
+        success {
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+    }
+}
