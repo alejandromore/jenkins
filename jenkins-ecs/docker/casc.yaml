@@ -27,10 +27,11 @@ credentials:
               scope: GLOBAL
               fileName: kubeconfig
               secretBytes: ""
-              description: CCE Kubeconfig file
+              description: CCE Kubeconfig file for Jenkins
+
           - file:
               id: cce-app-kubeconfig
               scope: GLOBAL
               fileName: kubeconfig
               secretBytes: ""
-              description: CCE Kubeconfig file
+              description: CCE Kubeconfig file for App
