@@ -33,58 +33,20 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform Deploy') {
             when {
                 expression { params.RUN_TERRAFORM }
             }
             steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh '''
-                        rm -rf .terraform
-                        terraform init
-                        '''
-                    }
-                }
-            }
-        }
+                script {
 
-        stage('Terraform Plan') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh 'terraform plan -var-file="local.tfvars"'
-                    }
-                }
-            }
-        }
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: ['rds_public_ips']   // aquí defines qué outputs capturar
+                    )
 
-        stage('Terraform Apply') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        script {
-                            sh 'terraform apply -auto-approve -var-file="local.tfvars"'
-
-                            env.rds_public_ip = sh(
-                                script: 'terraform output -raw rds_public_ip',
-                                returnStdout: true
-                            ).trim()
-
-                        }
-                    }
                 }
             }
         }
@@ -115,21 +77,6 @@ pipeline {
             }
         }
 
-        stage('Terraform Destroy') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'destroy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
-                    }
-                }
-            }
-        }
     }
 
     post {

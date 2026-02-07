@@ -33,103 +33,24 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform Deploy') {
             when {
                 expression { params.RUN_TERRAFORM }
             }
             steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh '''
-                        rm -rf .terraform
-                        terraform init
-                        '''
-                    }
+                script {
+
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: ['function_urn']   // aquí defines qué outputs capturar
+                    )
+
                 }
             }
         }
 
-        stage('Terraform Plan') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh 'terraform plan -var-file="local.tfvars"'
-                    }
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        script {
-                            sh 'terraform apply -auto-approve -var-file="local.tfvars"'
-
-                            env.function_urn = sh(
-                                script: 'terraform output -raw function_urn',
-                                returnStdout: true
-                            ).trim()
-
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Validate ECS Port 22') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        script {
-
-                            echo "Validating port 22 on $ecs_public_ip..."
-
-                            sh """
-                                set -e
-                                nc -zv ${ecs_public_ip} 22
-                            """
-
-                            echo "Port 22 is open on ${ecs_public_ip}"
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Terraform Destroy') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'destroy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                ansiColor('xterm') {
-                    dir(env.TF_DIR) {
-                        sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
-                    }
-                }
-            }
-        }
     }
 
     post {
