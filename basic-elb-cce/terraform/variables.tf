@@ -70,11 +70,6 @@ variable "security_group_cce_eni" {
   type        = string
 }
 
-variable "security_group_data" {
-  description = "Nombre del Grupo de Seguridad Data"
-  type        = string
-}
-
 # ============================================================================
 # VARIABLES PARA LA INSTANCIA DE VPC Subnet
 # ============================================================================
@@ -128,45 +123,6 @@ variable "vpc_subnet_cce_gateway_ip" {
   description = "gateway_ip de la subnet CCE"
   type        = string
   default = ""
-}
-
-variable "vpc_subnet_data_name" {
-  description = "Nombre de la subnet data"
-  type        = string
-}
-
-variable "vpc_subnet_data_cidr" {
-  description = "cidr de la subnet data"
-  type        = string
-}
-
-variable "vpc_subnet_data_gateway_ip" {
-  description = "gateway_ip de la subnet data"
-  type        = string
-}
-
-# ============================================================================
-# VARIABLES PARA LA INSTANCIA DE RDS
-# ============================================================================
-
-variable "rds_postgres_name" {
-  description = "Nombre de la RDS"
-  type        = string
-}
-
-variable "rds_postgres_password" {
-  description = "Password de la RDS"
-  type        = string
-}
-
-variable "rds_postgres_flavor" {
-  description = "Flavor del RDS"
-  type        = string
-}
-
-variable "rds_postgres_volume_size" {
-  description = "Volume Size RDS"
-  type        = number
 }
 
 # ============================================================================
