@@ -1,5 +1,5 @@
 output "rds_name" {
-  value = var.rds_name
+  value = var.rds_postgres_name
 }
 
 output "rds_private_ip" {
