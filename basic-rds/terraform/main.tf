@@ -10,7 +10,7 @@ data "huaweicloud_availability_zones" "myaz" {}
 #######################################
 
 module "vpc" {
-  source            = "../../modules/vpc"
+  source            = "../../terraform-modules/vpc"
   name              = var.vpc_name
   cidr              = var.vpc_cidr
   project_id        = data.huaweicloud_enterprise_project.ep.id
@@ -22,7 +22,7 @@ module "vpc" {
 # Subnets
 #######################################
 module "subnet_public" {
-  source            = "../../modules/subnet"
+  source            = "../../terraform-modules/subnet"
   vpc_id            = module.vpc.vpc_id
   subnet_name       = var.vpc_subnet_public_name
   cidr              = var.vpc_subnet_public_cidr
@@ -36,7 +36,7 @@ module "subnet_public" {
 # Security Group
 #######################################
 module "sg_public" {
-  source                = "../../modules/security_group"
+  source                = "../../terraform-modules/security_group"
   sg_name               = var.security_group_public_name
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
@@ -55,7 +55,7 @@ resource "huaweicloud_networking_secgroup_rule" "management_ingress_postgres" { 
 # RDS
 #######################################
 module "rds_postgres" {
-  source = "../../modules/rds"
+  source = "../../terraform-modules/rds"
 
   name                  = var.rds_postgres_name
   flavor                = var.rds_postgres_flavor
@@ -70,7 +70,7 @@ module "rds_postgres" {
 }
 
 module "eip_rds_postgres" {
-  source                = "../../modules/eip"
+  source                = "../../terraform-modules/eip"
   eip_name              = "eip-rds-postgres"
   bandwidth_name        = "mieip-bandwidth"
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
