@@ -33,6 +33,7 @@ pipeline {
     environment {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
+        
         TF_DIR   = 'app-elb-cce-dew-rds/terraform'
         HELM_DIR = 'app-elb-cce-dew-rds/helm'
         ANS_DIR  = 'app-elb-cce-dew-rds/ansible'
@@ -114,7 +115,7 @@ pipeline {
                     helmDeployApp(
                         dir: env.HELM_DIR,
                         chartDir: 'java-app',
-                        kubeconfigCred: 'cce-kubeconfig',
+                        kubeconfigCred: 'cce-app-kubeconfig',
                         elbId: env.elb_public_id,
                         elbIp: env.elb_public_ip,
                         releaseName: 'app-basic-java',
