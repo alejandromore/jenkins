@@ -48,14 +48,6 @@ module "sg_public" { #internet -> sg_public
       remote_ip = "0.0.0.0/0"
     }
   ]
-
-  egress_rules = [
-    {
-      protocol  = "tcp"
-      port      = "8080"
-      remote_ip = var.vpc_subnet_private_cidr
-    }
-  ]
 }
 
 #######################################
