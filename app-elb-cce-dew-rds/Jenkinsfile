@@ -24,7 +24,7 @@ pipeline {
         booleanParam(
             name: 'RUN_HELM',
             defaultValue: false,
-            description: 'Desplegar la aplicación con Helm'
+            description: 'Desplegar la aplicación con Helm, se debe cargar el kubeconfig en el secreto cce-kubeconfig'
         )
     }
 
