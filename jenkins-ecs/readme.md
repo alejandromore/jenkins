@@ -25,3 +25,5 @@ git push -u origin main
 http://110.238.64.126:8081/app-java/healthCheck
 http://110.238.64.126:8081/app-java/clientes
 http://110.238.64.126:8081/app-java/dew-info
+
+docker login -u 8ENLOAE2QCECKCRKANEU -p vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8 https://swr.la-south-2.myhuaweicloud.com

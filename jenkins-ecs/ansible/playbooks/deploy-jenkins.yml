@@ -122,28 +122,65 @@
     #- name: Build and deploy with Docker Compose
     #  command: docker compose up -d --build
 
-    - name: Get temporary credentials from ECS metadata (Agency)
+    - name: Get STS credentials from metadata
       uri:
         url: http://169.254.169.254/openstack/latest/securitykey
         method: GET
         return_content: yes
-      register: agency_creds
+      register: sts_response
 
-    - name: Set temporary AK/SK
+    - name: Set STS facts
       set_fact:
-        temp_ak: "{{ (agency_creds.content | from_json).credential.access }}"
-        temp_sk: "{{ (agency_creds.content | from_json).credential.secret }}"
-        temp_token: "{{ (agency_creds.content | from_json).credential.securitytoken }}"
+        temp_ak: "{{ sts_response.json.credential.access }}"
+        temp_sk: "{{ sts_response.json.credential.secret }}"
+        temp_token: "{{ sts_response.json.credential.securitytoken }}"
 
-    - name: Login to SWR using Agency temporary credentials
+    - name: Get IAM token
+      uri:
+        url: "https://iam.{{ region }}.myhuaweicloud.com/v3/auth/tokens"
+        method: POST
+        headers:
+          Content-Type: application/json
+        body_format: json
+        body:
+          auth:
+            identity:
+              methods:
+                - password
+              password:
+                user:
+                  name: "{{ temp_ak }}"
+                  password: "{{ temp_sk }}"
+                  domain:
+                    name: "op_svc_ecs"
+            scope:
+              project:
+                name: "{{ region }}"
+        status_code: 201
+      register: iam_token_response
+
+    - name: Get SWR authorization token
+      uri:
+        url: "https://{{ swr_registry }}/v2/manage/utils/authorizationtoken"
+        method: GET
+        headers:
+          X-Auth-Token: "{{ iam_token }}"
+        return_content: yes
+      register: swr_token_response
+
+    - name: Extract Docker login token
+      set_fact:
+        docker_token: "{{ swr_token_response.json.token }}"
+        docker_user: "{{ swr_token_response.json.user }}"
+
+    - name: Docker login to SWR
       shell: |
-        echo "{{ temp_token }}" | docker login \
-          -u "{{ temp_ak }}" \
-          --password-stdin \
-          swr.la-south-2.myhuaweicloud.com
+        echo "{{ docker_token }}" | docker login {{ swr_registry }} \
+        -u "{{ docker_user }}" --password-stdin
+      no_log: true
 
-    - name: Pull latest Jenkins image
-      command: docker pull {{ image }}
+    - name: Pull image from SWR
+      command: docker pull {{ swr_registry }}/{{ image_name }}
 
     - name: Deploy with Docker Compose
       command: docker compose up -d

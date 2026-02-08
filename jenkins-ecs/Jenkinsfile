@@ -136,7 +136,9 @@ pipeline {
                                 --private-key "$pem_file" \\
                                 --extra-vars "ansible_host=${env.ecs_public_ip} \\
                                             app_dir=/opt/jenkins \\
-                                            image=swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:2.0 \\
+                                            swr_registry=swr.la-south-2.myhuaweicloud.com \\
+                                            image_name=cce-basic-app/jenkins-hwc:2.0 \\
+                                            region=la-south-2 \\
                                             github_user=${GITHUB_USER} \\
                                             github_token=${GITHUB_TOKEN} \\
                                             hwc_access_key=${HWC_ACCESS_KEY} \\
