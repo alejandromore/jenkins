@@ -35,3 +35,10 @@ credentials:
               fileName: kubeconfig
               secretBytes: ""
               description: CCE Kubeconfig file for App
+
+          - usernamePassword:
+              id: swr-jenkins
+              scope: GLOBAL
+              username: ""
+              password: ""
+              description: SWR Login Jenkins
