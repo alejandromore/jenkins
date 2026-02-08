@@ -23,6 +23,9 @@ Huawei Cloud Secret Key	            Secret Text	                    HWC_SECRET_K
 GitHub repo	                        Username/Password o SSH Key	    github-creds
 CCE Kubeconfig file for Jenkins     file                            cce-jenkins-kubeconfig
 CCE Kubeconfig file for App         file                            ce-app-kubeconfig
+SWR Login Jenkins                   Username/Password o SSH Key     swr-jenkins
+
+la-south-2@0371a9a7f90b493fadebbf130f6fcd2c
 
 git update-index --skip-worktree secrets.env
 

@@ -119,68 +119,15 @@
     # -----------------------------
     # Jenkins deploy
     # -----------------------------
-    #- name: Build and deploy with Docker Compose
-    #  command: docker compose up -d --build
 
-    - name: Get STS credentials from metadata
-      uri:
-        url: http://169.254.169.254/openstack/latest/securitykey
-        method: GET
-        return_content: yes
-      register: sts_response
-
-    - name: Parse STS JSON manually
-      set_fact:
-        sts_json: "{{ sts_response.content | from_json }}"
-
-    - name: Set STS facts
-      set_fact:
-        temp_ak: "{{ sts_json.credential.access }}"
-        temp_sk: "{{ sts_json.credential.secret }}"
-        temp_token: "{{ sts_json.credential.securitytoken }}"
-
-    - name: Get IAM token
-      uri:
-        url: "https://iam.{{ region }}.myhuaweicloud.com/v3/auth/tokens"
-        method: POST
-        headers:
-          Content-Type: application/json
-        body_format: json
-        body:
-          auth:
-            identity:
-              methods:
-                - password
-              password:
-                user:
-                  name: "{{ temp_ak }}"
-                  password: "{{ temp_sk }}"
-                  domain:
-                    name: "op_svc_ecs"
-            scope:
-              project:
-                name: "{{ region }}"
-        status_code: 201
-      register: iam_token_response
-
-    - name: Get SWR authorization token
-      uri:
-        url: "https://{{ swr_registry }}/v2/manage/utils/authorizationtoken"
-        method: GET
-        headers:
-          X-Auth-Token: "{{ iam_token }}"
-        return_content: yes
-      register: swr_token_response
-
-    - name: Extract Docker login token
-      set_fact:
-        docker_token: "{{ swr_token_response.json.token }}"
-        docker_user: "{{ swr_token_response.json.user }}"
-
-    - name: Docker login to SWR
+    - name: Login to SWR registry
       shell: |
-        echo "{{ docker_token }}" | docker login {{ swr_registry }} \
-        -u "{{ docker_user }}" --password-stdin
+        echo "{{ swr_password }}" | docker login \
+          -u "{{ swr_username }}" \
+          --password-stdin \
+          {{ swr_registry }}
+      args:
+        executable: /bin/bash
       no_log: true
 
     - name: Pull image from SWR
