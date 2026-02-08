@@ -104,7 +104,12 @@ RUN chown -R jenkins:jenkins /opt/venv
 RUN mkdir -p /usr/share/jenkins/ref/plugins && \
     chown -R jenkins:jenkins /usr/share/jenkins/ref
 
+# Plugins Jenkins
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+
+# JCasC
+COPY casc.yaml /usr/share/jenkins/ref/casc.yaml
+ENV CASC_JENKINS_CONFIG=/var/jenkins_home/casc.yaml
 
 USER jenkins

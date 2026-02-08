@@ -23,6 +23,8 @@ spec:
           env:
             - name: JAVA_OPTS
               value: "{{ .Values.jenkins.javaOpts }}"
+            - name: CASC_JENKINS_CONFIG
+              value: "/var/jenkins_home/casc.yaml"
           envFrom:
             - secretRef:
                 name: jenkins-secrets
