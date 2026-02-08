@@ -82,12 +82,12 @@ pipeline {
 
                     helmDeployJenkins(
                         dir: env.HELM_DIR,
-                        chartDir: 'jekins',
+                        chartDir: 'jenkins',
                         kubeconfigCred: 'cce-jenkins-kubeconfig',
                         elbId: env.elb_public_id,
                         elbIp: env.elb_public_ip,
                         releaseName: 'jenkins',
-                        namespace: 'jekins',
+                        namespace: 'jenkins',
                         healthEndpoint: '/login',
                         timeoutSeconds: 300
                     )
