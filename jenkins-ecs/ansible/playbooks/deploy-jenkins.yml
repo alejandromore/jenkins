@@ -129,11 +129,15 @@
         return_content: yes
       register: sts_response
 
+    - name: Parse STS JSON manually
+      set_fact:
+        sts_json: "{{ sts_response.content | from_json }}"
+
     - name: Set STS facts
       set_fact:
-        temp_ak: "{{ sts_response.json.credential.access }}"
-        temp_sk: "{{ sts_response.json.credential.secret }}"
-        temp_token: "{{ sts_response.json.credential.securitytoken }}"
+        temp_ak: "{{ sts_json.credential.access }}"
+        temp_sk: "{{ sts_json.credential.secret }}"
+        temp_token: "{{ sts_json.credential.securitytoken }}"
 
     - name: Get IAM token
       uri:
