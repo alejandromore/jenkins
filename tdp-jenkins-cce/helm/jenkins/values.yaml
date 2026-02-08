@@ -1,48 +1,22 @@
 replicaCount: 1
 
 image:
-  repository: la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh
-  tag: 2.452.1
+  registry: swr.la-south-2.myhuaweicloud.com
+  namespace: cce-basic-app
+  repository: jenkins-hwc
+  tag: "2.0"
   pullPolicy: IfNotPresent
+
+imagePullSecrets:
+  - name: default-secret
 
 service:
   type: LoadBalancer
-  port: 8080
+  port: 80
   targetPort: 8080
-  annotations:
-    kubernetes.io/elb.class: "performance"
-    kubernetes.io/elb.autocreate: "true"
-    kubernetes.io/elb.id: ""
 
-resources:
-  requests:
-    cpu: "500m"
-    memory: "1Gi"
-  limits:
-    cpu: "1"
-    memory: "2Gi"
+elb:
+  id: ""
 
-persistence:
-  enabled: true
-  storageClass: csi-disk
-  accessMode: ReadWriteOnce
-  size: 20Gi
-
-env:
-  JAVA_OPTS: "-Xms512m -Xmx1024m"
-
-jcasc: |
-  jenkins:
-    systemMessage: "Jenkins Huawei CCE - SSH Ephemeral Agents"
-    numExecutors: 0
-
-    nodes:
-      - permanent:
-          name: "ssh-agent-template"
-          remoteFS: "/home/jenkins"
-          launcher:
-            ssh:
-              host: "dynamic-host"
-              port: 22
-              credentialsId: "ssh-credentials"
-              sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
+jenkins:
+  javaOpts: "-Djenkins.install.runSetupWizard=false"

@@ -21,7 +21,7 @@ pipeline {
         booleanParam(
             name: 'RUN_HELM',
             defaultValue: false,
-            description: 'Desplegar Jenkins con Helm (usa kubeconfig en secreto)'
+            description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
         )
     }
 
@@ -67,54 +67,34 @@ pipeline {
         // -----------------------------
         // Helm Deploy
         // -----------------------------
-        stage('Deploy Jenkins to CCE') {
+        stage('Helm Deploy Jenkins') {
             when {
-                expression { params.RUN_HELM }
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_HELM }
+                }
             }
-            agent any
             steps {
-                ansiColor('xterm') {
-                    script {
-                        env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
-                        env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
+                script {
 
-                        echo "ELB ID  : ${env.elb_public_id}"
-                        echo "ELB IP  : ${env.elb_public_ip}"
+                    env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
 
-                        withCredentials([file(credentialsId: 'cce-jenkins-kubeconfig', variable: 'KUBECONFIG')]) {
-                            dir("${HELM_DIR}") {
-                                sh """
-                                    export KUBECONFIG=\$KUBECONFIG
-
-                                    echo "=========================================="
-                                    echo "Validando acceso al cluster CCE..."
-                                    kubectl get nodes
-
-                                    echo "=========================================="
-                                    echo "Creando namespace jenkins..."
-                                    kubectl create namespace jenkins || true
-
-                                    echo "=========================================="
-                                    echo "Linting Helm chart..."
-                                    helm lint .
-
-                                    echo "=========================================="
-                                    echo "Desplegando Jenkins (imagen custom)..."
-                                    helm upgrade --install jenkins ./jenkins \
-                                        -n jenkins \
-                                        -f values.yaml \
-                                        --set service.annotations."kubernetes.io/elb.id"=${env.elb_public_id}
-
-                                    echo "=========================================="
-                                    echo "Esperando rollout..."
-                                    kubectl rollout status deployment/jenkins-jenkins -n jenkins --timeout=5m
-                                """
-                            }
-                        }
-                    }
+                    helmDeployJenkins(
+                        dir: env.HELM_DIR,
+                        chartDir: 'jekins',
+                        kubeconfigCred: 'cce-jenkins-kubeconfig',
+                        elbId: env.elb_public_id,
+                        elbIp: env.elb_public_ip,
+                        releaseName: 'jenkins',
+                        namespace: 'jekins',
+                        healthEndpoint: '/login',
+                        timeoutSeconds: 300
+                    )
                 }
             }
         }
+
 
     }
 

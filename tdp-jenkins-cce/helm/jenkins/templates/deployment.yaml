@@ -1,38 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-jenkins
+  name: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: jenkins
+      app: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: jenkins
+        app: {{ .Release.Name }}
     spec:
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
       containers:
         - name: jenkins
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.registry }}/{{ .Values.image.namespace }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8080
           env:
-            - name: CASC_JENKINS_CONFIG
-              value: /var/jenkins_home/casc_configs/jcasc.yaml
             - name: JAVA_OPTS
-              value: "{{ .Values.env.JAVA_OPTS }}"
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
-          volumeMounts:
-            - name: jenkins-home
-              mountPath: /var/jenkins_home
-            - name: jcasc-config
-              mountPath: /var/jenkins_home/casc_configs
-      volumes:
-        - name: jenkins-home
-          persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-jenkins
-        - name: jcasc-config
-          configMap:
-            name: {{ .Release.Name }}-jcasc
+              value: "{{ .Values.jenkins.javaOpts }}"

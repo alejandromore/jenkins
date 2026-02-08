@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ .Release.Name }}-jcasc
-data:
-  jcasc.yaml: |
-{{ .Values.jcasc | indent 4 }}

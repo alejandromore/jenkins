@@ -1,22 +1,6 @@
 apiVersion: v2
 name: jenkins
-description: Helm chart para desplegar Jenkins Controller en Huawei CCE con agentes efímeros SSH
+description: Jenkins Controller deployment on Huawei CCE
 type: application
 version: 0.1.0
-appVersion: "2.452.1"
-
-keywords:
-  - jenkins
-  - ci
-  - cd
-  - cce
-  - huaweicloud
-  - ssh
-  - ephemeral
-
-maintainers:
-  - name: Alejandro More
-    email: alejandro@example.com
-
-# Dependencias opcionales
-dependencies: []
+appVersion: "lts"
