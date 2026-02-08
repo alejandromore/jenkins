@@ -79,17 +79,22 @@ pipeline {
 
                     withCredentials([
                         file(credentialsId: 'cce-jenkins-kubeconfig', variable: 'KUBECONFIG'),
-                        string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN'),
+                        usernamePassword(
+                            credentialsId: 'github-creds',
+                            usernameVariable: 'GITHUB_USER',
+                            passwordVariable: 'GITHUB_TOKEN'
+                        ),
                         string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
                         string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
-                        string(credentialsId: 'jenkins-admin-id', variable: 'JENKINS_ADMIN_ID'),
-                        string(credentialsId: 'jenkins-admin-password', variable: 'JENKINS_ADMIN_PASSWORD'),
-                        string(credentialsId: 'github-user', variable: 'GITHUB_USER')
                     ]) {
 
                         sh """
                         set -eo pipefail
                         export KUBECONFIG=\$KUBECONFIG
+
+                        # Valores fijos (solo laboratorio)
+                        JENKINS_ADMIN_ID=admin
+                        JENKINS_ADMIN_PASSWORD='ingE2004#'
 
                         echo "=========================================="
                         echo "Validando namespace jekins..."
