@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-casc
+  namespace: {{ .Values.namespace }}
+data:
+  casc.yaml: |
+{{ .Files.Get "casc.yaml" | indent 4 }}

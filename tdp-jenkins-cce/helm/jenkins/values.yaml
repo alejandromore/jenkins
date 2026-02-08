@@ -1,3 +1,4 @@
+namespace: jenkins
 replicaCount: 1
 
 image:
