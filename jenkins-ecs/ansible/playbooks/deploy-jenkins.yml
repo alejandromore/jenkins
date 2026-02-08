@@ -90,12 +90,12 @@
         group: ubuntu
         mode: "0755"
 
-    - name: Copy docker files to ECS
-      copy:
-        src: ../../docker/
-        dest: "{{ app_dir }}/"
-        owner: ubuntu
-        group: ubuntu
+    #- name: Copy docker files to ECS
+    #  copy:
+    #    src: ../../docker/
+    #    dest: "{{ app_dir }}/"
+    #    owner: ubuntu
+    #    group: ubuntu
 
 
     # -----------------------------
@@ -131,13 +131,17 @@
 
     - name: Set temporary AK/SK
       set_fact:
-        temp_ak: "{{ agency_creds.json.access }}"
-        temp_sk: "{{ agency_creds.json.secret }}"
+        temp_ak: "{{ (agency_creds.content | from_json).credential.access }}"
+        temp_sk: "{{ (agency_creds.content | from_json).credential.secret }}"
+        temp_token: "{{ (agency_creds.content | from_json).credential.securitytoken }}"
 
     - name: Login to SWR using Agency temporary credentials
       shell: |
-        echo "{{ temp_sk }}" | docker login swr.la-south-2.myhuaweicloud.com \
-        -u "{{ temp_ak }}" --password-stdin
+        docker login swr.la-south-2.myhuaweicloud.com \
+          -u "{{ temp_ak }}" \
+          -p "{{ temp_sk }}"
+      environment:
+        HUAWEICLOUD_SECURITY_TOKEN: "{{ temp_token }}"
 
     - name: Pull latest Jenkins image
       command: docker pull {{ image }}
