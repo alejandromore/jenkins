@@ -23,7 +23,7 @@ vpc_subnet_public_name            = "vpc-subnet-basic-fgs-apig-public"
 vpc_subnet_public_cidr            = "10.1.32.0/19"
 vpc_subnet_public_gateway_ip      = "10.1.32.1"
 
-apig_name                         = "apig-publ"
+apig_name                         = "apig-publc"
 apig_edition                      = "BASIC"
 apig_description                  = "APIG Basic"
 apig_stage_name                   = "DEV"

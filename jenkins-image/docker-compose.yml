@@ -1,15 +1,16 @@
-version: "3.8"
-
 services:
   jenkins:
-    image: jenkins-hwc:1.0
+    image: jenkins-hwc:2.0
     container_name: jenkins-hwc
-
     platform: linux/amd64
 
     build:
       context: .
+      dockerfile: Dockerfile
 
+    env_file:
+      - secrets.env
+      
     ports:
       - "8080:8080"
       - "50000:50000"
@@ -19,28 +20,10 @@ services:
       - ./casc.yaml:/var/jenkins_home/casc.yaml:ro
 
     environment:
-      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
-      - JENKINS_ADMIN_ID=alejandro
-      - JENKINS_ADMIN_PASSWORD=ingE2004#
-      - AWS_RESPONSE_CHECKSUM_VALIDATION=when_required
-      - AWS_REQUEST_CHECKSUM_CALCULATION=when_required
-      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc.yaml
-      - GITHUB_USER=alejandromore
-
-    secrets:
-      - github_token
-      - hwc_access_key
-      - hwc_secret_key
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      CASC_JENKINS_CONFIG: /var/jenkins_home/casc.yaml
 
     restart: unless-stopped
 
 volumes:
   jenkins_data:
-
-secrets:
-  github_token:
-    file: ./secrets/github_token.txt
-  hwc_access_key:
-    file: ./secrets/hwc_access_key.txt
-  hwc_secret_key:
-    file: ./secrets/hwc_secret_key.txt

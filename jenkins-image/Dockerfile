@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     python3-cryptography \
+    netcat-openbsd \
+    docker.io \
     && rm -rf /var/lib/apt/lists/*
 
 # ===============================
@@ -90,11 +92,6 @@ RUN /opt/venv/bin/pip install --upgrade pip && \
         huaweicloudsdkobs \
         psycopg2-binary \
         boto3
-
-# ===============================
-# Ansible collections
-# ===============================
-RUN /opt/venv/bin/ansible-galaxy collection install community.docker
 
 # ===============================
 # Permisos Jenkins

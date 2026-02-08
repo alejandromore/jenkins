@@ -83,3 +83,31 @@ variable "ecs_public_name" {
   type        = string
   default = ""
 }
+
+# ============================================================================
+# VARIABLES PARA EL AGENCY
+# ============================================================================
+variable "agency_name" {
+  description = "Name of the IAM Agency"
+  type        = string
+  default     = ""
+}
+
+variable "agency_description" {
+  description = "Description of the IAM Agency"
+  type        = string
+  default     = ""
+}
+
+variable "agency_delegated_service_name" {
+  description = "Delegated service name"
+  type        = string
+  default     = "op_svc_csms"
+}
+
+variable "agency_duration" {
+  description = "Duration"
+  type        = string
+  default     = "FOREVER"
+}
+

@@ -1,9 +1,12 @@
 # Build the docker image locally
-echo "=========================================="
-echo "Login en el registry de Huawei Cloud..."
-docker login la-south-2.swr.myhuaweicloud.com -u 8ENLOAE2QCECKCRKANEU -p vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8
 
 echo "=========================================="
 echo "Build y push de la imagen Docker personalizada..."
-docker build -t la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1 -f docker/Dockerfile docker/
-docker push la-south-2.swr.myhuaweicloud.com/cce-basic-app/jenkins-ssh:2.452.1
+# 1️⃣ Build de la imagen Jenkins con SSH
+docker build -t swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-ssh:lts -f docker/Dockerfile docker/
+
+# 2️⃣ (Opcional) Tag adicional si quieres mantener un nombre "local"
+docker tag swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-ssh:lts swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-ssh:lts
+
+# 3️⃣ Push a Huawei SWR
+docker push swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-ssh:lts
