@@ -106,6 +106,8 @@
           JENKINS_ADMIN_ID={{ jenkins_admin_id }}
           JENKINS_ADMIN_PASSWORD={{ jenkins_admin_password }}
           GITHUB_USER={{ github_user }}
+          SWR_USER=
+          SWR_PASSWORD= 
       no_log: true
 
     # -----------------------------
