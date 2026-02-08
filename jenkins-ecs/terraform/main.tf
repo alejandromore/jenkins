@@ -68,7 +68,7 @@ resource "huaweicloud_networking_secgroup_rule" "management_ingress_http" { #Int
 #######################################
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-  performance_type  = "normal"
+  performance_type  = "General computing-basic"
   cpu_core_count    = 4
   memory_size       = 4
 }
