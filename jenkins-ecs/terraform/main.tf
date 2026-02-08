@@ -126,12 +126,16 @@ resource "huaweicloud_compute_eip_associate" "associated" {
 #######################################
 # Agencies
 #######################################
+data "huaweicloud_identity_role" "swr_readonly" {
+  name = "SWR ReadOnlyAccess"
+}
+
 resource "huaweicloud_identity_agency" "ecs_secrets_access_agency" {
   name                   = var.agency_name
   description            = var.agency_description
   delegated_service_name = var.agency_delegated_service_name
   duration               = var.agency_duration
-  all_resources_roles    = ["SWR ReadOnlyAccess"]
+  all_resources_roles    = [data.huaweicloud_identity_role.swr_readonly.id]
 }
 
 #######################################
