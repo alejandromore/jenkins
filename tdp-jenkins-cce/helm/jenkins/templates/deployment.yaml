@@ -23,3 +23,6 @@ spec:
           env:
             - name: JAVA_OPTS
               value: "{{ .Values.jenkins.javaOpts }}"
+          envFrom:
+            - secretRef:
+                name: jenkins-secrets

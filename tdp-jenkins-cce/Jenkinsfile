@@ -65,6 +65,64 @@ pipeline {
         }
 
         // -----------------------------
+        // Create Kubernetes Secret for Jenkins
+        // -----------------------------
+        stage('Create Kubernetes Secret for Jenkins') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_HELM }
+                }
+            }
+            steps {
+                script {
+
+                    withCredentials([
+                        file(credentialsId: 'cce-jenkins-kubeconfig', variable: 'KUBECONFIG'),
+                        string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN'),
+                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
+                        string(credentialsId: 'jenkins-admin-id', variable: 'JENKINS_ADMIN_ID'),
+                        string(credentialsId: 'jenkins-admin-password', variable: 'JENKINS_ADMIN_PASSWORD'),
+                        string(credentialsId: 'github-user', variable: 'GITHUB_USER')
+                    ]) {
+
+                        sh """
+                        set -eo pipefail
+                        export KUBECONFIG=\$KUBECONFIG
+
+                        echo "=========================================="
+                        echo "Validando namespace jekins..."
+                        echo "=========================================="
+
+                        kubectl create namespace jekins \\
+                        --dry-run=client -o yaml | kubectl apply -f -
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Creando o actualizando secret jenkins-secrets..."
+                        echo "=========================================="
+
+                        kubectl create secret generic jenkins-secrets \\
+                        -n jekins \\
+                        --from-literal=GITHUB_TOKEN=\$GITHUB_TOKEN \\
+                        --from-literal=HWC_ACCESS_KEY=\$HWC_ACCESS_KEY \\
+                        --from-literal=HWC_SECRET_KEY=\$HWC_SECRET_KEY \\
+                        --from-literal=JENKINS_ADMIN_ID=\$JENKINS_ADMIN_ID \\
+                        --from-literal=JENKINS_ADMIN_PASSWORD=\$JENKINS_ADMIN_PASSWORD \\
+                        --from-literal=GITHUB_USER=\$GITHUB_USER \\
+                        --dry-run=client -o yaml | kubectl apply -f -
+
+                        echo ""
+                        echo "Secret aplicado correctamente en namespace jekins."
+                        """
+                    }
+                }
+            }
+        }
+
+
+        // -----------------------------
         // Helm Deploy
         // -----------------------------
         stage('Helm Deploy Jenkins') {
