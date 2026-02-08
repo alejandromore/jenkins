@@ -101,7 +101,7 @@ pipeline {
                         echo "=========================================="
 
                         kubectl create namespace jenkins \\
-                        --dry-run=client -o yaml | kubectl apply -f -
+                        --dry-run=client -o yaml | kubectl apply --validate=false -f -
 
                         echo ""
                         echo "=========================================="
@@ -116,7 +116,7 @@ pipeline {
                         --from-literal=JENKINS_ADMIN_ID=\$JENKINS_ADMIN_ID \\
                         --from-literal=JENKINS_ADMIN_PASSWORD=\$JENKINS_ADMIN_PASSWORD \\
                         --from-literal=GITHUB_USER=\$GITHUB_USER \\
-                        --dry-run=client -o yaml | kubectl apply -f -
+                        --dry-run=client -o yaml | kubectl apply --validate=false-f -
 
                         echo ""
                         echo "Secret aplicado correctamente en namespace jenkins."
