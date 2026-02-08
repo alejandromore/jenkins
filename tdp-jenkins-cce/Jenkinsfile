@@ -97,10 +97,10 @@ pipeline {
                         JENKINS_ADMIN_PASSWORD='ingE2004#'
 
                         echo "=========================================="
-                        echo "Validando namespace jekins..."
+                        echo "Validando namespace jenkins..."
                         echo "=========================================="
 
-                        kubectl create namespace jekins \\
+                        kubectl create namespace jenkins \\
                         --dry-run=client -o yaml | kubectl apply -f -
 
                         echo ""
@@ -109,7 +109,7 @@ pipeline {
                         echo "=========================================="
 
                         kubectl create secret generic jenkins-secrets \\
-                        -n jekins \\
+                        -n jenkins \\
                         --from-literal=GITHUB_TOKEN=\$GITHUB_TOKEN \\
                         --from-literal=HWC_ACCESS_KEY=\$HWC_ACCESS_KEY \\
                         --from-literal=HWC_SECRET_KEY=\$HWC_SECRET_KEY \\
@@ -119,7 +119,7 @@ pipeline {
                         --dry-run=client -o yaml | kubectl apply -f -
 
                         echo ""
-                        echo "Secret aplicado correctamente en namespace jekins."
+                        echo "Secret aplicado correctamente en namespace jenkins."
                         """
                     }
                 }
