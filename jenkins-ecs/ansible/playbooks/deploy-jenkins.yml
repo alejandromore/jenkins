@@ -137,11 +137,10 @@
 
     - name: Login to SWR using Agency temporary credentials
       shell: |
-        docker login swr.la-south-2.myhuaweicloud.com \
+        echo "{{ temp_token }}" | docker login \
           -u "{{ temp_ak }}" \
-          -p "{{ temp_sk }}"
-      environment:
-        HUAWEICLOUD_SECURITY_TOKEN: "{{ temp_token }}"
+          --password-stdin \
+          swr.la-south-2.myhuaweicloud.com
 
     - name: Pull latest Jenkins image
       command: docker pull {{ image }}
