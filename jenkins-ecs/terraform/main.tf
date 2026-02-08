@@ -68,10 +68,8 @@ resource "huaweicloud_networking_secgroup_rule" "management_ingress_http" { #Int
 #######################################
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
-  #performance_type  = "normal"
   cpu_core_count    = 4
   memory_size       = 4
-  #name              = "t6.xlarge.1"
 }
 
 data "huaweicloud_images_image" "myimage" {
@@ -121,18 +119,6 @@ module "eip_ecs_publico" {
 resource "huaweicloud_compute_eip_associate" "associated" {
   public_ip   = module.eip_ecs_publico.address
   instance_id = module.ecs_publico.ecs_id
-}
-
-#######################################
-# Agencies
-#######################################
-
-resource "huaweicloud_identity_agency" "ecs_secrets_access_agency" {
-  name                   = var.agency_name
-  description            = var.agency_description
-  delegated_service_name = var.agency_delegated_service_name
-  duration               = var.agency_duration
-  all_resources_roles    = ["SWR ReadOnlyAccess", "SWR OperateAccess"]
 }
 
 #######################################

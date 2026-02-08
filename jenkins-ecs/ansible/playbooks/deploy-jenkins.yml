@@ -90,14 +90,6 @@
         group: ubuntu
         mode: "0755"
 
-    #- name: Copy docker files to ECS
-    #  copy:
-    #    src: ../../docker/
-    #    dest: "{{ app_dir }}/"
-    #    owner: ubuntu
-    #    group: ubuntu
-
-
     # -----------------------------
     # Secrets como env vars
     # -----------------------------
@@ -119,7 +111,6 @@
     # -----------------------------
     # Jenkins deploy
     # -----------------------------
-
     - name: Login to SWR registry
       shell: |
         echo "{{ swr_password }}" | docker login \

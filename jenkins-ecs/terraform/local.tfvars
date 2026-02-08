@@ -24,8 +24,3 @@ vpc_subnet_public_cidr            = "10.2.32.0/19"
 vpc_subnet_public_gateway_ip      = "10.2.32.1"
 
 ecs_public_name                   = "ecs-jenkins"
-
-agency_name                       = "ecs-secrets-access-agency"
-agency_description                = "Agency para autorizae ECS al SWR"
-agency_delegated_service_name     = "op_svc_ecs"
-agency_duration                   = "FOREVER"
