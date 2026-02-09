@@ -16,7 +16,7 @@ kubectl delete namespace jenkins
 helm upgrade `
     --install jenkins ./jenkins-base `
     -n jenkins --create-namespace -f ./jenkins-base/values.yaml `
-    --set persistence.sfsId=b8653b00-c409-4e53-b17e-713f9a631647
+    --set persistence.sfsId=81089ae2-dd31-4e3d-a717-1b538001379f
 
 helm upgrade --install jenkins ./helm-jenkins \
   --set persistence.sfsId=94396aa4-8d80-423f-93ca-2a56abf0c700

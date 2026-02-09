@@ -23,6 +23,7 @@ persistence:
   pvName: pv-efs-jenkins-home
   sfsId: ""        # se inyecta por --set
   size: 50Gi
+  storageClass: sfs-turbo-sc
 
 agent:
   enabled: false
