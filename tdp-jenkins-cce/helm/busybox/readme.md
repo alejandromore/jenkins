@@ -1,5 +1,7 @@
 $env:KUBECONFIG="C:\Users\Huawei\Downloads\cce-jenkins-kubeconfig.yaml"
 
+$env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-jenkins-kubeconfig.yaml"
+
 # Validar acceso
 kubectl get nodes
 

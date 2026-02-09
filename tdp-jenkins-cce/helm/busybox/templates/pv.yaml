@@ -10,5 +10,6 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""   # IMPORTANTE: vacío para binding estático
   nfs:
-    server: "10.1.32.2"
+    #server: "10.1.32.2"
+    #server: 75881c30-db94-4a66-a385-27fcd7665b2a.sfsturbo.la-south-2.myhuaweicloud.com
     path: "/"

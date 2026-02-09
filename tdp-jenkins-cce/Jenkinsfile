@@ -81,7 +81,7 @@ pipeline {
 
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
-                    env.sfs_jenkins_ip = readFile("${WORKSPACE}/sfs_jenkins_ip.txt").trim()
+                    env.sfs_jenkins_id = readFile("${WORKSPACE}/sfs_jenkins_id.txt").trim()
 
                     helmDeployJenkins(
                         dir: env.HELM_DIR,
@@ -89,7 +89,7 @@ pipeline {
                         kubeconfigCred: 'cce-jenkins-kubeconfig',
                         elbId: env.elb_public_id,
                         elbIp: env.elb_public_ip,
-                        sfsIp: env.sfs_jenkins_ip,
+                        sfsId: env.sfs_jenkins_id,
                         releaseName: 'jenkins',
                         namespace: 'jenkins',
                         healthEndpoint: '/login',
