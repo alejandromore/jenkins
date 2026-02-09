@@ -21,7 +21,7 @@ controller:
 persistence:
   enabled: true
   pvName: pv-jenkins
-  sfsIp: ""        # se inyecta por --set
+  sfsip: ""        # se inyecta por --set
   size: 50Gi
 
 agent:
