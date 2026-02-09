@@ -19,5 +19,9 @@ output "elb_public_ip" {
 }
 
 output "sfs_jenkins_id" {
-  value       = huaweicloud_sfs_turbo.jenkins.id
+  value = huaweicloud_sfs_turbo.jenkins.id
+}
+
+output "sfs_jenkins_ip" {
+  value = huaweicloud_sfs_turbo.jenkins.mount_targets[0].ip_address
 }

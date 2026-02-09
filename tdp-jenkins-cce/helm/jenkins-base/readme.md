@@ -1,5 +1,5 @@
 export KUBECONFIG=\$KUBECONFIG
-$env:KUBECONFIG="C:\Projects\jenkins\tdp-jenkins-cce\helm\jenkins-base\cce-jenkins-kubeconfig.yaml"
+$env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-jenkins-kubeconfig.yaml"
 
 # Validar acceso
 kubectl get nodes
@@ -13,10 +13,11 @@ helm repo update
 helm repo list
 
 kubectl delete namespace jenkins
+
 helm upgrade `
     --install jenkins ./jenkins-base `
     -n jenkins --create-namespace -f ./jenkins-base/values.yaml `
-    --set persistence.sfsId=81089ae2-dd31-4e3d-a717-1b538001379f
+    --set persistence.sfsIP=10.1.32.2
 
 helm upgrade --install jenkins ./helm-jenkins \
   --set persistence.sfsId=94396aa4-8d80-423f-93ca-2a56abf0c700

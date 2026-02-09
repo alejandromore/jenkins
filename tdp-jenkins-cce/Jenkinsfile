@@ -58,75 +58,13 @@ pipeline {
                             'cce_public_ip', 
                             'elb_public_ip', 
                             'elb_public_id',
-                            'sfs_jenkins_id'
+                            'sfs_jenkins_id',
+                            'sfs_jenkins_ip'
                         ]
                     )
                 }
             }
         }
-
-        // -----------------------------
-        // Create Kubernetes Secret for Jenkins
-        // -----------------------------
-        stage('Create Kubernetes Secret for Jenkins') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_HELM }
-                }
-            }
-            steps {
-                script {
-
-                    withCredentials([
-                        file(credentialsId: 'cce-jenkins-kubeconfig', variable: 'KUBECONFIG'),
-                        usernamePassword(
-                            credentialsId: 'github-creds',
-                            usernameVariable: 'GITHUB_USER',
-                            passwordVariable: 'GITHUB_TOKEN'
-                        ),
-                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
-                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
-                    ]) {
-
-                        sh """
-                        set -eo pipefail
-                        export KUBECONFIG=\$KUBECONFIG
-
-                        # Valores fijos (solo laboratorio)
-                        JENKINS_ADMIN_ID=admin
-                        JENKINS_ADMIN_PASSWORD='ingE2004#'
-
-                        echo "=========================================="
-                        echo "Validando namespace jenkins..."
-                        echo "=========================================="
-
-                        kubectl create namespace jenkins \\
-                        --dry-run=client -o yaml | kubectl apply --validate=false -f -
-
-                        echo ""
-                        echo "=========================================="
-                        echo "Creando o actualizando secret jenkins-secrets..."
-                        echo "=========================================="
-
-                        kubectl create secret generic jenkins-secrets \\
-                        -n jenkins \\
-                        --from-literal=GITHUB_TOKEN=\$GITHUB_TOKEN \\
-                        --from-literal=HWC_ACCESS_KEY=\$HWC_ACCESS_KEY \\
-                        --from-literal=HWC_SECRET_KEY=\$HWC_SECRET_KEY \\
-                        --from-literal=JENKINS_ADMIN_ID=\$JENKINS_ADMIN_ID \\
-                        --from-literal=JENKINS_ADMIN_PASSWORD=\$JENKINS_ADMIN_PASSWORD \\
-                        --from-literal=GITHUB_USER=\$GITHUB_USER \\
-                        --dry-run=client -o yaml | kubectl apply --validate=false -f -
-
-                        echo ""
-                        echo "Secret aplicado correctamente en namespace jenkins."
-                        """
-                    }
-                }
-            }
-        }
-
 
         // -----------------------------
         // Helm Deploy
@@ -143,13 +81,15 @@ pipeline {
 
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
+                    env.sfs_jenkins_ip = readFile("${WORKSPACE}/sfs_jenkins_ip.txt").trim()
 
                     helmDeployJenkins(
                         dir: env.HELM_DIR,
-                        chartDir: 'jenkins-hw',
+                        chartDir: 'jenkins-base',
                         kubeconfigCred: 'cce-jenkins-kubeconfig',
                         elbId: env.elb_public_id,
                         elbIp: env.elb_public_ip,
+                        sfsIp: env.sfs_jenkins_ip,
                         releaseName: 'jenkins',
                         namespace: 'jenkins',
                         healthEndpoint: '/login',

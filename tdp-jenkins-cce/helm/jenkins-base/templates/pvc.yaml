@@ -3,11 +3,12 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: pvc-jenkins
+  namespace: {{ .Values.controller.namespace }}
 spec:
   accessModes:
     - ReadWriteMany
-  storageClassName: ""   # IMPORTANTE
+  storageClassName: ""
   resources:
     requests:
-      storage: 10Gi
+      storage: {{ .Values.persistence.size }}
 {{- end }}
