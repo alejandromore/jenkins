@@ -1,3 +1,9 @@
+$schema = terraform providers schema -json | ConvertFrom-Json
+$huaweicloudProvider = $schema.provider_schemas["registry.terraform.io/huaweicloud/huaweicloud"]
+
+$huaweicloudProvider.resource_types.Keys
+$huaweicloudProvider.resource_types["huaweicloud_sfs_turbo"].block.attributes.Keys
+
 # Build the docker image locally
 
 echo "=========================================="

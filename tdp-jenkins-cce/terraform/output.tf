@@ -23,5 +23,5 @@ output "sfs_jenkins_id" {
 }
 
 output "sfs_jenkins_ip" {
-  value = huaweicloud_sfs_turbo.jenkins.mount_targets[0].ip_address
+  value = huaweicloud_sfs_turbo.jenkins.mount_target[0].ip_address
 }
