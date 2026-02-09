@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sfs-test2-pod
+spec:
+  containers:
+  - name: test-container
+    image: busybox
+    command: ["sleep", "3600"]
+    volumeMounts:
+    - name: sfs-volume
+      mountPath: /mnt/sfs
+  volumes:
+  - name: sfs-volume
+    persistentVolumeClaim:
+      claimName: sfs-static-pvc
