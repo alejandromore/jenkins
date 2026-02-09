@@ -14,6 +14,6 @@ spec:
     namespace: {{ .Values.controller.namespace }}
     name: pvc-jenkins
   nfs:
-    server: {{ .Values.persistence.sfsIp }}
+    server: {{ .Values.persistence.sfsip }}
     path: "/"
 {{- end }}
