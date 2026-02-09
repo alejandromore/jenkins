@@ -1,0 +1,16 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-jenkins
+spec:
+  capacity:
+    storage: 10Gi   # Debe ser menor o igual al tamaño del SFS
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""   # IMPORTANTE: vacío para binding estático
+  nfs:
+    server: "10.1.32.2"
+    path: "/"
+{{- end }}
