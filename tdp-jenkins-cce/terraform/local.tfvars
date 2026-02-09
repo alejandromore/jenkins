@@ -50,3 +50,6 @@ cce_node_password                 = "P@ssw0rdSecure123!"
 ng_name                           = "ng-internet"
 ng_spec                           = 1
 ng_description                    = "NAT Gateway"
+
+sfs_name                          = "sfs-turbo-jenkins"
+sfs_size_gb                       = 500

@@ -1,0 +1,28 @@
+controller:
+  image: "jenkins/jenkins:lts"
+  tag: "lts"
+  installPlugins:
+    - kubernetes:1.39.1
+    - workflow-aggregator:2.7
+    - git:4.10.0
+    - configuration-as-code:1.56
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+  serviceType: LoadBalancer
+  service:
+    annotations: {}
+  namespace: jenkins
+
+persistence:
+  enabled: true
+  pvName: pv-efs-jenkins-home
+  sfsId: ""        # se inyecta por --set
+  size: 50Gi
+
+agent:
+  enabled: false

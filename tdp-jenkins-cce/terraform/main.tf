@@ -206,6 +206,17 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
   description       = "Default egress security group rule"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "allow_nfs_internal" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 2049
+  port_range_max    = 2049
+  remote_group_id   = module.sg_cce.security_group_id
+  description       = "Allow internal NFS access for SFS Turbo"
+}
+
 #######################################
 # ELB
 #######################################
@@ -338,6 +349,15 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 
   password          = var.cce_node_password
   # key_pair         = var.cce_node_keypair_name
+}
+
+resource "huaweicloud_sfs_turbo" "jenkins" {
+  name              = var.sfs_name
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  vpc_id            = module.vpc.vpc_id
+  subnet_id         = module.subnet_cce.subnet_id
+  security_group_id = module.sg_cce.security_group_id
+  size              = var.sfs_size_gb
 }
 
 #######################################

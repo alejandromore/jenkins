@@ -1,0 +1,26 @@
+{{- if .Values.persistence.enabled }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.persistence.pvName }}
+spec:
+  capacity:
+    storage: {{ .Values.persistence.size }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  mountOptions:
+    - vers=3
+    - noatime
+    - nolock
+    - hard
+    - timeo=600
+    - retrans=5
+  csi:
+    driver: csi.everest.io
+    volumeHandle: {{ .Values.persistence.sfsId | quote }}
+    volumeAttributes:
+      type: sfs
+
+{{- end }}

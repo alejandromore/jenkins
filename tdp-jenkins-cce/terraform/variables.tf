@@ -215,3 +215,18 @@ variable "ng_spec" {
   type        = string
   default     = "1"
 }
+
+# ============================================================================
+# VARIABLES SFS
+# ============================================================================
+variable "sfs_name" {
+  type        = string
+  description = "Name for the SFS Turbo"
+  default     = ""
+}
+
+variable "sfs_size_gb" {
+  type        = number
+  description = "Capacity of SFS Turbo in GiB"
+  default     = 500
+}
