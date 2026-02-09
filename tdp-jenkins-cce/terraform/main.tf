@@ -360,11 +360,6 @@ resource "huaweicloud_sfs_turbo" "jenkins" {
   size              = var.sfs_size_gb
 }
 
-resource "huaweicloud_sfs_turbo_mount_target" "jenkins_mt" {
-  file_system_id = huaweicloud_sfs_turbo.jenkins.id
-  subnet_id      = huaweicloud_vpc_subnet.subnet.id
-}
-
 #######################################
 # Output Final
 #######################################
