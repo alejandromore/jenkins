@@ -179,11 +179,11 @@ resource "tls_private_key" "ecs" {
 
 resource "local_file" "private_key" {
   content  = tls_private_key.ecs.private_key_pem
-  filename = "${path.module}/keys/id_rsa_ecs.pem"
+  filename = "${path.module}/keys/pk-${var.ecs_public_name}.pem"
 }
 
 resource "huaweicloud_compute_keypair" "ecs" {
-  name       = "ecs-keypair"
+  name       = "kp-${var.ecs_public_name}"
   public_key = tls_private_key.ecs.public_key_openssh
 }
 

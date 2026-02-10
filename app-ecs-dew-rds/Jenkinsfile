@@ -64,13 +64,14 @@ pipeline {
                             'ecs_public_ip', 
                             'rds_public_ip',
                             'rds_postgres_password',
-                            'ecs_pem_path'
+                            'ecs_private_key_pem',
+                            'ecs_public_key_openssh'
                         ] 
                     )
 
                 }
             }
-        }
+        }  
 
         stage('Restore Database') {
             when {
@@ -106,10 +107,11 @@ pipeline {
                 }
             }
             steps {
+
                 script {
 
-                    env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
-                    env.ecs_pem_path  = readFile("${WORKSPACE}/ecs_pem_path.txt").trim()
+                    env.ecs_public_ip     = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
+                    env.ecs_private_path  = "${WORKSPACE}/ecs_private_key_pem.txt"
 
                     sh """
                     set -eo pipefail
@@ -127,7 +129,7 @@ pipeline {
                     echo "Ejecutando playbook de despliegue del app..."
                     ansible-playbook -i inventory/hosts playbooks/deploy-java.yml \
                     -e "ecs_ip=${env.ecs_public_ip}" \
-                    -e "ssh_key_path=${env.ecs_pem_path}"
+                    --private-key ${env.ecs_private_path} \
 
                     echo "Despliegue finalizado correctamente"
                     """
