@@ -1,0 +1,183 @@
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: true,
+            description: 'Construir infraestructura con Terraform, asociar el agency manualmente'
+        )
+        booleanParam(
+            name: 'RUN_ANSIBLE',
+            defaultValue: false,
+            description: 'Instalar Docker e imagen Jenkins'
+        )
+    }
+
+    environment {
+        TF_IN_AUTOMATION = "true"
+        TF_CLI_ARGS = "-no-color"
+
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+        TF_DIR   = 'jenkins-ecs/terraform'
+        ANS_DIR  = 'jenkins-ecs/ansible'
+        IMAGE    = 'obs://obs-alejandro-db-dumps/pg-cliente-dump.sql'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            when {
+                allOf {
+                    expression { params.RUN_TERRAFORM }
+                    expression { params.ACTION in ['deploy', 'destroy'] }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                sh '''
+                    rm -rf .terraform
+                    terraform init
+                '''
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    sh 'terraform plan -out=tfplan -var-file="local.tfvars"'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    script {
+                        sh 'terraform apply -auto-approve tfplan'
+                        env.ecs_public_ip = sh(
+                            script: 'terraform output -raw ecs_public_ip',
+                            returnStdout: true
+                        ).trim()
+                    }
+
+                    // Pruebas: Guardar en archivos locales (workspace)
+                    writeFile file: "${WORKSPACE}/ecs_public_ip.txt", text: env.ecs_public_ip
+                }
+            }
+        }
+
+
+        stage('Deploy App with Ansible') {
+
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE }
+                }
+            }
+
+            steps {
+                // Leer outputs generados previamente
+                script {
+                    env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
+                    echo "ECS Public IP: ${env.ecs_public_ip}"
+                    env.pem_file = "${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem"
+                }
+
+                dir(env.ANS_DIR) {
+
+                    withCredentials([
+                        usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN'),
+                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
+                        usernamePassword(credentialsId: 'swr-jenkins', usernameVariable: 'SWR_USER', passwordVariable: 'SWR_PASS')
+                    ]) {
+
+                        sh """
+                            set -e
+
+                            # Cargar PEM file
+                            chmod 400 "${env.pem_file}"
+
+                            # Deshabilitar host key checking
+                            export ANSIBLE_HOST_KEY_CHECKING=False
+
+                            # Ejecutar playbook con todas las credenciales
+                            ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \\
+                                --private-key "$pem_file" \\
+                                --extra-vars "ansible_host=${env.ecs_public_ip} \\
+                                            app_dir=/opt/jenkins \\
+                                            swr_registry=swr.la-south-2.myhuaweicloud.com \\
+                                            image_name=cce-basic-app/jenkins-hwc:2.0 \\
+                                            region=la-south-2 \\
+                                            github_user=${GITHUB_USER} \\
+                                            github_token=${GITHUB_TOKEN} \\
+                                            hwc_access_key=${HWC_ACCESS_KEY} \\
+                                            hwc_secret_key=${HWC_SECRET_KEY} \\
+                                            swr_username=${SWR_USER} \\
+                                            swr_password=${SWR_PASS} \\
+                                            jenkins_admin_id=alejandro \\
+                                            jenkins_admin_password=ingE2004#"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'destroy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+        //always {
+        //    deleteDir()
+        //}
+    }
+}
