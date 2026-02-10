@@ -128,8 +128,6 @@
 
     - name: Deploy with Docker Compose
       command: docker compose up -d
-      args:
-        chdir: "{{ app_dir }}"
 
     # -----------------------------
     # Health check
