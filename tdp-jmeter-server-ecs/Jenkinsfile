@@ -77,7 +77,7 @@ pipeline {
                 script {
                     env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
                     echo "ECS Public IP: ${env.ecs_public_ip}"
-                    env.pem_file = "${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem"
+                    env.pem_file = "${WORKSPACE}/tdp-jmeter-server-ecs/terraform/keys/pk-ecs-jenkins.pem"
                 }
 
                 dir(env.ANS_DIR) {
