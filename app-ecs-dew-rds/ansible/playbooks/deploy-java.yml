@@ -40,7 +40,7 @@
     # 3. Copiar aplicación
     - name: Copiar JAR al servidor
       copy:
-        src: "app.jar"
+        src: "{{ playbook_dir }}/../app.jar"
         dest: "{{ app_install_dir }}/{{ app_name }}.jar"
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
