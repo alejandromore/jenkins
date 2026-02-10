@@ -1,3 +1,28 @@
+# Paso 1: Crear la carpeta dentro del contenedor
+docker exec -it jmeter-server bash
+mkdir -p /opt/jmeter
+exit
+
+# Paso 2: Copiar el archivo .jmx
+docker cp app-java.jmx jmeter-server:/opt/jmeter/tp-app-java.jmx
+
+# Paso 3: Crear carpeta de resultados
+docker exec -it jmeter-server bash
+mkdir -p /opt/jmeter/results
+exit
+
+# Después de esto, tu contenedor tendrá:
+/opt/jmeter/tp-app-java.jmx
+/opt/jmeter/results/
+
+docker exec -it jmeter-server bash
+jmeter -n -t /opt/jmeter/tp-app-java.jmx -l /opt/jmeter/results/results.jtl
+
+
+
+
+
+
 docker ps
 docker logs -f jmeter-server
 

@@ -1,0 +1,73 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform'
+        )
+        booleanParam(
+            name: 'RUN_HELM',
+            defaultValue: false,
+            description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
+        )
+    }
+
+    environment {
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+        TF_DIR   = 'tdp-config-catalog-cce/terraform'
+        HELM_DIR = 'tdp-config-catalog-cce/helm'
+        REGION   = 'la-south-2'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // -----------------------------
+        // Terraform: infraestructura
+        // -----------------------------
+        stage('Terraform Deploy') {
+            when {
+                expression { params.RUN_TERRAFORM }
+            }
+            steps {
+                script {
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: [                        ]
+                    )
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+    }
+}
