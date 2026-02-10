@@ -19,7 +19,7 @@ pipeline {
         booleanParam(
             name: 'RUN_ANSIBLE',
             defaultValue: false,
-            description: 'Instalar Docker e imagen Jenkins'
+            description: 'Instalar Docker e imagen JMeter'
         )
     }
 
