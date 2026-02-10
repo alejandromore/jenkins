@@ -57,8 +57,8 @@ resource "huaweicloud_networking_secgroup_rule" "management_ingress_server" { #I
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 5000
-  port_range_max    = 5000
+  port_range_min    = 50000
+  port_range_max    = 50000
   remote_ip_prefix  = "0.0.0.0/0"
   description       = "Internet → ECS (5000 Server)"
 }
