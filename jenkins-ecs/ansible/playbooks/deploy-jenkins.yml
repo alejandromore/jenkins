@@ -123,11 +123,20 @@
         executable: /bin/bash
       no_log: true
 
-    - name: Pull image from SWR
-      command: docker pull {{ swr_registry }}/{{ image_name }}
+    - name: Copy docker-compose.yml
+      copy:
+        src: files/docker-compose.yml
+        dest: "{{ app_dir }}/docker-compose.yml"
 
-    - name: Deploy with Docker Compose
+    - name: Copy casc.yaml
+      copy:
+        src: files/casc.yaml
+        dest: "{{ app_dir }}/casc.yaml"
+
+    - name: Deploy Jenkins
       command: docker compose up -d
+      args:
+        chdir: "{{ app_dir }}"
 
     # -----------------------------
     # Health check

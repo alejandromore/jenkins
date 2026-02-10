@@ -1,16 +1,12 @@
 services:
   jenkins:
-    image: jenkins-hwc:2.0
+    image: {{ swr_registry }}/{{ image_name }}
     container_name: jenkins-hwc
     platform: linux/amd64
 
-    build:
-      context: .
-      dockerfile: Dockerfile
-
     env_file:
       - secrets.env
-      
+
     ports:
       - "8080:8080"
       - "50000:50000"
