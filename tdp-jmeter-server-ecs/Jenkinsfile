@@ -16,7 +16,7 @@ pipeline {
         booleanParam(
             name: 'RUN_TERRAFORM',
             defaultValue: false,
-            description: 'Construir infraestructura con Terraform, asociar el agency manualmente'
+            description: 'Construir infraestructura con Terraform'
         )
         booleanParam(
             name: 'RUN_ANSIBLE',
