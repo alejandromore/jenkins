@@ -11,10 +11,10 @@ services:
     environment:
       - IP={{ ansible_host }}
       - JVM_ARGS=-Dserver.rmi.ssl.disable=true
-      - JAVA_OPTS=-Djava.rmi.server.hostname={{ ansible_host }}
     command: 
       - "-s"
       - "-Dserver.rmi.localport=50000"
       - "-Dserver_port=1099"
       - "-Dserver.rmi.ssl.disable=true"
+      - "-Djava.rmi.server.hostname={{ ansible_host }}"
 
