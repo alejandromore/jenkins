@@ -1,3 +1,5 @@
+@Library('shared-lib') _
+
 pipeline {
     agent any
 
@@ -31,7 +33,6 @@ pipeline {
         TF_VAR_secret_key = credentials('hwc-secret-key')
         TF_DIR   = 'jenkins-ecs/terraform'
         ANS_DIR  = 'jenkins-ecs/ansible'
-        IMAGE    = 'obs://obs-alejandro-db-dumps/pg-cliente-dump.sql'
     }
 
     stages {
@@ -42,60 +43,25 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform Deploy') {
             when {
-                allOf {
-                    expression { params.RUN_TERRAFORM }
-                    expression { params.ACTION in ['deploy', 'destroy'] }
-                }
+                expression { params.RUN_TERRAFORM }
             }
             steps {
-                dir(env.TF_DIR) {
-                sh '''
-                    rm -rf .terraform
-                    terraform init
-                '''
+                script {
+
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: [
+                            'ecs_public_ip'
+                        ] 
+                    )
+
                 }
             }
         }
-
-        stage('Terraform Plan') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                dir(env.TF_DIR) {
-                    sh 'terraform plan -out=tfplan -var-file="local.tfvars"'
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                dir(env.TF_DIR) {
-                    script {
-                        sh 'terraform apply -auto-approve tfplan'
-                        env.ecs_public_ip = sh(
-                            script: 'terraform output -raw ecs_public_ip',
-                            returnStdout: true
-                        ).trim()
-                    }
-
-                    // Pruebas: Guardar en archivos locales (workspace)
-                    writeFile file: "${WORKSPACE}/ecs_public_ip.txt", text: env.ecs_public_ip
-                }
-            }
-        }
-
 
         stage('Deploy App with Ansible') {
 
