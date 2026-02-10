@@ -106,6 +106,7 @@ pipeline {
                                 playbooks/deploy-jmeter-server.yml \
                                 --private-key "${env.pem_file}" \
                                 --extra-vars "ansible_host=${env.ecs_public_ip}" \
+                                --user root \
                                 --become \
                                 -e "app_dir=/opt/jmeter" \
                                 -e "rmi_port=1099" \
