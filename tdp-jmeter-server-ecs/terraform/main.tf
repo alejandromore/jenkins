@@ -41,70 +41,54 @@ module "sg_public" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
-resource "huaweicloud_networking_secgroup_rule" "management_ingress_ssh" { #Internet → ECS
+#######################################
+# Security Group - Reglas abiertas para pruebas
+#######################################
+
+# Ingreso: todo desde cualquier IP
+resource "huaweicloud_networking_secgroup_rule" "allow_all_ingress" {
   security_group_id = module.sg_public.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 22
-  port_range_max    = 22
+  protocol          = "tcp"       # TCP completo
+  port_range_min    = 1
+  port_range_max    = 65535
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ECS (22 SSH)"
+  description       = "Allow all TCP ingress - testing only"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "management_ingress_server" { #Internet → ECS
+resource "huaweicloud_networking_secgroup_rule" "allow_all_ingress_udp" {
   security_group_id = module.sg_public.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 50000
-  port_range_max    = 50000
+  protocol          = "udp"       # UDP completo
+  port_range_min    = 1
+  port_range_max    = 65535
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ECS (5000 Server)"
+  description       = "Allow all UDP ingress - testing only"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "management_ingress_rmi" { #Internet → ECS
-  security_group_id = module.sg_public.security_group_id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 1099
-  port_range_max    = 1099
-  remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ECS (1099 Server)"
-}
-
-resource "huaweicloud_networking_secgroup_rule" "management_egress_80" { #ECS → Internet
+# Salida: todo hacia cualquier IP
+resource "huaweicloud_networking_secgroup_rule" "allow_all_egress" {
   security_group_id = module.sg_public.security_group_id
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 80
-  port_range_max    = 80
+  port_range_min    = 1
+  port_range_max    = 65535
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "ECS → Internet"
+  description       = "Allow all TCP egress - testing only"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "management_egress_8080" { #ECS → Internet
+resource "huaweicloud_networking_secgroup_rule" "allow_all_egress_udp" {
   security_group_id = module.sg_public.security_group_id
   direction         = "egress"
   ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
+  protocol          = "udp"
+  port_range_min    = 1
+  port_range_max    = 65535
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "ECS → Internet"
-}
-
-resource "huaweicloud_networking_secgroup_rule" "management_egress_8081" { #ECS → Internet
-  security_group_id = module.sg_public.security_group_id
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 8081
-  port_range_max    = 8081
-  remote_ip_prefix  = "0.0.0.0/0"
-  description       = "ECS → Internet"
+  description       = "Allow all UDP egress - testing only"
 }
 
 #######################################
