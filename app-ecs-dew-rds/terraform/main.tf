@@ -112,6 +112,17 @@ resource "huaweicloud_networking_secgroup_rule" "data_ingress_postgres" { #ECS p
   description       = "ECS publico → RDS (PostgreSQL)"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "data_ingress_postgres_internet" { #Internet → RDS (PostgreSQL)
+  security_group_id = module.sg_data.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 5432
+  port_range_max    = 5432
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "Internet → RDS (PostgreSQL)"
+}
+
 #######################################
 # RDS
 #######################################
