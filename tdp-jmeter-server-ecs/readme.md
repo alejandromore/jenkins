@@ -1,3 +1,6 @@
+docker ps
+docker logs -f jmeter-server
+
 ![Diagrama Arquitectura](./architecture.jpg)
 
 Provider: huaweicloud v1.85.0
