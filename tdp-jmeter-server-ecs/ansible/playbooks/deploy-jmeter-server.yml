@@ -10,7 +10,36 @@
 
   tasks:
 
-    - name: Install Docker dependencies
+    - name: Install prerequisite packages
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+        update_cache: yes
+
+    - name: Add Docker official GPG key
+      ansible.builtin.shell: |
+        install -m 0755 -d /etc/apt/keyrings
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+      args:
+        creates: /etc/apt/keyrings/docker.gpg
+
+    - name: Add Docker repository
+      ansible.builtin.shell: |
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+        | tee /etc/apt/sources.list.d/docker.list > /dev/null
+      args:
+        creates: /etc/apt/sources.list.d/docker.list
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker Engine and Compose plugin
       apt:
         name:
           - docker-ce
@@ -18,7 +47,6 @@
           - containerd.io
           - docker-compose-plugin
         state: present
-        update_cache: yes
 
     - name: Ensure Docker is running
       systemd:
