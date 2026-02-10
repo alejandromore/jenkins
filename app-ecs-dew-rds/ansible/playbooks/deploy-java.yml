@@ -1,0 +1,94 @@
+---
+- name: Desplegar aplicación Java en Huawei Cloud
+  hosts: app
+  become: true
+  gather_facts: true
+  
+  vars:
+    app_install_dir: "/opt/{{ app_name }}"
+    app_user: "{{ app_name }}"
+    #required_packages:
+    #  - openjdk-21-jdk
+    #  - curl
+    #  - net-tools
+      
+  tasks:             
+    # 1. Crear usuario y directorios
+    - name: Crear usuario de la aplicación
+      user:
+        name: "{{ app_user }}"
+        system: yes
+        shell: /usr/sbin/nologin
+        create_home: no
+    
+    - name: Crear directorio de la aplicación
+      file:
+        path: "{{ app_install_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+    
+    # 2. Instalar dependencias
+    - name: Actualizar apt e instalar Java
+      apt:
+        name: "{{ required_packages }}"
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
+    
+    # 3. Copiar aplicación
+    - name: Copiar JAR al servidor
+      copy:
+        src: "{{ app.jar }}"
+        dest: "{{ app_install_dir }}/{{ app_name }}.jar"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0644'
+    
+    # 4. Crear y habilitar servicio systemd
+    - name: Crear servicio systemd
+      template:
+        src: "../templates/service.j2"
+        dest: "/etc/systemd/system/{{ app_name }}.service"
+        owner: root
+        group: root
+        mode: '0644'
+      notify: reload systemd and restart app
+    
+    - name: Habilitar e iniciar servicio
+      systemd:
+        name: "{{ app_name }}"
+        enabled: yes
+        state: started
+        daemon_reload: yes
+    
+    # 5. Verificaciones
+    - name: Verificar estado del servicio
+      command: systemctl is-active {{ app_name }}
+      register: service_status
+      changed_when: false
+    
+    - name: Verificar puerto de la aplicación
+      wait_for:
+        port: "{{ app_port }}"
+        state: started
+        delay: 5
+        timeout: 30
+    
+    # 6. Resumen
+    - name: Mostrar resumen del despliegue
+      debug:
+        msg: |
+          Aplicación {{ app_name }} desplegada:
+          • Directorio: {{ app_install_dir }}
+          • Puerto: {{ app_port }}
+          • Estado servicio: {{ service_status.stdout }}
+          • Usuario: {{ app_user }}
+        
+  handlers:
+    - name: reload systemd and restart app
+      systemd:
+        name: "{{ app_name }}"
+        state: restarted
+        daemon_reload: yes

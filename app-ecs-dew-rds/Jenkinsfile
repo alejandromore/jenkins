@@ -1,0 +1,147 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform'
+        )
+        booleanParam(
+            name: 'RUN_ANSIBLE_BD',
+            defaultValue: false,
+            description: 'Restaurar base de datos PG con Ansible'
+        )
+        booleanParam(
+            name: 'RUN_ANSIBLE_APP',
+            defaultValue: false,
+            description: 'Desplegar la aplicación JAVA con Ansible'
+        )
+    }
+
+    environment {
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+        
+        TF_DIR   = 'app-ecs-dew-rds/terraform'
+        ANS_DIR  = 'app-ecs-dew-rds/ansible'
+        DUMP_DB  = 'obs://obs-alejandro-db-dumps/pg-cliente-dump.sql'
+        APP_FILE = 'obs://obs-alejandro-db-dumps/app-basic-java-0.0.1-SNAPSHOT.jar'
+        REGION   = 'la-south-2'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Deploy') {
+            when {
+                expression { params.RUN_TERRAFORM }
+            }
+            steps {
+                script {
+
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: [
+                            'ecs_public_ip', 
+                            'rds_public_ip',
+                            'rds_postgres_password',
+                            'ecs_pem_path'
+                        ] 
+                    )
+
+                }
+            }
+        }
+
+        stage('Restore Database') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE_BD }
+                }
+            }
+            steps {
+                script {
+
+                    // Leer outputs generados por terraformDeploy
+                    env.rds_public_ip = readFile("${WORKSPACE}/rds_public_ip.txt").trim()
+                    env.rds_postgres_password = readFile("${WORKSPACE}/rds_postgres_password.txt").trim()
+
+                    ansibleRestoreDb(
+                        dir: env.ANS_DIR,
+                        dump: env.DUMP_DB,
+                        dbHost: env.rds_public_ip,
+                        dbPassword: env.rds_postgres_password,
+                        accessKeyCred: 'hwc-access-key',
+                        secretKeyCred: 'hwc-secret-key'
+                    )
+                }
+            }
+        }
+
+        stage('Helm Deploy Application') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE_APP }
+                }
+            }
+            steps {
+                script {
+
+                    env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
+
+                    sh """
+                    set -eo pipefail
+                    export HOME=\$(mktemp -d)
+
+                    echo "Configurando obsutil..."
+                    obsutil config \
+                    -i "\$OBS_ACCESS_KEY" \
+                    -k "\$OBS_SECRET_KEY" \
+                    -e obs.${env.REGION}.myhuaweicloud.com
+
+                    echo "Descargando dump desde OBS..."
+                    obsutil cp "${appFile}" app.jar -f
+
+                    echo "Ejecutando playbook de despliegue del app..."
+                    ansible-playbook -i inventory/hosts playbooks/deploy-java.yml \
+                    -e "ecs_ip=${env.ecs_public_ip}" \
+                    -e "ssh_key_path=${env.ecs_pem_path}"
+
+                    echo "Despliegue finalizado correctamente"
+                    """
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+    }
+}

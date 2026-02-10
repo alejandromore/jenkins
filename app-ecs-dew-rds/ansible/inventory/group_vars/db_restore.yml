@@ -1,0 +1,9 @@
+# --- RDS PostgreSQL ---
+#db_host: 182.160.28.217
+db_port: 5432
+db_name: postgres
+db_user: root
+#db_password: P@ssw0rdSecure123!
+
+# --- Restore ---
+#db_dump_file: cliente-dump.sql

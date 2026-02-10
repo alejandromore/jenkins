@@ -1,0 +1,5 @@
+# Variables específicas
+app_name: "mi-servicio-java"
+app_port: 8080
+app_endpoint: "/healthCheck"
+java_version: 21
