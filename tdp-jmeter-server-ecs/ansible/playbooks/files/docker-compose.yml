@@ -5,10 +5,10 @@ services:
     restart: always
     environment:
       - JVM_ARGS=-Xms1g -Xmx2g
-      - HOST_IP=${HOST_IP}         # IP pública del ECS
-      - MODE=server                # <--- esto arranca el server
+      - HOST_IP=${HOST_IP}           # IP pública del ECS
+      - MODE=server                  # ⚡ arranca en modo server NON-GUI
       - SERVER_RMI_SSL_DISABLE=true
-      - RMI_LOCAL_PORT=50000       # opcional si quieres cambiar
+      - RMI_LOCAL_PORT=50000
     ports:
       - "1099:1099"
       - "50000:50000"
