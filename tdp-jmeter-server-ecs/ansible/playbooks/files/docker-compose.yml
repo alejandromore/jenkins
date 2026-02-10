@@ -1,16 +1,17 @@
+version: '3.8'
+
 services:
   jmeter-server:
     image: justb4/jmeter:latest
     container_name: jmeter-server
     restart: always
-    environment:
-      - JVM_ARGS=-Xms1g -Xmx2g
-      - MODE=server                     # ⚡ importante: arranca en modo server NON-GUI
-      - HOST_IP=${HOST_IP}              # IP pública del ECS
-      - SERVER_RMI_SSL_DISABLE=true     # deshabilita SSL
-      - RMI_LOCAL_PORT=50000            # puerto RMI
     ports:
-      - "1099:1099"
-      - "50000:50000"
-    volumes:
-      - ./tests:/tests
+      - "1099:1099"      # Puerto RMI Registry
+      - "50000:50000"    # Puerto de datos RMI
+    environment:
+      - IP=${HOST_IP} 
+      - JVM_ARGS=-Dserver.rmi.ssl.disable=true
+    command: 
+      - "-s"
+      - "-Dserver.rmi.localport=50000"
+      - "-Dserver_port=1099"
