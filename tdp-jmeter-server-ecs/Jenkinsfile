@@ -31,8 +31,8 @@ pipeline {
 
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
-        TF_DIR   = 'jmeter-server-ecs/terraform'
-        ANS_DIR  = 'jmeter-server-ecs/ansible'
+        TF_DIR   = 'tdp-jmeter-server-ecs/terraform'
+        ANS_DIR  = 'tdp-jmeter-server-ecs/ansible'
     }
 
     stages {
