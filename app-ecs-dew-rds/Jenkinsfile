@@ -117,6 +117,7 @@ pipeline {
                         sh """
                         set -eo pipefail
                         export HOME=\$(mktemp -d)
+                        export ANSIBLE_HOST_KEY_CHECKING=False
 
                         echo "Configurando obsutil..."
                         obsutil config \
