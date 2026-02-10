@@ -107,32 +107,34 @@ pipeline {
                 }
             }
             steps {
-
                 script {
 
-                    env.ecs_public_ip     = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
-                    env.ecs_private_path  = "${WORKSPACE}/ecs_private_key_pem.txt"
+                    env.ecs_public_ip    = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
+                    env.ecs_private_path = "${WORKSPACE}/ecs_private_key_pem.txt"
 
-                    sh """
-                    set -eo pipefail
-                    export HOME=\$(mktemp -d)
+                    dir(env.ANS_DIR) {
 
-                    echo "Configurando obsutil..."
-                    obsutil config \
-                    -i "$TF_VAR_access_key" \
-                    -k "$TF_VAR_secret_key" \
-                    -e obs.${env.REGION}.myhuaweicloud.com
+                        sh """
+                        set -eo pipefail
+                        export HOME=\$(mktemp -d)
 
-                    echo "Descargando dump desde OBS..."
-                    obsutil cp "${env.APP_FILE}" app.jar -f
+                        echo "Configurando obsutil..."
+                        obsutil config \
+                        -i "$TF_VAR_access_key" \
+                        -k "$TF_VAR_secret_key" \
+                        -e obs.${env.REGION}.myhuaweicloud.com
 
-                    echo "Ejecutando playbook de despliegue del app..."
-                    ansible-playbook -i inventory/hosts playbooks/deploy-java.yml \
-                    -e "ecs_ip=${env.ecs_public_ip}" \
-                    --private-key ${env.ecs_private_path} \
+                        echo "Descargando app desde OBS..."
+                        obsutil cp "${env.APP_FILE}" app.jar -f
 
-                    echo "Despliegue finalizado correctamente"
-                    """
+                        echo "Ejecutando playbook de despliegue del app..."
+                        ansible-playbook -i inventory/hosts playbooks/deploy-java.yml \
+                        -e "ecs_ip=${env.ecs_public_ip}" \
+                        --private-key ${env.ecs_private_path}
+
+                        echo "Despliegue finalizado correctamente"
+                        """
+                    }
                 }
             }
         }
