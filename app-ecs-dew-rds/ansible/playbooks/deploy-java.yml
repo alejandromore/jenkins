@@ -64,11 +64,6 @@
         daemon_reload: yes
     
     # 5. Verificaciones
-    - name: Verificar estado del servicio
-      command: systemctl is-active {{ app_name }}
-      register: service_status
-      changed_when: false
-    
     - name: Verificar puerto de la aplicación
       wait_for:
         port: "{{ app_port }}"
