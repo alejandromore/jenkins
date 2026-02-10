@@ -57,10 +57,21 @@ resource "huaweicloud_networking_secgroup_rule" "management_ingress_http" { #Int
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
+  port_range_min    = 5000
+  port_range_max    = 5000
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ECS (8080 Server)"
+  description       = "Internet → ECS (5000 Server)"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "management_ingress_http" { #Internet → ECS
+  security_group_id = module.sg_public.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 1099
+  port_range_max    = 1099
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "Internet → ECS (1099 Server)"
 }
 
 #######################################

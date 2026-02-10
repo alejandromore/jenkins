@@ -24,7 +24,7 @@
     - name: Crear directorio de la aplicación
       file:
         path: "{{ app_install_dir }}"
-        state: directory
+        state: directoryMostrar resumen del despliegue
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
         mode: '0755'
@@ -78,7 +78,6 @@
           Aplicación {{ app_name }} desplegada:
           • Directorio: {{ app_install_dir }}
           • Puerto: {{ app_port }}
-          • Estado servicio: {{ service_status.stdout }}
           • Usuario: {{ app_user }}
         
   handlers:

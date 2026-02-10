@@ -133,21 +133,14 @@ pipeline {
                             export ANSIBLE_HOST_KEY_CHECKING=False
 
                             # Ejecutar playbook con todas las credenciales
-                            ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \\
-                                --private-key "$pem_file" \\
-                                --extra-vars "ansible_host=${env.ecs_public_ip} \\
-                                            app_dir=/opt/jenkins \\
-                                            swr_registry=swr.la-south-2.myhuaweicloud.com \\
-                                            image_name=cce-basic-app/jenkins-hwc:2.0 \\
-                                            region=la-south-2 \\
-                                            github_user=${GITHUB_USER} \\
-                                            github_token=${GITHUB_TOKEN} \\
-                                            hwc_access_key=${HWC_ACCESS_KEY} \\
-                                            hwc_secret_key=${HWC_SECRET_KEY} \\
-                                            swr_username=${SWR_USER} \\
-                                            swr_password=${SWR_PASS} \\
-                                            jenkins_admin_id=alejandro \\
-                                            jenkins_admin_password=ingE2004#"
+                            ansible-playbook \
+                                -i inventory/hosts \
+                                playbooks/deploy-jmeter-server.yml \
+                                --private-key "$pem_file" \
+                                --become \
+                                -e "app_dir=/opt/jmeter" \
+                                -e "rmi_port=1099" \
+                                -e "server_port=50000"
                         """
                     }
                 }

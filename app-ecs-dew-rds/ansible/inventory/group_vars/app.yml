@@ -3,3 +3,5 @@ app_name: "mi-servicio-java"
 app_port: 8081
 app_endpoint: "/app-java/healthCheck"
 java_version: 21
+
+# http://159.138.115.155:8081/app-java/healthCheck

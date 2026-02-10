@@ -1,0 +1,17 @@
+services:
+  jmeter-server:
+    image: justb4/jmeter:5.6.3
+    container_name: jmeter-server
+    restart: always
+    environment:
+      - JVM_ARGS=-Xms1g -Xmx2g
+    command: >
+      jmeter-server
+      -Dserver.rmi.localport=50000
+      -Dserver_port=50000
+      -Djava.rmi.server.hostname=${HOST_IP}
+    ports:
+      - "1099:1099"
+      - "50000:50000"
+    volumes:
+      - ./tests:/tests
