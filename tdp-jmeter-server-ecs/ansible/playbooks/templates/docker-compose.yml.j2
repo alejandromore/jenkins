@@ -9,11 +9,12 @@ services:
       - "1099:1099"      # Puerto RMI Registry
       - "50000:50000"    # Puerto de datos RMI
     environment:
-      - IP=${HOST_IP} 
+      - IP={{ ansible_host }}
       - JVM_ARGS=-Dserver.rmi.ssl.disable=true
-      - JAVA_OPTS=-Djava.rmi.server.hostname=${HOST_IP}
+      - JAVA_OPTS=-Djava.rmi.server.hostname={{ ansible_host }}
     command: 
       - "-s"
       - "-Dserver.rmi.localport=50000"
       - "-Dserver_port=1099"
       - "-Dserver.rmi.ssl.disable=true"
+
