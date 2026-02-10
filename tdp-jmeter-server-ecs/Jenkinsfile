@@ -100,13 +100,14 @@ pipeline {
 
                             # Ejecutar playbook con todas las credenciales
                             ansible-playbook \
-                                -i inventory/hosts \
+                                -i "${env.ecs_public_ip}," \
                                 playbooks/deploy-jmeter-server.yml \
-                                --private-key "$pem_file" \
+                                --private-key "${env.pem_file}" \
                                 --become \
                                 -e "app_dir=/opt/jmeter" \
                                 -e "rmi_port=1099" \
                                 -e "server_port=50000"
+
                         """
                     }
                 }
