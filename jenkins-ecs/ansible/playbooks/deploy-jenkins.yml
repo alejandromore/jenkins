@@ -123,10 +123,14 @@
         executable: /bin/bash
       no_log: true
 
-    - name: Copy docker-compose.yml
-      copy:
-        src: files/docker-compose.yml
+    - name: Render docker-compose.yml
+      template:
+        src: docker-compose.yml.j2
         dest: "{{ app_dir }}/docker-compose.yml"
+
+    - name: Debug image
+      debug:
+        msg: "{{ swr_registry }}/{{ image_name }}"
 
     - name: Copy casc.yaml
       copy:
