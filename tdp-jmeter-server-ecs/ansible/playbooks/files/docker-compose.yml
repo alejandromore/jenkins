@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   jmeter-server:
     image: justb4/jmeter:latest
@@ -6,11 +5,10 @@ services:
     restart: always
     environment:
       - JVM_ARGS=-Xms1g -Xmx2g
-    command: >
-      jmeter-server
-      -Dserver.rmi.localport=50000
-      -Dserver_port=50000
-      -Djava.rmi.server.hostname=${HOST_IP}
+      - HOST_IP=${HOST_IP}         # IP pública del ECS
+      - MODE=server                # <--- esto arranca el server
+      - SERVER_RMI_SSL_DISABLE=true
+      - RMI_LOCAL_PORT=50000       # opcional si quieres cambiar
     ports:
       - "1099:1099"
       - "50000:50000"
