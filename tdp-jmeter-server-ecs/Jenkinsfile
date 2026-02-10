@@ -99,10 +99,10 @@ pipeline {
                             export ANSIBLE_HOST_KEY_CHECKING=False
 
                             # Ejecutar playbook con todas las credenciales
-                            ansible-playbook \
-                                -i "${env.ecs_public_ip}," \
+                            ansible-playbook -i inventory/hosts \
                                 playbooks/deploy-jmeter-server.yml \
                                 --private-key "${env.pem_file}" \
+                                --extra-vars "ansible_host=${env.ecs_public_ip} \
                                 --become \
                                 -e "app_dir=/opt/jmeter" \
                                 -e "rmi_port=1099" \
