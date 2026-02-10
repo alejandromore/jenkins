@@ -95,6 +95,9 @@ pipeline {
                             # Cargar PEM file
                             chmod 400 "${env.pem_file}"
 
+                            # Limpiar host key vieja
+                            ssh-keygen -f "/var/jenkins_home/.ssh/known_hosts" -R "${env.ecs_public_ip}" || true
+
                             # Deshabilitar host key checking
                             export ANSIBLE_HOST_KEY_CHECKING=False
 
