@@ -61,27 +61,18 @@
         state: directory
         mode: "0755"
 
-    - name: Create docker-compose.yml
+    - name: Copy docker-compose.yml
       copy:
+        src: files/docker-compose.yml
         dest: "{{ app_dir }}/docker-compose.yml"
-        content: |
-          version: "3.8"
-          services:
-            jmeter-server:
-              image: "{{ jmeter_image }}"
-              container_name: jmeter-server
-              ports:
-                - "{{ server_port }}:50000"
-                - "{{ rmi_port }}:1099"
-              environment:
-                - JVM_ARGS=-Xms512m -Xmx1024m
-      mode: "0644"
+        mode: "0644"
 
     - name: Create .env file
       copy:
         dest: "{{ app_dir }}/.env"
         content: |
           HOST_IP={{ ansible_default_ipv4.address }}
+        mode: "0644"
 
     - name: Deploy JMeter Server
       command: docker compose up -d
