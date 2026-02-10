@@ -11,6 +11,7 @@ services:
     environment:
       - IP=${HOST_IP} 
       - JVM_ARGS=-Dserver.rmi.ssl.disable=true
+      - JAVA_OPTS=-Djava.rmi.server.hostname=${HOST_IP}
     command: 
       - "-s"
       - "-Dserver.rmi.localport=50000"
