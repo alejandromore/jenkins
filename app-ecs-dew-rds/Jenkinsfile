@@ -128,9 +128,12 @@ pipeline {
                         obsutil cp "${env.APP_FILE}" app.jar -f
 
                         echo "Ejecutando playbook de despliegue del app..."
-                        ansible-playbook -i inventory/hosts playbooks/deploy-java.yml \
-                        -e "ecs_ip=${env.ecs_public_ip}" \
-                        --private-key ${env.ecs_private_path}
+                        ansible-playbook \
+                        -i inventory/hosts \
+                        -e "ansible_host=${env.ecs_public_ip}" \
+                        -e "ansible_user=root" \
+                        --private-key ${env.ecs_private_path} \
+                        playbooks/deploy-java.yml
 
                         echo "Despliegue finalizado correctamente"
                         """
