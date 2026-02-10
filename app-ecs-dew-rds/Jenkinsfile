@@ -115,6 +115,7 @@ pipeline {
                     dir(env.ANS_DIR) {
 
                         sh """
+                        chmod 600 ${env.ecs_private_path}
                         set -eo pipefail
                         export HOME=\$(mktemp -d)
                         export ANSIBLE_HOST_KEY_CHECKING=False
