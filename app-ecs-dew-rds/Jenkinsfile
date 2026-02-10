@@ -119,8 +119,8 @@ pipeline {
 
                     echo "Configurando obsutil..."
                     obsutil config \
-                    -i "\$OBS_ACCESS_KEY" \
-                    -k "\$OBS_SECRET_KEY" \
+                    -i "$OBS_ACCESS_KEY" \
+                    -k "$OBS_SECRET_KEY" \
                     -e obs.${env.REGION}.myhuaweicloud.com
 
                     echo "Descargando dump desde OBS..."
