@@ -74,6 +74,39 @@ resource "huaweicloud_networking_secgroup_rule" "management_ingress_rmi" { #Inte
   description       = "Internet → ECS (1099 Server)"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "management_egress_80" { #ECS → Internet
+  security_group_id = module.sg_public.security_group_id
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 80
+  port_range_max    = 80
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "ECS → Internet"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "management_egress_8080" { #ECS → Internet
+  security_group_id = module.sg_public.security_group_id
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 8080
+  port_range_max    = 8080
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "ECS → Internet"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "management_egress_8081" { #ECS → Internet
+  security_group_id = module.sg_public.security_group_id
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 8081
+  port_range_max    = 8081
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "ECS → Internet"
+}
+
 #######################################
 # ECS
 #######################################
