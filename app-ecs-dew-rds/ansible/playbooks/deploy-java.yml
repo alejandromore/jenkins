@@ -7,10 +7,10 @@
   vars:
     app_install_dir: "/opt/{{ app_name }}"
     app_user: "{{ app_name }}"
-    #required_packages:
-    #  - openjdk-21-jdk
-    #  - curl
-    #  - net-tools
+    required_packages:
+      - openjdk-21-jdk
+      - curl
+      - net-tools
       
   tasks:             
     # 1. Crear usuario y directorios
@@ -30,12 +30,12 @@
         mode: '0755'
     
     # 2. Instalar dependencias
-    #- name: Actualizar apt e instalar Java
-    #  apt:
-    #    name: "{{ required_packages }}"
-    #    state: present
-    #    update_cache: yes
-    #    cache_valid_time: 3600
+    - name: Actualizar apt e instalar Java
+      apt:
+        name: "{{ required_packages }}"
+        state: present
+        update_cache: yes
+        cache_valid_time: 3600
     
     # 3. Copiar aplicación
     - name: Copiar JAR al servidor
