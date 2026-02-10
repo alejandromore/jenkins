@@ -37,7 +37,7 @@ pipeline {
         TF_DIR   = 'app-ecs-dew-rds/terraform'
         ANS_DIR  = 'app-ecs-dew-rds/ansible'
         DUMP_DB  = 'obs://obs-alejandro-db-dumps/pg-cliente-dump.sql'
-        APP_FILE = 'obs://obs-alejandro-db-dumps/app-basic-java-0.0.1-SNAPSHOT.jar'
+        APP_FILE = 'obs://obs-alejandro-apps/app-basic-java-0.0.1-SNAPSHOT.jar'
         REGION   = 'la-south-2'
     }
 
