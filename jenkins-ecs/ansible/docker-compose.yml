@@ -1,0 +1,29 @@
+services:
+  jenkins:
+    image: jenkins-hwc:2.0
+    container_name: jenkins-hwc
+    platform: linux/amd64
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    env_file:
+      - secrets.env
+      
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - ./casc.yaml:/var/jenkins_home/casc.yaml:ro
+
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      CASC_JENKINS_CONFIG: /var/jenkins_home/casc.yaml
+
+    restart: unless-stopped
+
+volumes:
+  jenkins_data:
