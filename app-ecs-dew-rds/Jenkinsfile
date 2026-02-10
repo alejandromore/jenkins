@@ -109,6 +109,7 @@ pipeline {
                 script {
 
                     env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
+                    env.ecs_pem_path  = readFile("${WORKSPACE}/ecs_pem_path.txt").trim()
 
                     sh """
                     set -eo pipefail
@@ -121,7 +122,7 @@ pipeline {
                     -e obs.${env.REGION}.myhuaweicloud.com
 
                     echo "Descargando dump desde OBS..."
-                    obsutil cp "${appFile}" app.jar -f
+                    obsutil cp "${env.APP_FILE}" app.jar -f
 
                     echo "Ejecutando playbook de despliegue del app..."
                     ansible-playbook -i inventory/hosts playbooks/deploy-java.yml \
