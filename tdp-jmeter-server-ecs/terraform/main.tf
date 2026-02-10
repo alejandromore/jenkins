@@ -52,7 +52,7 @@ resource "huaweicloud_networking_secgroup_rule" "management_ingress_ssh" { #Inte
   description       = "Internet → ECS (22 SSH)"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "management_ingress_http" { #Internet → ECS
+resource "huaweicloud_networking_secgroup_rule" "management_ingress_server" { #Internet → ECS
   security_group_id = module.sg_public.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
@@ -63,7 +63,7 @@ resource "huaweicloud_networking_secgroup_rule" "management_ingress_http" { #Int
   description       = "Internet → ECS (5000 Server)"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "management_ingress_http" { #Internet → ECS
+resource "huaweicloud_networking_secgroup_rule" "management_ingress_rmi" { #Internet → ECS
   security_group_id = module.sg_public.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
