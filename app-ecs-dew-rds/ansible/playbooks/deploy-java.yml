@@ -24,7 +24,7 @@
     - name: Crear directorio de la aplicación
       file:
         path: "{{ app_install_dir }}"
-        state: directoryMostrar resumen del despliegue
+        state: directory
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
         mode: '0755'
