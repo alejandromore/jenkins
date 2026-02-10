@@ -5,6 +5,7 @@
 
   vars:
     app_dir: /opt/jmeter
+    jmeter_image: "justb4/jmeter:latest"
     rmi_port: 1099
     server_port: 50000
 
@@ -60,11 +61,21 @@
         state: directory
         mode: "0755"
 
-    - name: Copy docker-compose file
+    - name: Create docker-compose.yml
       copy:
-        src: files/docker-compose.yml
         dest: "{{ app_dir }}/docker-compose.yml"
-        mode: "0644"
+        content: |
+          version: "3.8"
+          services:
+            jmeter-server:
+              image: "{{ jmeter_image }}"
+              container_name: jmeter-server
+              ports:
+                - "{{ server_port }}:50000"
+                - "{{ rmi_port }}:1099"
+              environment:
+                - JVM_ARGS=-Xms512m -Xmx1024m
+      mode: "0644"
 
     - name: Create .env file
       copy:
