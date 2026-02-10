@@ -86,3 +86,5 @@
         name: "{{ app_name }}"
         state: restarted
         daemon_reload: yes
+
+# http://176.52.139.63:8081/app-java/healthCheck
