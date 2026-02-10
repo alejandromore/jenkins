@@ -15,7 +15,7 @@ pipeline {
         )
         booleanParam(
             name: 'RUN_TERRAFORM',
-            defaultValue: true,
+            defaultValue: false,
             description: 'Construir infraestructura con Terraform'
         )
     }
