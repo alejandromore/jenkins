@@ -1,16 +1,11 @@
-version: '3.8'
-
 services:
   jmeter-server:
-    #image: justb4/jmeter:latest
-    build:
-      context: .       # ruta donde está el Dockerfile
-      dockerfile: Dockerfile
+    image: {{ jmeter_image_name }}:{{ jmeter_image_tag }}
     container_name: jmeter-server
     restart: always
     ports:
-      - "1099:1099"      # Puerto RMI Registry
-      - "50000:50000"    # Puerto de datos RMI
+      - "1099:1099"
+      - "50000:50000"
     environment:
       - IP={{ ansible_host }}
       - JVM_ARGS=-Dserver.rmi.ssl.disable=true
@@ -20,4 +15,3 @@ services:
       - "-Dserver_port=1099"
       - "-Dserver.rmi.ssl.disable=true"
       - "-Djava.rmi.server.hostname={{ ansible_host }}"
-

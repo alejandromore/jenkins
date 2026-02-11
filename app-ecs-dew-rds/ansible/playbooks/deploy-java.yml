@@ -79,7 +79,7 @@
           • Directorio: {{ app_install_dir }}
           • Puerto: {{ app_port }}
           • Usuario: {{ app_user }}
-          • Application URL: http://{{ ansible_host }}:{{ app_port }}/{{ app_endpoint }}
+          • Application URL: http://{{ ansible_host }}:{{ app_port }}{{ app_endpoint }}
         
   handlers:
     - name: reload systemd and restart app

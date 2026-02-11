@@ -5,12 +5,16 @@
 
   vars:
     app_dir: /opt/jmeter
-    jmeter_image: "justb4/jmeter:latest"
     rmi_port: 1099
     server_port: 50000
+    jmeter_image_name: jmeter-server
+    jmeter_image_tag: 5.6.3
 
   tasks:
 
+    # ---------------------------
+    # 1️⃣ Instalar dependencias
+    # ---------------------------
     - name: Install prerequisite packages
       apt:
         name:
@@ -55,13 +59,19 @@
         enabled: yes
         state: started
 
+    # ---------------------------
+    # 2️⃣ Preparar directorio de la app
+    # ---------------------------
     - name: Create application directory
       file:
         path: "{{ app_dir }}"
         state: directory
         mode: "0755"
 
-    - name: Copy Dockerfile 
+    # ---------------------------
+    # 3️⃣ Copiar Dockerfile y template
+    # ---------------------------
+    - name: Copy Dockerfile
       copy:
         src: files/Dockerfile
         dest: "{{ app_dir }}/Dockerfile"
@@ -69,30 +79,42 @@
 
     - name: Render docker-compose.yml
       template:
-        src: docker-compose.yml.j2
+        src: template/docker-compose.yml.j2
         dest: "{{ app_dir }}/docker-compose.yml"
 
+    # ---------------------------
+    # 4️⃣ Construir imagen JMeter 5.6.3
+    # ---------------------------
     - name: Build JMeter 5.6.3 Docker image
       community.docker.docker_image:
+        name: "{{ jmeter_image_name }}"
+        tag: "{{ jmeter_image_tag }}"
         build:
           path: "{{ app_dir }}"
           dockerfile: Dockerfile
-        name: jmeter-server
-        tag: 5.6.3
         push: false
 
+    # ---------------------------
+    # 5️⃣ Crear .env con IP
+    # ---------------------------
     - name: Create .env file
       copy:
         dest: "{{ app_dir }}/.env"
         content: |
-          HOST_IP={{ ansible_default_ipv4.address }}
+          host_ip={{ ansible_default_ipv4.address }}
         mode: "0644"
 
+    # ---------------------------
+    # 6️⃣ Levantar JMeter Server
+    # ---------------------------
     - name: Deploy JMeter Server
       command: docker compose up -d
       args:
         chdir: "{{ app_dir }}"
 
+    # ---------------------------
+    # 7️⃣ Esperar puerto RMI
+    # ---------------------------
     - name: Wait for RMI port
       wait_for:
         port: "{{ rmi_port }}"
