@@ -14,12 +14,14 @@ controller:
       cpu: "1"
       memory: "2Gi"
   namespace: jenkins
-
+  adminUser: "admin"                      # default user
+  adminPassword: "P@ssw0rdSecure123!"     # default password
 
 deployment:
   name: dp-jenkins-master
   version: v1
   containerPort: 8080
+  replicas: 1
 
 service:
   name: sr-jenkins-master

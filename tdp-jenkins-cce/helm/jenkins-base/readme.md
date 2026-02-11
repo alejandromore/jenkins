@@ -3,6 +3,8 @@ $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-jenkins-kubeconfig.yaml"
 
 # Validar acceso
 kubectl get nodes
+kubectl get namespace
+kubectl get secret -n jenkins
 
 # Crear Namespace para Jenkins
 kubectl create namespace jenkins
