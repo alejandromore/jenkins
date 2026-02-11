@@ -6,13 +6,13 @@ metadata:
   namespace: {{ .Values.controller.namespace }}
   annotations:
     volume.beta.kubernetes.io/storage-provisioner: {{ .Values.persistence.storageProvisioner }}
-    everest.io/enterprise-project-id: {{ .Values.enterpriseProjectId }}   # Enterprise project ID of the SFS Turbo volume
+    everest.io/enterprise-project-id: {{ .Values.enterpriseProjectId }}  
 spec:
   accessModes:
-  - ReadWriteMany                  # The value must be ReadWriteMany for SFS Turbo.
+  - ReadWriteMany                  
   resources:
     requests:
-      storage: {{ .Values.persistence.size }}               # SFS Turbo volume capacity.
-  storageClassName: {{ .Values.persistence.className }}       # StorageClass name of the SFS Turbo file system, which must be the same as that of the PV
-  volumeName: {{ .Values.persistence.pvName }}    # PV name
+      storage: {{ .Values.persistence.size }}            
+  storageClassName: {{ .Values.persistence.className }}      
+  volumeName: {{ .Values.persistence.pvName }}    
 {{- end }}

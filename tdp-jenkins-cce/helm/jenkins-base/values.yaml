@@ -28,7 +28,7 @@ service:
   targetPort: 8080
 
 elb:
-  elbId: ""                # Se inyecta dinámicamente desde Jenkins
+  elbId: ""               # Se inyecta dinámicamente desde Jenkins
   type: performance
   bandwidth: 5
   eipType: "5_bgp"
@@ -38,7 +38,7 @@ persistence:
   enabled: true
   pvName: pv-jenkins
   pvcName: pvc-jenkins
-  sfsId: ""        # se inyecta por --set
+  sfsId: ""               # se inyecta por --set
   sfsTurboSharedPath: ""  # se inyecta por --set  
   size: 50Gi
   storageProvisioner: everest-csi-provisioner

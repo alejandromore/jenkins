@@ -5,15 +5,18 @@ metadata:
   namespace: {{ .Values.controller.namespace }}
   labels:
     app: {{ .Values.deployment.name }}
+    version: {{ .Values.deployment.version }}
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: {{ .Values.deployment.name }}
+      version: {{ .Values.deployment.version }}
   template:
     metadata:
       labels:
         app: {{ .Values.deployment.name }}
+        version: {{ .Values.deployment.version }}
     spec:
       securityContext:
         fsGroup: 1000

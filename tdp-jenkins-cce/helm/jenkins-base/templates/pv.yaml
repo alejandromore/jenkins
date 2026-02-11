@@ -13,12 +13,12 @@ spec:
   csi:
     driver: {{ .Values.persistence.driver }}
     fsType: nfs
-    volumeHandle: {{ .Values.persistence.sfsId }}   # SFS Turbo volume ID
+    volumeHandle: {{ .Values.persistence.sfsId }}  
     volumeAttributes:
-      everest.io/share-export-location: {{ .Values.persistence.sfsTurboSharedPath }}   # Shared path of the SFS Turbo volume
-      everest.io/enterprise-project-id: {{ .Values.enterpriseProjectId }}  # Enterprise project ID of the SFS Turbo volume
-      storage.kubernetes.io/csiProvisionerIdentity: {{ .Values.persistence.storageProvisioner }}  # Identity of the CSI provisioner
-  persistentVolumeReclaimPolicy: Retain    # Reclaim policy
-  storageClassName: {{ .Values.persistence.className }}          # StorageClass name of the SFS Turbo file system
-  mountOptions: []                         # Mount options
+      everest.io/share-export-location: {{ .Values.persistence.sfsTurboSharedPath }}   
+      everest.io/enterprise-project-id: {{ .Values.enterpriseProjectId }}  
+      storage.kubernetes.io/csiProvisionerIdentity: {{ .Values.persistence.storageProvisioner }}  
+  persistentVolumeReclaimPolicy: Retain    
+  storageClassName: {{ .Values.persistence.className }}         
+  mountOptions: []                      
 {{- end }}
