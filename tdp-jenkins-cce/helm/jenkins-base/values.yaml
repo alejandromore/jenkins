@@ -25,7 +25,7 @@ deployment:
 service:
   name: sr-jenkins-master
   type: LoadBalancer
-  port: 8081
+  port: 80
   targetPort: 8081
 
 elb:
