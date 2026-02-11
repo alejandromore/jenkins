@@ -84,10 +84,10 @@ resource "huaweicloud_networking_secgroup_rule" "public_ingress_http" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
+  port_range_min    = 80
+  port_range_max    = 80
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ELB (8080)"
+  description       = "Internet → ELB (80)"
 }
 # ELB necesita comunicarse con ECS para tráfico de aplicación
 resource "huaweicloud_networking_secgroup_rule" "public_egress_to_private" {

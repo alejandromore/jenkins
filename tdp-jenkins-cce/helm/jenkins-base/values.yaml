@@ -19,14 +19,13 @@ controller:
 deployment:
   name: dp-jenkins-master
   version: v1
-  containerPort: 8081
-  healthPath: /app-java/healthCheck   # Se puede sobrescribir desde Jenkins
+  containerPort: 8080
 
 service:
   name: sr-jenkins-master
   type: LoadBalancer
   port: 80
-  targetPort: 8081
+  targetPort: 8080
 
 elb:
   elbId: ""                # Se inyecta dinámicamente desde Jenkins
