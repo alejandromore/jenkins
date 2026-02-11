@@ -3,11 +3,6 @@ variable "environment" {
   type        = string
 }
 
-variable "project_id" {
-  description = "Project ID"
-  type        = string
-}
-
 variable "tags" {
   description = "Tags to assign to the ECS"
   type        = map(string)
