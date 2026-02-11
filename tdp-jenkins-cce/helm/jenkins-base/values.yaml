@@ -21,8 +21,15 @@ controller:
 persistence:
   enabled: true
   pvName: pv-jenkins
-  sfsip: ""        # se inyecta por --set
+  pvcName: pvc-jenkins
+  sfsId: ""        # se inyecta por --set
+  sfsTurboSharedPath: ""  # se inyecta por --set  
   size: 50Gi
+  storage-provisioner: everest-csi-provisioner
+  className: csi-sfsturbo
+  driver: sfsturbo.csi.everest.io
+
+enterpriseProjectId: ""  # se inyecta por --set
 
 agent:
   enabled: false

@@ -25,3 +25,7 @@ output "sfs_jenkins_id" {
 output "sfs_turbo_shared_path" {
   value = huaweicloud_sfs_turbo.jenkins.export_location
 }
+
+output "enterprise_project_id" {
+  value = data.huaweicloud_enterprise_project.ep.id
+}

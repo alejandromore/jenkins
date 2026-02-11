@@ -59,7 +59,8 @@ pipeline {
                             'elb_public_ip', 
                             'elb_public_id',
                             'sfs_jenkins_id',
-                            'sfs_turbo_shared_path'
+                            'sfs_turbo_shared_path',
+                            'enterprise_project_id'
                         ]
                     )
                 }
@@ -83,6 +84,8 @@ pipeline {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
                     env.sfs_jenkins_id = readFile("${WORKSPACE}/sfs_jenkins_id.txt").trim()
+                    env.sfs_turbo_shared_path = readFile("${WORKSPACE}/sfs_turbo_shared_path.txt").trim()
+                    env.enterprise_project_id = readFile("${WORKSPACE}/enterprise_project_id.txt").trim()
 
                     helmDeployJenkins(
                         dir: env.HELM_DIR,
@@ -91,6 +94,8 @@ pipeline {
                         elbId: env.elb_public_id,
                         elbIp: env.elb_public_ip,
                         sfsId: env.sfs_jenkins_id,
+                        sfs_turbo_shared_path: env.sfs_turbo_shared_path,
+                        enterpriseProjectId: env.enterprise_project_id,
                         releaseName: 'jenkins',
                         namespace: 'jenkins',
                         healthEndpoint: '/login',

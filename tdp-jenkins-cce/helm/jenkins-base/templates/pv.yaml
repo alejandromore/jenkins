@@ -2,18 +2,23 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  annotations:
+    pv.kubernetes.io/provisioned-by: {{ .Values.persistence.storage-provisioner }}
   name: {{ .Values.persistence.pvName }}
 spec:
+  accessModes:
+  - ReadWriteMany      
   capacity:
     storage: {{ .Values.persistence.size }}
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: ""
-  claimRef:
-    namespace: {{ .Values.controller.namespace }}
-    name: pvc-jenkins
-  nfs:
-    server: {{ .Values.persistence.sfsip }}
-    path: "/"
+  csi:
+    driver: {{ .Values.persistence.driver }}
+    fsType: nfs
+    volumeHandle: {{ .Values.persistence.sfsId }}   # SFS Turbo volume ID
+    volumeAttributes:
+      everest.io/share-export-location: {{ .Values.persistence.sfsTurboSharedPath }}   # Shared path of the SFS Turbo volume
+      everest.io/enterprise-project-id: {{ .Values.enterpriseProjectId }}  # Enterprise project ID of the SFS Turbo volume
+      storage.kubernetes.io/csiProvisionerIdentity: {{ .Values.persistence.storage-provisioner }}
+  persistentVolumeReclaimPolicy: Retain    # Reclaim policy
+  storageClassName: {{ .Values.persistence.className }}          # StorageClass name of the SFS Turbo file system
+  mountOptions: []                         # Mount options
 {{- end }}
