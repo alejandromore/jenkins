@@ -1,5 +1,5 @@
 # Dockerfile para JMeter 5.6.3
-FROM openjdk:17-jdk-slim
+FROM openjdk:17-jdk-slim-bookworm
 
 # Variables
 ENV JMETER_VERSION=5.6.3
