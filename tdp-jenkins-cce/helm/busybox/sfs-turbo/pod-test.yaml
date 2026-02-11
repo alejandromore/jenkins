@@ -2,9 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web-demo
-  namespace: default
+  #namespace: default
+  namespace: jenkins
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: web-demo
@@ -24,4 +25,5 @@ spec:
       volumes:
         - name: pvc-sfsturbo-volume    # Volume name, which can be customized
           persistentVolumeClaim:
-            claimName: pvc-sfsturbo    # Name of the created PVC
+            #claimName: pvc-sfsturbo    # Name of the created PVC
+            claimName: pvc-jenkins

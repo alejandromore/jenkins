@@ -26,6 +26,7 @@ cd /data
 touch prueba.txt
 ls -l /data
 
+rm -rf /data/*
 
-kubectl exec -it web-demo-6bdd68cf4d-r7zlc -- sh
-kubectl exec -it web-demo-6bdd68cf4d-v6rm9 -- sh
+kubectl exec -it web-demo-7ff8d577b4-wlh4g -- sh
+kubectl delete namespace jenkins
