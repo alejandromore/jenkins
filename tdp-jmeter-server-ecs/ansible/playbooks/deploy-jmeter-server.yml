@@ -85,14 +85,10 @@
     # ---------------------------
     # 4️⃣ Construir imagen JMeter 5.6.3
     # ---------------------------
-    - name: Build JMeter 5.6.3 Docker image
-      community.docker.docker_image:
-        name: "{{ jmeter_image_name }}"
-        tag: "{{ jmeter_image_tag }}"
-        build:
-          path: "{{ app_dir }}"
-          dockerfile: Dockerfile
-        push: false
+    - name: Build JMeter 5.6.3 Docker image on ECS
+      command: docker build -t jmeter-server:5.6.3 .
+      args:
+        chdir: "{{ app_dir }}"
 
     # ---------------------------
     # 5️⃣ Crear .env con IP
