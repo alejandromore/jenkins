@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-demo
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-demo
+  template:
+    metadata:
+      labels:
+        app: web-demo
+    spec:
+      containers:
+      - name: container-1
+        image: nginx:latest
+        volumeMounts:
+        - name: pvc-sfsturbo-volume    # Volume name, which must be the same as the volume name in the volumes field
+          mountPath: /data  # Location where the storage volume is mounted
+      imagePullSecrets:
+        - name: default-secret
+      volumes:
+        - name: pvc-sfsturbo-volume    # Volume name, which can be customized
+          persistentVolumeClaim:
+            claimName: pvc-sfsturbo    # Name of the created PVC

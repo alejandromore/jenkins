@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    pv.kubernetes.io/provisioned-by: everest-csi-provisioner
+  name: pv-sfsturbo    # PV name
+spec:
+  accessModes:
+  - ReadWriteMany      # Access mode. The value must be ReadWriteMany for SFS Turbo.
+  capacity:
+    storage: 500Gi       # Storage capacity. This parameter is only for verification. It must not be empty or 0, but the specified size will not take effect.
+  csi:
+    driver: sfsturbo.csi.everest.io    # Dependent storage driver for the mounting
+    fsType: nfs
+    volumeHandle: e60e1392-29a6-497f-bae9-4075aa86829f   # SFS Turbo volume ID
+    volumeAttributes:
+      everest.io/share-export-location: 10.1.32.2:/   # Shared path of the SFS Turbo volume
+      everest.io/enterprise-project-id: 0371a9a7f90b493fadebbf130f6fcd2c  # Enterprise project ID of the SFS Turbo volume
+      storage.kubernetes.io/csiProvisionerIdentity: everest-csi-provisioner
+  persistentVolumeReclaimPolicy: Retain    # Reclaim policy
+  storageClassName: csi-sfsturbo          # StorageClass name of the SFS Turbo file system
+  mountOptions: []                         # Mount options

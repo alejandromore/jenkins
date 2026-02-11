@@ -22,6 +22,6 @@ output "sfs_jenkins_id" {
   value = huaweicloud_sfs_turbo.jenkins.id
 }
 
-output "sfs_jenkins_ip" {
-  value = "${huaweicloud_sfs_turbo.jenkins.id}.sfsturbo.${var.region}.myhuaweicloud.com"
+output "sfs_turbo_shared_path" {
+  value = huaweicloud_sfs_turbo.jenkins.export_location
 }

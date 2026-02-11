@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-sfsturbo
+  namespace: default
+  annotations:
+    volume.beta.kubernetes.io/storage-provisioner: everest-csi-provisioner
+    everest.io/enterprise-project-id: 0371a9a7f90b493fadebbf130f6fcd2c  # Enterprise project ID of the SFS Turbo volume
+spec:
+  accessModes:
+  - ReadWriteMany                  # The value must be ReadWriteMany for SFS Turbo.
+  resources:
+    requests:
+      storage: 500Gi               # SFS Turbo volume capacity.
+  storageClassName: csi-sfsturbo       # StorageClass name of the SFS Turbo file system, which must be the same as that of the PV
+  volumeName: pv-sfsturbo    # PV name

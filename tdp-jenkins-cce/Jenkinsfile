@@ -59,12 +59,13 @@ pipeline {
                             'elb_public_ip', 
                             'elb_public_id',
                             'sfs_jenkins_id',
-                            'sfs_jenkins_ip'
+                            'sfs_turbo_shared_path'
                         ]
                     )
                 }
             }
         }
+
 
         // -----------------------------
         // Helm Deploy

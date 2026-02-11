@@ -22,6 +22,10 @@ kubectl get pod
 
 # Probar conexión
 kubectl exec -it sfs-test-pod -- sh
-cd /mnt/sfs
+cd /data
 touch prueba.txt
-ls -l
+ls -l /data
+
+
+kubectl exec -it web-demo-6bdd68cf4d-r7zlc -- sh
+kubectl exec -it web-demo-6bdd68cf4d-v6rm9 -- sh
