@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   jmeter-server:
-    image: justb4/jmeter:latest
+    #image: justb4/jmeter:latest
+    build:
+      context: .       # ruta donde está el Dockerfile
+      dockerfile: Dockerfile
     container_name: jmeter-server
     restart: always
     ports:
