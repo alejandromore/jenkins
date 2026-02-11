@@ -14,11 +14,11 @@ tags                             = {
     costcenter  = "it-001"
 }
 
-security_group_public             = "sg-tdp-jenkins-cce-public"
-security_group_cce_eni            = "sg-tdp-jenkins-cce-eni"
-security_group_cce                = "sg-tdp-jenkins-cce-node"
+security_group_public             = "sg-tdp-config-catalog-cce-public"
+security_group_cce_eni            = "sg-tdp-config-catalog-cce-eni"
+security_group_cce                = "sg-tdp-config-catalog-cce-node"
 
-vpc_name                          = "vpc-tdp-jenkins-cce"
+vpc_name                          = "vpc-tdp-config-catalog-cce"
 vpc_cidr                          = "10.1.0.0/16"
 dns_list                          = ["100.125.1.250", "100.125.21.250"]
 
