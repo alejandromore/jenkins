@@ -67,6 +67,11 @@
         dest: "{{ app_dir }}/Dockerfile"
         mode: "0644"
 
+    - name: Render docker-compose.yml
+      template:
+        src: docker-compose.yml.j2
+        dest: "{{ app_dir }}/docker-compose.yml"
+
     - name: Build JMeter 5.6.3 Docker image
       community.docker.docker_image:
         build:
@@ -75,11 +80,6 @@
         name: jmeter-server
         tag: 5.6.3
         push: false
-
-    - name: Render docker-compose.yml
-      template:
-        src: docker-compose.yml.j2
-        dest: "{{ app_dir }}/docker-compose.yml"
 
     - name: Create .env file
       copy:
