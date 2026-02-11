@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.persistence.pvcName }}
   namespace: default
   annotations:
-    volume.beta.kubernetes.io/storage-provisioner: {{ .Values.persistence.storage-provisioner }}
+    volume.beta.kubernetes.io/storage-provisioner: {{ .Values.persistence.storageProvisioner }}
     everest.io/enterprise-project-id: {{ .Values.enterpriseProjectId }}   # Enterprise project ID of the SFS Turbo volume
 spec:
   accessModes:

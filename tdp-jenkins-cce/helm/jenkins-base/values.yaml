@@ -25,7 +25,7 @@ persistence:
   sfsId: ""        # se inyecta por --set
   sfsTurboSharedPath: ""  # se inyecta por --set  
   size: 50Gi
-  storage-provisioner: everest-csi-provisioner
+  storageProvisioner: everest-csi-provisioner
   className: csi-sfsturbo
   driver: sfsturbo.csi.everest.io
 
