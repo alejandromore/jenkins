@@ -16,3 +16,4 @@ spec:
   storageClassName: {{ .Values.persistence.className }}      
   volumeName: {{ .Values.persistence.pvName }}    
 {{- end }}
+
