@@ -29,7 +29,7 @@ service:
   targetPort: 8081
 
 elb:
-  id: ""                # Se inyecta dinámicamente desde Jenkins
+  elbId: ""                # Se inyecta dinámicamente desde Jenkins
   type: performance
   bandwidth: 5
   eipType: "5_bgp"
