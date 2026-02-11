@@ -84,10 +84,10 @@ resource "huaweicloud_networking_secgroup_rule" "public_ingress_http" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
+  port_range_min    = 80
+  port_range_max    = 80
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ELB (8080)"
+  description       = "Internet → ELB (80)"
 }
 # ELB necesita comunicarse con ECS para tráfico de aplicación
 resource "huaweicloud_networking_secgroup_rule" "public_egress_to_private" {
@@ -95,10 +95,10 @@ resource "huaweicloud_networking_secgroup_rule" "public_egress_to_private" {
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
+  port_range_min    = 8081
+  port_range_max    = 8081
   remote_group_id   = module.sg_cce.security_group_id
-  description       = "ELB → CCE (8080)"
+  description       = "ELB → CCE (8081)"
 }
 
 # ELB necesita puertos efímeros para health checks y sesiones
@@ -220,7 +220,6 @@ resource "huaweicloud_networking_secgroup_rule" "allow_nfs_internal" {
 #######################################
 # ELB
 #######################################
-/*
 module "eip_elb_public" {
   source                = "../../terraform-modules/eip"
   eip_name              = "eip-elb-public"
@@ -245,7 +244,7 @@ resource "huaweicloud_vpc_eip_associate" "eip_1" {
   public_ip = module.eip_elb_public.address
   port_id   = huaweicloud_lb_loadbalancer.elb_public.vip_port_id
 }
-*/
+
 #######################################
 # NAT Gateway
 #######################################
@@ -280,7 +279,6 @@ resource "huaweicloud_nat_snat_rule" "this" {
 #######################################
 # CCE
 #######################################
-/*
 module "eip_cce_cluster" {
   source                = "../../terraform-modules/eip"
   eip_name              = var.eip_cce_name
@@ -361,7 +359,6 @@ resource "huaweicloud_sfs_turbo" "jenkins" {
   security_group_id = module.sg_cce.security_group_id
   size              = var.sfs_size_gb
 }
-*/
 
 #######################################
 # DEW - Secret
@@ -391,7 +388,7 @@ module "dew_secret" {
 output "resources" {
   description = "Resource information"
   value = {
-    #cce_name         = var.cce_cluster_name
-    #cce_public_ip    = module.eip_cce_cluster.address
+    cce_name         = var.cce_cluster_name
+    cce_public_ip    = module.eip_cce_cluster.address
   }
 }
