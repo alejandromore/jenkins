@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: jenkins-master
+  name: {{ .Values.deployment.name }}
   namespace: {{ .Values.controller.namespace }}
   labels:
-    app: jenkins-master
+    app: {{ .Values.deployment.name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: jenkins-master
+      app: {{ .Values.deployment.name }}
   template:
     metadata:
       labels:
-        app: jenkins-master
+        app: {{ .Values.deployment.name }}
     spec:
       securityContext:
         fsGroup: 1000
 
       containers:
-        - name: jenkins-master
+        - name: {{ .Values.deployment.name }}
           image: {{ .Values.controller.image }}
           imagePullPolicy: IfNotPresent
 

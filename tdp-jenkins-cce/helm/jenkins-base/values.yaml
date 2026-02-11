@@ -13,10 +13,27 @@ controller:
     limits:
       cpu: "1"
       memory: "2Gi"
-  serviceType: LoadBalancer
-  service:
-    annotations: {}
   namespace: jenkins
+
+
+deployment:
+  name: dp-jenkins-master
+  version: v1
+  containerPort: 8081
+  healthPath: /app-java/healthCheck   # Se puede sobrescribir desde Jenkins
+
+service:
+  name: sr-jenkins-master
+  type: LoadBalancer
+  port: 8081
+  targetPort: 8081
+
+elb:
+  id: ""                # Se inyecta dinámicamente desde Jenkins
+  type: performance
+  bandwidth: 5
+  eipType: "5_bgp"
+  bandwidthShareType: "PER"
 
 persistence:
   enabled: true
