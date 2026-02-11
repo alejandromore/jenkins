@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    pv.kubernetes.io/provisioned-by: {{ .Values.persistence.storageProvisioner }}
+  name: {{ .Values.persistence.pvName }}
+spec:
+  accessModes:
+  - ReadWriteMany      
+  capacity:
+    storage: {{ .Values.persistence.size }}
+  csi:
+    driver: {{ .Values.persistence.driver }}
+    fsType: nfs
+    volumeHandle: {{ .Values.persistence.sfsId }}  
+    volumeAttributes:
+      everest.io/share-export-location: {{ .Values.persistence.sfsTurboSharedPath }}   
+      everest.io/enterprise-project-id: {{ .Values.enterpriseProjectId }}  
+      storage.kubernetes.io/csiProvisionerIdentity: {{ .Values.persistence.storageProvisioner }}  
+  persistentVolumeReclaimPolicy: Retain    
+  storageClassName: {{ .Values.persistence.className }}         
+  mountOptions: [] 

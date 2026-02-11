@@ -1,0 +1,11 @@
+enterpriseProjectId: ""  # se inyecta por --set
+
+persistence:
+  enabled: true
+  pvName: pv-jenkins
+  sfsId: ""               # se inyecta por --set
+  sfsTurboSharedPath: ""  # se inyecta por --set  
+  size: 50Gi
+  storageProvisioner: everest-csi-provisioner
+  className: csi-sfsturbo
+  driver: sfsturbo.csi.everest.io

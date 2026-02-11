@@ -19,7 +19,12 @@ pipeline {
             description: 'Construir infraestructura con Terraform'
         )
         booleanParam(
-            name: 'RUN_HELM',
+            name: 'RUN_HELM_SETUP',
+            defaultValue: false,
+            description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
+        )
+        booleanParam(
+            name: 'RUN_HELM_APP',
             defaultValue: false,
             description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
         )
@@ -67,6 +72,36 @@ pipeline {
             }
         }
 
+        // -----------------------------
+        // Helm Set Up Cluster
+        // -----------------------------
+        stage('Helm Set Up Cluster') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_HELM_SETUP }
+                }
+            }
+            steps {
+                script {
+
+                    env.sfs_jenkins_id = readFile("${WORKSPACE}/sfs_jenkins_id.txt").trim()
+                    env.sfs_turbo_shared_path = readFile("${WORKSPACE}/sfs_turbo_shared_path.txt").trim()
+                    env.enterprise_project_id = readFile("${WORKSPACE}/enterprise_project_id.txt").trim()
+
+                    helmSetupCluster(
+                        dir: env.HELM_DIR,
+                        chartDir: 'cce-setup',
+                        kubeconfigCred: 'cce-jenkins-kubeconfig',
+                        sfsId: env.sfs_jenkins_id,
+                        sfs_turbo_shared_path: env.sfs_turbo_shared_path,
+                        enterpriseProjectId: env.enterprise_project_id,
+                        releaseName: 'infra',
+                        namespace: 'infra',
+                    )
+                }
+            }
+        }
 
         // -----------------------------
         // Helm Deploy
@@ -75,7 +110,7 @@ pipeline {
             when {
                 allOf {
                     expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_HELM }
+                    expression { params.RUN_HELM_APP }
                 }
             }
             steps {
