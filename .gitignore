@@ -1,5 +1,4 @@
 # Ignore secret files
-**/secrets/
 secrets.env
 
 # Terraform
