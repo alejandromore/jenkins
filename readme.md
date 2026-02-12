@@ -8,3 +8,5 @@
         AWS_ACCESS_KEY_ID     = credentials('hwc-backend-ak')
         AWS_SECRET_ACCESS_KEY = credentials('hwc-backend-sk')
     }
+
+kubectl delete namespace demo-app

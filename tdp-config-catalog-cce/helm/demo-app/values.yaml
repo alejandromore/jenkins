@@ -11,8 +11,8 @@ configServer:
 
   secretName: secret-config-catalog
 
-demoClient:
-  image: demo-client:1.0
-  port: 8081
-  env:
-    SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+#demoClient:
+#  image: demo-client:1.0
+#  port: 8081
+#  env:
+#    SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
