@@ -82,25 +82,24 @@
     # -----------------------------
     # Instalación de SOPS (Método Robusto con Curl)
     # -----------------------------
-    - name: Ensure destination directory exists
+    - name: Create bin directory
       file:
         path: /usr/local/bin
         state: directory
         mode: '0755'
       become: true
 
-    - name: Download SOPS binary
+    - name: Download SOPS binary (Verificado)
       get_url:
-        # Link verificado: https://github.com
         url: "https://github.com"
         dest: /usr/local/bin/sops
         mode: '0755'
         force: yes
       become: true
 
-    - name: Test SOPS execution
+    - name: Verify SOPS execution
       command: /usr/local/bin/sops --version
-      register: sops_res
+      register: sops_check
 
     # -----------------------------
     # Directorio aplicación
