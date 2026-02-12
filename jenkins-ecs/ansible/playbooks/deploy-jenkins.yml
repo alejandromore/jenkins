@@ -82,40 +82,25 @@
     # -----------------------------
     # Instalación de SOPS (Método Robusto con Curl)
     # -----------------------------
-    - name: Clean up old SOPS
+    - name: Ensure destination directory exists
       file:
-        path: /usr/local/bin/sops
-        state: absent
-      become: true
-
-    - name: Download SOPS binary using curl
-      shell: |
-        curl -L -f https://github.com -o /usr/local/bin/sops
-      become: true
-      args:
-        creates: /usr/local/bin/sops
-
-    - name: Set permissions for SOPS
-      file:
-        path: /usr/local/bin/sops
+        path: /usr/local/bin
+        state: directory
         mode: '0755'
-        owner: root
-        group: root
       become: true
 
-    - name: Verify what was actually downloaded
-      shell: "file /usr/local/bin/sops"
-      register: sops_file_type
+    - name: Download SOPS binary
+      get_url:
+        # Link verificado: https://github.com
+        url: "https://github.com"
+        dest: /usr/local/bin/sops
+        mode: '0755'
+        force: yes
+      become: true
 
-    - name: Debug file type
-      debug:
-        msg: "El archivo descargado es: {{ sops_file_type.stdout }}"
-
-    - name: Verify SOPS execution
+    - name: Test SOPS execution
       command: /usr/local/bin/sops --version
-      register: sops_verify
-
-
+      register: sops_res
 
     # -----------------------------
     # Directorio aplicación
