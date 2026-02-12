@@ -12,6 +12,18 @@
   tasks:
 
     # -----------------------------
+    # Arquitectura del servidor
+    # -----------------------------
+    - name: Mostrar arquitectura del servidor
+      command: uname -m
+      register: arch_output
+      changed_when: false
+
+    - name: Mostrar arquitectura detectada
+      debug:
+        var: arch_output.stdout
+
+    # -----------------------------
     # Sistema base
     # -----------------------------
     - name: Update apt cache
@@ -82,21 +94,30 @@
     # -----------------------------
     # Instalación de SOPS (Método Robusto con Curl)
     # -----------------------------
-    - name: Descargar SOPS v3.11.0
-      ansible.builtin.get_url:
+    - name: Descargar SOPS v3.11.0 para amd64
+      get_url:
         url: https://github.com/getsops/sops/releases/download/v3.11.0/sops-v3.11.0.linux.amd64
         dest: /usr/local/bin/sops
         mode: '0755'
-      register: sops_download
+        force: yes
 
-    - name: Validar instalación
-      command: sops --version
-      register: sops_version_output
+    - name: Verificar que el binario es ELF amd64
+      command: file /usr/local/bin/sops
+      register: file_check
+      changed_when: false
+
+    - name: Mostrar tipo de archivo descargado
+      debug:
+        var: file_check.stdout
+
+    - name: Validar instalación de SOPS
+      command: /usr/local/bin/sops --version
+      register: sops_version
       changed_when: false
 
     - name: Mostrar versión instalada
       debug:
-        var: sops_version_output.stdout
+        var: sops_version.stdout
 
     # -----------------------------
     # Directorio aplicación
