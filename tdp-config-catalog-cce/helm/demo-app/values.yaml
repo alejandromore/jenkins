@@ -6,7 +6,7 @@ configServer:
     registry: swr.la-south-2.myhuaweicloud.com
     organization: cce-jenkins-integration-organization
     repository: config-server-hw
-    tag: "2.0"
+    tag: "1.2.3"
     pullPolicy: IfNotPresent
 
   secretName: secret-config-catalog
