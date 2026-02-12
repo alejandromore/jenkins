@@ -102,9 +102,7 @@ pipeline {
                         echo "Desencriptando secrets..."
                         echo "=========================================="
 
-                        cd demo-app/templates
-                        sops -d secrets-enc.yaml > secrets.yaml
-                        cd ../..
+                        sops -d secrets/secrets-enc.yaml > demo-app/templates/secret.yaml
 
                         echo ""
                         echo "=========================================="
