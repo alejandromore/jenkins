@@ -23,6 +23,11 @@ pipeline {
             defaultValue: false,
             description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
         )
+        booleanParam(
+            name: 'CLEAN_WORKSPACE',
+            defaultValue: false,
+            description: 'Limpiar workspace'
+        )
     }
 
     environment {
@@ -158,6 +163,18 @@ pipeline {
                         '''
                     }
                 }
+            }
+        }
+
+        // -----------------------------
+        // Clean Workspace
+        // -----------------------------
+        stage('Clean Workspace') {
+            when {
+                expression { params.CLEAN_WORKSPACE }
+            }
+            steps {
+                cleanWs()
             }
         }
     }
