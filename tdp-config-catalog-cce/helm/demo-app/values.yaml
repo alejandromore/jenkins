@@ -1,0 +1,18 @@
+configServer:
+  replicaCount: 1
+  port: 8888
+
+  image:
+    registry: swr.la-south-2.myhuaweicloud.com
+    organization: cce-jenkins-integration-organization
+    repository: config-server-hw
+    tag: "2.0"
+    pullPolicy: IfNotPresent
+
+  secretName: secret-config-catalog
+
+demoClient:
+  image: demo-client:1.0
+  port: 8081
+  env:
+    SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"

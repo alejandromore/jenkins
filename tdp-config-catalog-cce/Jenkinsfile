@@ -31,6 +31,7 @@ pipeline {
         TF_DIR   = 'tdp-config-catalog-cce/terraform'
         HELM_DIR = 'tdp-config-catalog-cce/helm'
         REGION   = 'la-south-2'
+        SOPS_PGP_FP = credentials('PGP-FINGERPRINT-ID') // tu llave PGP en Jenkins
     }
 
     stages {
@@ -60,7 +61,89 @@ pipeline {
             }
         }
 
-    }
+        // -----------------------------
+        // Helm desplegar las aplicaciones
+        // -----------------------------
+        stage('Deploy Demo App to CCE') {
+
+            when {
+                expression { params.RUN_HELM }
+            }
+
+            environment {
+                NAMESPACE = "demo-app"
+                RELEASE_NAME = "demo-app"
+                TIMEOUT_SECONDS = "300"
+            }
+
+            steps {
+                dir(env.HELM_DIR) {
+
+                    withCredentials([
+                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG'),
+                        file(credentialsId: 'sops-gpg-key', variable: 'GPG_KEY_FILE')
+                    ]) {
+
+                        sh '''
+                        set -eo pipefail
+
+                        export KUBECONFIG=$KUBECONFIG
+
+                        echo "=========================================="
+                        echo "Importando llave GPG para SOPS..."
+                        echo "=========================================="
+
+                        # Aislar entorno GPG (best practice)
+                        export GNUPGHOME=$(mktemp -d)
+
+                        gpg --batch --import $GPG_KEY_FILE
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Desencriptando secrets..."
+                        echo "=========================================="
+
+                        cd demo-app/templates
+                        sops -d secrets-enc.yaml > secrets.yaml
+                        cd ../..
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Validando acceso al cluster CCE..."
+                        echo "=========================================="
+
+                        kubectl get nodes
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Creando namespace si no existe..."
+                        echo "=========================================="
+
+                        kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Desplegando Helm Release: ${RELEASE_NAME}"
+                        echo "Namespace: ${NAMESPACE}"
+                        echo "Chart Dir: demo-app"
+                        echo "=========================================="
+
+                        helm upgrade --install ${RELEASE_NAME} ./demo-app \
+                        -n ${NAMESPACE} \
+                        --create-namespace \
+                        --wait \
+                        --timeout ${TIMEOUT_SECONDS}s
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Deployment finalizado correctamente"
+                        echo "=========================================="
+                        '''
+                    }
+                }
+            }
+        }
+
 
     post {
         success {

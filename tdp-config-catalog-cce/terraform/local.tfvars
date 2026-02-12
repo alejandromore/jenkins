@@ -37,7 +37,7 @@ vpc_subnet_cce_eni_gateway_ip     = "10.1.64.1"
 cce_network_cidr                  = "172.16.0.0/16"
 eip_cce_name                      = "eip-cce-app"
 
-cce_cluster_name                  = "cce-jenkins"
+cce_cluster_name                  = "cce-config-catalog"
 cce_cluster_type                  = "VirtualMachine"
 cce_cluster_flavor                = "cce.s1.small"
 cce_k8s_version                   = "v1.32"
