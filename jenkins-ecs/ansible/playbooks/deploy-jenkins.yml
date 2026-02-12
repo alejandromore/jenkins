@@ -82,18 +82,23 @@
     # -----------------------------
     # Instalación de SOPS
     # -----------------------------
-    - name: Get SOPS latest version tag
-      shell: |
-        curl -s https://api.github.com | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
-      register: sops_tag
-      changed_when: false
-
-    - name: Download and install SOPS
+    - name: Download SOPS binary from GitHub
       get_url:
-        url: "https://github.com{{ sops_tag.stdout }}/sops-{{ sops_tag.stdout }}.linux.amd64"
+        url: "https://github.com"
         dest: /usr/local/bin/sops
         mode: '0755'
+        owner: root
+        group: root
       become: true
+
+    - name: Verify SOPS installation
+      command: /usr/local/bin/sops --version
+      register: sops_verify
+      changed_when: false
+
+    - name: Show SOPS version
+      debug:
+        msg: "SOPS instalado correctamente: {{ sops_verify.stdout }}"
 
     # -----------------------------
     # Directorio aplicación
