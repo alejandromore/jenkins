@@ -113,13 +113,6 @@ pipeline {
 
                         echo ""
                         echo "=========================================="
-                        echo "Creando namespace si no existe..."
-                        echo "=========================================="
-
-                        kubectl create namespace ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
-
-                        echo ""
-                        echo "=========================================="
                         echo "Desplegando Helm Release: ${RELEASE_NAME}"
                         echo "Namespace: ${NAMESPACE}"
                         echo "Chart Dir: demo-app"
