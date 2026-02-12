@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: demo-client
 spec:
-  replicas: {{ .Values.configServer.replicaCount }}
+  replicas: {{ .Values.demoClient.replicaCount }}
   selector:
     matchLabels:
       app: demo-client
@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
         - name: demo-client
-          image: "{{ .Values.configServer.image.registry }}/{{ .Values.configServer.image.organization }}/{{ .Values.configServer.image.repository }}:{{ .Values.configServer.image.tag }}"
-          imagePullPolicy: {{ .Values.configServer.image.pullPolicy }}
+          image: "{{ .Values.demoClient.image.registry }}/{{ .Values.demoClient.image.organization }}/{{ .Values.demoClient.image.repository }}:{{ .Values.demoClient.image.tag }}"
+          imagePullPolicy: {{ .Values.demoClient.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.configServer.port }}
+            - containerPort: {{ .Values.demoClient.port }}
           envFrom:
             - secretRef:
-                name: {{ .Values.configServer.secretName }}
+                name: {{ .Values.demoClient.secretName }}
       imagePullSecrets:
         - name: default-secret

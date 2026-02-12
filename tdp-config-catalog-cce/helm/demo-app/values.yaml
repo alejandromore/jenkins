@@ -17,6 +17,7 @@ demoClient:
     repository: demo-client
     tag: "1.0"
     pullPolicy: IfNotPresent
+  secretName: secret-config-catalog
   port: 80
   targetPort: 8081
   env:
