@@ -27,3 +27,6 @@ mailer
 
 # JCasC
 configuration-as-code
+
+# File Parameters Plugin
+file-parameters
