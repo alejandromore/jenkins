@@ -82,24 +82,21 @@
     # -----------------------------
     # Instalación de SOPS (Método Robusto con Curl)
     # -----------------------------
-    - name: Create bin directory
-      file:
-        path: /usr/local/bin
-        state: directory
-        mode: '0755'
-      become: true
-
-    - name: Download SOPS binary (Verificado)
-      get_url:
-        url: "https://github.com"
+    - name: Descargar SOPS v3.11.0
+      ansible.builtin.get_url:
+        url: https://github.com/getsops/sops/releases/download/v3.11.0/sops-v3.11.0.linux.amd64
         dest: /usr/local/bin/sops
         mode: '0755'
-        force: yes
-      become: true
+      register: sops_download
 
-    - name: Verify SOPS execution
-      command: /usr/local/bin/sops --version
-      register: sops_check
+    - name: Validar instalación
+      command: sops --version
+      register: sops_version_output
+      changed_when: false
+
+    - name: Mostrar versión instalada
+      debug:
+        var: sops_version_output.stdout
 
     # -----------------------------
     # Directorio aplicación
