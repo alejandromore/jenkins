@@ -31,7 +31,6 @@ pipeline {
         TF_DIR   = 'tdp-config-catalog-cce/terraform'
         HELM_DIR = 'tdp-config-catalog-cce/helm'
         REGION   = 'la-south-2'
-        SOPS_PGP_FP = credentials('PGP-FINGERPRINT-ID') // tu llave PGP en Jenkins
     }
 
     stages {
