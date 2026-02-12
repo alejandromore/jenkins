@@ -80,31 +80,41 @@
         append: yes
 
     # -----------------------------
-    # Instalación Limpia de SOPS (Arquitectura x86_64 / AMD64)
+    # Instalación de SOPS (Método Robusto con Curl)
     # -----------------------------
-    - name: Remove any corrupted SOPS binary
+    - name: Clean up old SOPS
       file:
         path: /usr/local/bin/sops
         state: absent
+      become: true
 
-    - name: Download SOPS binary (v3.9.4) for AMD64
-      get_url:
-        url: "https://github.com"
-        dest: /usr/local/bin/sops
+    - name: Download SOPS binary using curl
+      shell: |
+        curl -L -f https://github.com -o /usr/local/bin/sops
+      become: true
+      args:
+        creates: /usr/local/bin/sops
+
+    - name: Set permissions for SOPS
+      file:
+        path: /usr/local/bin/sops
         mode: '0755'
         owner: root
         group: root
-        timeout: 30
       become: true
 
-    - name: Verify SOPS installation
+    - name: Verify what was actually downloaded
+      shell: "file /usr/local/bin/sops"
+      register: sops_file_type
+
+    - name: Debug file type
+      debug:
+        msg: "El archivo descargado es: {{ sops_file_type.stdout }}"
+
+    - name: Verify SOPS execution
       command: /usr/local/bin/sops --version
       register: sops_verify
-      changed_when: false
 
-    - name: Show SOPS version
-      debug:
-        msg: "SOPS instalado correctamente en Ubuntu 24.04: {{ sops_verify.stdout }}"
 
 
     # -----------------------------
