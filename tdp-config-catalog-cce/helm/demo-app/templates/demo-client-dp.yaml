@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-client
+spec:
+  replicas: {{ .Values.configServer.replicaCount }}
+  selector:
+    matchLabels:
+      app: demo-client
+  template:
+    metadata:
+      labels:
+        app: demo-client
+    spec:
+      containers:
+        - name: demo-client
+          image: "{{ .Values.configServer.image.registry }}/{{ .Values.configServer.image.organization }}/{{ .Values.configServer.image.repository }}:{{ .Values.configServer.image.tag }}"
+          imagePullPolicy: {{ .Values.configServer.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.configServer.port }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.configServer.secretName }}
+      imagePullSecrets:
+        - name: default-secret

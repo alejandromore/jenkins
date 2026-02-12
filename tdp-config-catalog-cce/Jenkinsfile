@@ -54,7 +54,10 @@ pipeline {
                         dir: env.TF_DIR,
                         varsFile: 'local.tfvars',
                         action: params.ACTION,
-                        outputs: [                        ]
+                        outputs: [
+                            'elb_public_ip', 
+                            'elb_public_id'
+                        ]
                     )
                 }
             }
@@ -76,6 +79,11 @@ pipeline {
             }
 
             steps {
+                script {
+                    // Lectura de archivos generados en stages previos
+                    env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
+                }
                 dir(env.HELM_DIR) {
 
                     withCredentials([
@@ -122,12 +130,31 @@ pipeline {
                         -n ${NAMESPACE} \
                         --create-namespace \
                         --wait \
-                        --timeout ${TIMEOUT_SECONDS}s
+                        --timeout ${TIMEOUT_SECONDS}s \
+                        --set elb.id=${elb_public_id}
+
 
                         echo ""
                         echo "=========================================="
-                        echo "Deployment finalizado correctamente"
+                        echo "Iniciando Health Check ..."
+                        echo "ELB IP: ${elb_public_ip}"
                         echo "=========================================="
+
+                        for i in \$(seq 1 30); do
+                        echo "Intento \$i..."
+                        if curl -sf http://${elb_public_ip}/config-server.html > /dev/null; then
+                            echo ""
+                            echo "App disponible."
+                            exit 0
+                        fi
+                        sleep 10
+                        done
+
+                        echo ""
+                        echo "ERROR: No respondió después de múltiples intentos."
+                        exit 1
+
+
                         '''
                     }
                 }
