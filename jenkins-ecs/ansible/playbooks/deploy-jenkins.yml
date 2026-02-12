@@ -80,15 +80,21 @@
         append: yes
 
     # -----------------------------
-    # Instalación de SOPS
+    # Instalación Limpia de SOPS (Arquitectura x86_64 / AMD64)
     # -----------------------------
-    - name: Download SOPS binary from GitHub
+    - name: Remove any corrupted SOPS binary
+      file:
+        path: /usr/local/bin/sops
+        state: absent
+
+    - name: Download SOPS binary (v3.9.4) for AMD64
       get_url:
         url: "https://github.com"
         dest: /usr/local/bin/sops
         mode: '0755'
         owner: root
         group: root
+        timeout: 30
       become: true
 
     - name: Verify SOPS installation
@@ -98,7 +104,8 @@
 
     - name: Show SOPS version
       debug:
-        msg: "SOPS instalado correctamente: {{ sops_verify.stdout }}"
+        msg: "SOPS instalado correctamente en Ubuntu 24.04: {{ sops_verify.stdout }}"
+
 
     # -----------------------------
     # Directorio aplicación
