@@ -181,7 +181,7 @@ module "ecs_publico" {
   vpc_id                = module.vpc.vpc_id
   subnet_id             = module.subnet_public.subnet_id
   security_group_id     = module.sg_public.security_group_id
-  user_data             = var.cloud_init_config
+  keypair_name          = var.ecs_keypair_name
   ecs_password          = null
   availability_zone     = data.huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
