@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-error
+spec:
+  replicas: {{ .Values.configServer.replicaCount }}
+  selector:
+    matchLabels:
+      app: catalog-error
+  template:
+    metadata:
+      labels:
+        app: catalog-error
+    spec:
+      containers:
+        - name: catalog-error
+          image: "{{ .Values.catalogError.image.registry }}/{{ .Values.catalogError.image.organization }}/{{ .Values.catalogError.image.repository }}:{{ .Values.catalogError.image.tag }}"
+          imagePullPolicy: {{ .Values.catalogError.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.catalogError.port }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.catalogError.secretName }}
+      imagePullSecrets:
+        - name: default-secret

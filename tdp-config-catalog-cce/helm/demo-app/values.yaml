@@ -9,6 +9,17 @@ configServer:
     pullPolicy: IfNotPresent
   secretName: secret-config-catalog
 
+catalogError:
+  replicaCount: 1
+  port: 50051
+  image:
+    registry: swr.la-south-2.myhuaweicloud.com
+    organization: cce-jenkins-integration-organization
+    repository: catalog-error-hw
+    tag: "1.0"
+    pullPolicy: IfNotPresent
+  secretName: secret-config-catalog
+
 demoClient:
   replicaCount: 1
   image:
@@ -20,8 +31,8 @@ demoClient:
   secretName: secret-config-catalog
   port: 80
   targetPort: 8081
-  env:
-    SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
+  #env:
+  #  SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
 
 elb:
   id: ""                # Se inyecta dinámicamente desde Jenkins
