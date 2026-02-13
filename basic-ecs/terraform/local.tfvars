@@ -24,3 +24,4 @@ vpc_subnet_public_cidr            = "10.1.32.0/19"
 vpc_subnet_public_gateway_ip      = "10.1.32.1"
 
 ecs_public_name                   = "ecs-public-basic-ecs"
+key_pair_name                     = "basic-project-key"

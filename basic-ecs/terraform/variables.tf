@@ -47,6 +47,11 @@ variable "dns_list" {
   type        = list(string)
 }
 
+variable "key_pair_name" {
+  description = "Nombre del key pair para el ECS"
+  type        = string
+}
+
 # ============================================================================
 # VARIABLES PARA LA INSTANCIA DE VPC Subnet
 # ============================================================================
