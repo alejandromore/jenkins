@@ -42,6 +42,7 @@ rds_postgres_volume_size          = 40
 
 ecs_public_name                   = "ecs-app-public"
 key_pair_name                     = "basic-project-key"
+private_key_name                  = "basic-project-private-key"
 
 dew_secret_name                   = "db-credentials"
 dew_secret_description            = "Credentiales de BD"

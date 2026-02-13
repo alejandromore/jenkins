@@ -64,8 +64,7 @@ pipeline {
                             'ecs_public_ip', 
                             'rds_public_ip',
                             'rds_postgres_password',
-                            'ecs_private_key_pem',
-                            'ecs_public_key_openssh'
+                            'ecs_private_key'
                         ] 
                     )
 
@@ -110,12 +109,12 @@ pipeline {
                 script {
 
                     env.ecs_public_ip    = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
-                    env.ecs_private_path = "${WORKSPACE}/ecs_private_key_pem.txt"
+                    env.ecs_private_key  = readFile("${WORKSPACE}/ecs_private_key.txt").trim()
 
                     dir(env.ANS_DIR) {
-
+                        //chmod 600 ${env.ecs_private_key}
                         sh """
-                        chmod 600 ${env.ecs_private_path}
+                        
                         set -eo pipefail
                         export HOME=\$(mktemp -d)
                         export ANSIBLE_HOST_KEY_CHECKING=False
@@ -134,7 +133,7 @@ pipeline {
                         -i inventory/hosts \
                         -e "ansible_host=${env.ecs_public_ip}" \
                         -e "ansible_user=root" \
-                        --private-key ${env.ecs_private_path} \
+                        --private-key ${env.ecs_private_key} \
                         playbooks/deploy-java.yml
 
                         echo "Despliegue finalizado correctamente"

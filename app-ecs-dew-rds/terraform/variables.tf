@@ -130,6 +130,11 @@ variable "key_pair_name" {
   type        = string
 }
 
+variable "private_key_name" {
+  description = "Nombre del Secret en CSMS que contiene la clave privada"
+  type        = string
+}
+
 variable "cloud_init_config" {
   description = "Configuración de cloud-init para el ECS"
   type        = string
