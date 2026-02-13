@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+    
+    parameters {
+        string(name: 'NAME_REAL', defaultValue: 'Jenkins CI', description: 'Nombre para la llave GPG')
+        string(name: 'NAME_EMAIL', defaultValue: 'jenkins@huawei.com', description: 'Email para la llave GPG')
+    }
+
+    environment {
+        TF_DIR = 'utils/create-keys'
+    }
+
+    stages {
+
+        stage('Generate GPG Key') {
+            steps {
+                
+                dir("${env.TF_DIR}") {
+
+                    sh '''
+                        # Inyectar variables en la plantilla
+                        export NAME_REAL="${NAME_REAL}"
+                        export NAME_EMAIL="${NAME_EMAIL}"
+                        envsubst < template-gen.txt > key-gen.txt
+                        
+                        # Generar la llave
+                        gpg --batch --generate-key key-gen.txt
+                        
+                        # Obtener Fingerprint
+                        FINGERPRINT=$(gpg --with-colons --fingerprint "${NAME_EMAIL}" | grep fpr | cut -d: -f10 | head -n1)
+                        echo "$FINGERPRINT" > fingerprint.txt
+                        
+                        # Exportar llave privada
+                        gpg --armor --export-secret-keys "${NAME_EMAIL}" > jenkins-master-key.asc
+                        
+                        echo "Generación completada para: ${NAME_REAL} <${NAME_EMAIL}>"
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            dir("${env.TF_DIR}") {
+                // Archivar los resultados para descarga manual
+                archiveArtifacts artifacts: 'jenkins-master-key.asc, fingerprint.txt', onlyIfSuccessful: true
+            }
+        }
+        always {
+            // Opcional: borrar el keyring de GPG del agente por seguridad
+            sh "rm -rf ~/.gnupg"
+        }
+    }
+}

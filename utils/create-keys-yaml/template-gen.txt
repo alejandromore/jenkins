@@ -1,0 +1,9 @@
+%no-protection
+Key-Type: RSA
+Key-Length: 4096
+Subkey-Type: RSA
+Subkey-Length: 4096
+Name-Real: ${NAME_REAL}
+Name-Email: ${NAME_EMAIL}
+Expire-Date: 0
+%commit

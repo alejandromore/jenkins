@@ -3,14 +3,14 @@ pipeline {
 
     parameters {
         string(
-            name: 'PROJECT_NAME',
-            defaultValue: 'basic-project',
-            description: 'Nombre del proyecto para generar la llave SSH'
+            name: 'PRIVATE_KEY_NAME',
+            defaultValue: 'basic-project-private-key',
+            description: 'Nombre de private key (CSMS)'
         )
     }
 
     environment {
-        TF_DIR = 'key-management/create-keys'
+        TF_DIR = 'utils/get-private-key'
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
     }
@@ -31,7 +31,7 @@ pipeline {
             }
         }
 
-        stage('Generar SSH Key') {
+        stage('Get Public Key') {
             steps {
                 dir("${env.TF_DIR}") {
                     // Mapeamos los IDs de Jenkins a las variables que Terraform entiende
@@ -41,7 +41,7 @@ pipeline {
                     ]) {
                         sh """
                             terraform init
-                            terraform apply -auto-approve -var="project_name=${params.PROJECT_NAME}"
+                            terraform apply -auto-approve -var="private_key_name=${params.PRIVATE_KEY_NAME}"
                         """
                     }
                 }
@@ -51,7 +51,7 @@ pipeline {
         stage('Mostrar identificador de KeyPair') {
             steps {
                 dir("${env.TF_DIR}") {
-                    sh 'terraform output keypair_name'
+                    sh 'terraform output private_key_content'
                 }
             }
         }
