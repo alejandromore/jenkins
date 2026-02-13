@@ -341,6 +341,23 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   key_pair           = var.key_pair_name
 }
 
+resource "huaweicloud_cce_addon" "pod_identity" {
+  cluster_id    = module.cce_cluster.cluster_id
+  template_name = "pip"
+  version       = "1.2.5" # Verifica la última versión en el Marketplace
+
+  values {
+    basic = {
+      # Dirección específica para la-south-2
+      "swr_addr" = "swr.la-south-2.myhuaweicloud.com"
+      "swr_user" = "h00300445" 
+    }
+    custom = {
+      "cluster_id" = module.cce_cluster.cluster_id
+    }
+  }
+}
+
 #######################################
 # Agency
 #######################################

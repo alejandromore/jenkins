@@ -4,7 +4,9 @@ $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml
 # Validar acceso
 kubectl get nodes
 
-# Orden de despliegue PV Dinamico
+# Ejecutar yamls
+kubectl apply -f service-account.yaml
+
 kubectl apply -f pod-agency-test.yaml
 kubectl exec -it pod-agency-test -- /bin/sh
 
