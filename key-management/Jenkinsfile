@@ -86,13 +86,15 @@ pipeline {
 
                             echo "Copiando al workspace..."
                             cp "$SECRETS_FILE" file.yaml
-
+                            
                             export GNUPGHOME=$(mktemp -d)
-
+                            trap 'rm -rf "$GNUPGHOME"' EXIT
                             gpg --batch --import "$GPG_KEY_FILE"
 
-                            echo "Encriptando..."
-                            sops -e file.yaml > file-encypted.yaml
+                            # Fingerprint de tu clave GPG
+                            PGP_FPR=$(gpg --list-keys --with-colons | grep fpr | head -n1 | cut -d: -f10)
+
+                            sops --encrypt --pgp "$PGP_FPR" file.yaml > file-encrypted.yaml
 
                             echo "Resultado:"
                             ls -lah file-encypted.yaml
