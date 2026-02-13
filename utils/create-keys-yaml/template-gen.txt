@@ -3,7 +3,7 @@ Key-Type: RSA
 Key-Length: 4096
 Subkey-Type: RSA
 Subkey-Length: 4096
-Name-Real: ${NAME_REAL}
-Name-Email: ${NAME_EMAIL}
+Name-Real: __NAME_REAL__
+Name-Email: __NAME_EMAIL__
 Expire-Date: 0
 %commit

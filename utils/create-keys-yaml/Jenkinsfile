@@ -18,10 +18,10 @@ pipeline {
                 dir("${env.TF_DIR}") {
 
                     sh '''
-                        # Inyectar variables en la plantilla
-                        export NAME_REAL="${NAME_REAL}"
-                        export NAME_EMAIL="${NAME_EMAIL}"
-                        envsubst < template-gen.txt > key-gen.txt
+                        # Usamos sed para reemplazar los placeholders
+                        sed -e 's/__NAME_REAL__/${params.NAME_REAL}/g' \
+                            -e 's/__NAME_EMAIL__/${params.NAME_EMAIL}/g' \
+                            template-gen.txt > key-gen.txt
                         
                         # Generar la llave
                         gpg --batch --generate-key key-gen.txt
