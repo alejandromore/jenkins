@@ -13,6 +13,10 @@ pipeline {
             choices: ['encrypt', 'decrypt'],
             description: 'Encriptar y desencriptar archvios YAML con SOPS'
         )
+        file(
+            name: 'SECRETS_FILE',
+            description: 'Sube archivo'
+        )
         booleanParam(
             name: 'CLEAN_WORKSPACE',
             defaultValue: false,
