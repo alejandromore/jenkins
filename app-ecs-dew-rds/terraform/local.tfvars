@@ -13,6 +13,13 @@ tags                             = {
     costcenter  = "it-001"
 }
 
+cloud_init_config = <<-EOF
+  #cloud-config
+  timezone: America/Lima
+  runcmd:
+    - [ timedatectl, set-timezone, America/Lima ]
+EOF
+
 security_group_public_name        = "sg-app-public"
 security_group_data_name          = "sg-app-data"
 
@@ -34,6 +41,8 @@ rds_postgres_flavor               = "rds.pg.n1.large.2"
 rds_postgres_volume_size          = 40
 
 ecs_public_name                   = "ecs-app-public"
+key_pair_name                     = "basic-project-key"
+private_key_name                  = "basic-project-private-key"
 
 dew_secret_name                   = "db-credentials"
 dew_secret_description            = "Credentiales de BD"

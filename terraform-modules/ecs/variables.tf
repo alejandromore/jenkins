@@ -71,3 +71,9 @@ variable "agency_name" {
   type        = string
   default     = null
 }
+
+variable "user_data" {
+  description = "User data for the ECS"
+  type        = string
+  default     = null
+}

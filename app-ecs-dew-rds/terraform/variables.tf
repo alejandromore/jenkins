@@ -125,6 +125,21 @@ variable "ecs_public_name" {
   default = ""
 }
 
+variable "key_pair_name" {
+  description = "Nombre del key pair para el ECS"
+  type        = string
+}
+
+variable "private_key_name" {
+  description = "Nombre del Secret en CSMS que contiene la clave privada"
+  type        = string
+}
+
+variable "cloud_init_config" {
+  description = "Configuración de cloud-init para el ECS"
+  type        = string
+}
+
 # ============================================================================
 # VARIABLES PARA EL DEW
 # ============================================================================

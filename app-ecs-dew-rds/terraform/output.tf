@@ -22,17 +22,11 @@ output "rds_postgres_password" {
   value = var.rds_postgres_password
 }
 
-output "ecs_private_key_pem" {
-  description = "Private SSH key for ECS access"
-  value       = tls_private_key.ecs.private_key_pem
-  sensitive   = true
+data "huaweicloud_csms_secret_version" "key_data" {
+  secret_name = var.private_key_name
 }
 
-output "ecs_public_key_openssh" {
-  description = "Public SSH key"
-  value       = tls_private_key.ecs.public_key_openssh
-}
-
-output "ecs_keypair_name" {
-  value = huaweicloud_compute_keypair.ecs.name
+output "ecs_private_key" {
+  value     = data.huaweicloud_csms_secret_version.key_data.secret_text
+  sensitive = true
 }

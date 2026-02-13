@@ -172,21 +172,6 @@ data "huaweicloud_images_image" "myimage" {
   most_recent = true
 }
 
-resource "tls_private_key" "ecs" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "local_file" "private_key" {
-  content  = tls_private_key.ecs.private_key_pem
-  filename = "${path.module}/keys/pk-${var.ecs_public_name}.pem"
-}
-
-resource "huaweicloud_compute_keypair" "ecs" {
-  name       = "kp-${var.ecs_public_name}"
-  public_key = tls_private_key.ecs.public_key_openssh
-}
-
 module "ecs_publico" {
   source = "../../terraform-modules/ecs"
 
@@ -196,10 +181,11 @@ module "ecs_publico" {
   vpc_id                = module.vpc.vpc_id
   subnet_id             = module.subnet_public.subnet_id
   security_group_id     = module.sg_public.security_group_id
-  keypair_name          = huaweicloud_compute_keypair.ecs.name
+  keypair_name          = var.key_pair_name
   ecs_password          = null
   availability_zone     = data.huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  user_data             = var.cloud_init_config
   tags                  = var.tags
 }
 

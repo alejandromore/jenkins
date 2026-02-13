@@ -83,3 +83,13 @@ variable "ecs_public_name" {
   type        = string
   default = ""
 }
+
+variable "key_pair_name" {
+  description = "Nombre del key pair para el ECS"
+  type        = string
+}
+
+variable "cloud_init_config" {
+  description = "Configuración de cloud-init para el ECS"
+  type        = string
+}

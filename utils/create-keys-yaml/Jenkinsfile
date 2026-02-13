@@ -1,0 +1,67 @@
+pipeline {
+    agent any
+    
+    parameters {
+        booleanParam(name: 'CLEAN_WORKSPACE', defaultValue: false, description: 'Borrar todo el contenido del workspace')
+        string(name: 'NAME_REAL', defaultValue: 'Jenkins CI', description: 'Nombre para la llave GPG')
+        string(name: 'NAME_EMAIL', defaultValue: 'jenkins@huawei.com', description: 'Email para la llave GPG')
+    }
+
+    environment {
+        TF_DIR = 'utils/create-keys-yaml'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Generate GPG Key') {
+            when {
+                expression { params.CLEAN_WORKSPACE == false }
+            }
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh """
+                        # Crear un archivo de configuración para la generación de la llave GPG
+                        sed -e 's/__NAME_REAL__/${params.NAME_REAL}/g' \
+                            -e 's/__NAME_EMAIL__/${params.NAME_EMAIL}/g' \
+                            ./templates/gen.txt > key-gen.txt
+                        
+                        # Generar la llave
+                        gpg --batch --generate-key key-gen.txt
+                        
+                        # USAR \$ para que Jenkins ignore la variable y la lea Shell
+                        FINGERPRINT=\$(gpg --with-colons --fingerprint "${params.NAME_EMAIL}" | grep fpr | cut -d: -f10 | head -n1)
+                        echo "\$FINGERPRINT" > fingerprint.txt
+                        
+                        # USAR \$FINGERPRINT escapado para que sed reciba el valor de Bash
+                        sed "s/__FINGERPRINT__/\$FINGERPRINT/g" ./templates/.sops.yaml > .sops.yaml
+
+                        # Exportar llave privada
+                        gpg --armor --export-secret-keys "${params.NAME_EMAIL}" > jenkins-master-key.asc
+                        
+                        echo "Generación completada para: ${params.NAME_REAL} <${params.NAME_EMAIL}>"
+                    """
+
+                }
+            }
+        }
+
+        stage('Clean Workspace') {
+            // Este stage solo corre si marcas el checkbox en Jenkins
+            when {
+                expression { params.CLEAN_WORKSPACE }
+            }
+            steps {
+                echo "Limpiando workspace..."
+                deleteDir()
+            }
+        }
+
+    }
+
+}

@@ -39,5 +39,6 @@ resource "huaweicloud_compute_instance" "ecs" {
 
   agency_name           = var.agency_name
 
-  tags = var.tags
+  user_data             = var.user_data
+  tags                  = var.tags
 }

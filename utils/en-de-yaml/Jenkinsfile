@@ -1,0 +1,121 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['encrypt', 'decrypt'],
+            description: 'Encriptar y desencriptar archvios YAML con SOPS'
+        )
+        base64File(name: 'SECRETS_FILE', description: 'Sube archivo')
+    }
+
+    environment {
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+        GPG_KEY_FILE = credentials('sops-gpg-key')
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // -----------------------------
+        // Desencriptar archivo
+        // -----------------------------
+        stage('Desencriptar archivo') {
+            when {
+                expression { 
+                    params.ACTION == 'decrypt' && params.SECRETS_FILE != null 
+                }
+            }
+            steps {
+                script {
+                    withFileParameter('SECRETS_FILE') {
+                        sh '''
+                            echo "Archivo temporal:"
+                            ls -lah "$SECRETS_FILE"
+
+                            echo "Limpiando workspace..."
+                            rm -rf *
+
+                            echo "Copiando al workspace..."
+                            cp "$SECRETS_FILE" file.yaml
+
+                            export GNUPGHOME=$(mktemp -d)
+
+                            gpg --batch --import "$GPG_KEY_FILE"
+
+                            echo "Desencriptando..."
+                            sops -d file.yaml > file-decrypted.yaml
+
+                            echo "Resultado:"
+                            ls -lah file-decrypted.yaml
+
+                            rm -rf "$GNUPGHOME"
+                        '''
+                    }
+                }
+            }
+        }
+
+        // -----------------------------
+        // Encriptar archivo
+        // -----------------------------
+        stage('Encriptar archivo') {
+            when {
+                expression { 
+                    params.ACTION == 'encrypt' && params.SECRETS_FILE
+                }
+            }
+            steps {
+                deleteDir()
+                script {
+                    withFileParameter('SECRETS_FILE') {
+                        sh '''
+                            echo "Archivo temporal:"
+                            ls -lah "$SECRETS_FILE"
+
+                            echo "Copiando al workspace..."
+                            cp "$SECRETS_FILE" file.yaml
+
+                            export GNUPGHOME=$(mktemp -d)
+                            trap 'rm -rf "$GNUPGHOME"' EXIT
+                            gpg --batch --import "$GPG_KEY_FILE"
+
+                            # Fingerprint de tu clave GPG
+                            PGP_FPR=$(gpg --list-keys --with-colons | grep fpr | head -n1 | cut -d: -f10)
+
+                            sops --encrypt --pgp "$PGP_FPR" file.yaml > file-encrypted.yaml
+
+                            echo "Resultado:"
+                            ls -lah file-encrypted.yaml
+
+                            rm -rf "$GNUPGHOME"
+                        '''
+                    }
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+    }
+}
