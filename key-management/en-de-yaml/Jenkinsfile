@@ -19,7 +19,6 @@ pipeline {
     environment {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
-        TF_DIR   = 'key-management/terraform'
         GPG_KEY_FILE = credentials('sops-gpg-key')
     }
 

@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(
+            name: 'PROJECT_NAME',
+            defaultValue: 'basic-project',
+            description: 'Nombre del proyecto para generar la llave SSH'
+        )
+    }
+
+    environment {
+        TF_DIR = 'terraform/key-management'
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Init Terraform') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Generar SSH Key') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh """
+                        terraform apply -auto-approve -var="project_name=${params.PROJECT_NAME}"
+                    """
+                }
+            }
+        }
+
+        stage('Mostrar identificador de KeyPair') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh 'terraform output keypair_name'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completado correctamente. La llave está creada y el identificador mostrado."
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+    }
+}
