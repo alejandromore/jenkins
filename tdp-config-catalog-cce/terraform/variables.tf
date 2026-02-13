@@ -195,8 +195,8 @@ variable "cce_node_password" {
   description = "Password del nodo del CCE."
 }
 
-variable "private_key_name" {
-  description = "Nombre del Secret en CSMS que contiene la clave privada"
+variable "key_pair_name" {
+  description = "Nombre del Key Pair para los nodos"
   type        = string
 }
 
