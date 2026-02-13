@@ -336,11 +336,9 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   security_groups    = [module.sg_cce.security_group_id]
   tags = var.tags
   # Se vincula el nodo al agency
-  extension_info {
-    agency_name = huaweicloud_identity_agency.cce_node_agency.name
-  }
+  agency_name        = huaweicloud_identity_agency.cce_node_agency.name
   #password          = var.cce_node_password
-  key_pair           = var.key_pair_name
+  key_pair           = var.cce_node_keypair_name
 }
 
 #######################################
