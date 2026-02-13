@@ -194,7 +194,7 @@
       retries: 30  # Jenkins puede tardar más en iniciar la primera vez
       delay: 10
       until: jenkins_check.status == 200
-      ignore_errors: yes  # Continuar incluso si falla, pero registrar
+      ignore_errors: true  # Continuar incluso si falla, pero registrar
 
     - name: Display Jenkins status
       debug:
