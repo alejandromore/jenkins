@@ -340,7 +340,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
     agency_name      = huaweicloud_identity_agency.cce_node_agency.name
   }
   #password          = var.cce_node_password
-  key_pair           = var.cce_node_keypair_name
+  key_pair           = var.key_pair_name
 }
 
 #######################################
