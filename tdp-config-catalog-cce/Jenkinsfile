@@ -147,7 +147,7 @@ pipeline {
 
                         for i in \$(seq 1 30); do
                         echo "Intento \$i..."
-                        if curl -sf http://${elb_public_ip}/config-server.html > /dev/null; then
+                        if curl -sf http://${elb_public_ip}/index.html > /dev/null; then
                             echo ""
                             echo "App disponible."
                             exit 0
