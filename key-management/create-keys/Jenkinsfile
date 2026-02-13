@@ -23,23 +23,28 @@ pipeline {
             }
         }
 
-        // Todos los stages de Terraform ejecutándose dentro de TF_DIR
-        stage('Terraform Steps') {
+        stage('Init Terraform') {
             steps {
                 dir("${env.TF_DIR}") {
-                    stage('Init Terraform') {
-                        sh 'terraform init'
-                    }
+                    sh 'terraform init'
+                }
+            }
+        }
 
-                    stage('Generar SSH Key') {
-                        sh """
-                            terraform apply -auto-approve -var="project_name=${params.PROJECT_NAME}"
-                        """
-                    }
+        stage('Generar SSH Key') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh """
+                        terraform apply -auto-approve -var="project_name=${params.PROJECT_NAME}"
+                    """
+                }
+            }
+        }
 
-                    stage('Mostrar identificador de KeyPair') {
-                        sh 'terraform output keypair_name'
-                    }
+        stage('Mostrar identificador de KeyPair') {
+            steps {
+                dir("${env.TF_DIR}") {
+                    sh 'terraform output keypair_name'
                 }
             }
         }
