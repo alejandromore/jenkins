@@ -344,7 +344,6 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 resource "huaweicloud_cce_addon" "pod_identity" {
   cluster_id    = module.cce_cluster.cluster_id
   template_name = "pip"
-  version       = "1.2.5" # Verifica la última versión en el Marketplace
 
   values {
     basic = {
