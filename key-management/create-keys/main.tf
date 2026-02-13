@@ -24,24 +24,22 @@ resource "tls_private_key" "rsa_key" {
 }
 
 # 2. Registrar la llave pública en KPS (Key Pair Service)
+# Documentación: https://registry.terraform.io
 resource "huaweicloud_kps_keypair" "ecs_key" {
   name       = "${var.project_name}-key"
   public_key = tls_private_key.rsa_key.public_key_openssh
 }
 
-# 3. Crear el "Contenedor" del secreto en CSMS
-resource "huaweicloud_csms_secret" "ecs_key_container" {
+# 3. Guardar la llave privada en CSMS (Cloud Secret Management Service)
+# Usamos 'secret_text' para inyectar el contenido directamente
+# Documentación: https://registry.terraform.io
+resource "huaweicloud_csms_secret" "ecs_key_storage" {
   name        = "${var.project_name}-private-key"
-  description = "Contenedor para la llave privada de ${var.project_name}"
+  description = "Llave privada para el proyecto ${var.project_name}"
+  secret_text = tls_private_key.rsa_key.private_key_pem
 }
 
-# 4. Crear la "Versión" del secreto (aquí es donde vive el contenido)
-resource "huaweicloud_csms_secret_version" "ecs_key_value" {
-  secret_id   = huaweicloud_csms_secret.ecs_key_container.id
-  secret_data = tls_private_key.rsa_key.private_key_pem
-}
-
-# Output para tu ECS
+# Output para el nombre de la llave (usar en el ECS)
 output "key_pair_name" {
   value = huaweicloud_kps_keypair.ecs_key.name
 }
