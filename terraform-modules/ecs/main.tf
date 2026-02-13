@@ -39,5 +39,6 @@ resource "huaweicloud_compute_instance" "ecs" {
 
   agency_name           = var.agency_name
 
+  user_data = base64encode(file("${path.module}/../cloud-init/ecs_base.yaml"))
   tags = var.tags
 }
