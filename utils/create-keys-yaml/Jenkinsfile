@@ -63,16 +63,4 @@ pipeline {
 
     }
 
-    post {
-        success {
-            dir("${env.TF_DIR}") {
-                // Archivar los resultados para descarga manual
-                archiveArtifacts artifacts: 'jenkins-master-key.asc, fingerprint.txt', onlyIfSuccessful: true
-            }
-        }
-        always {
-            // Opcional: borrar el keyring de GPG del agente por seguridad
-            sh "rm -rf ~/.gnupg"
-        }
-    }
 }
