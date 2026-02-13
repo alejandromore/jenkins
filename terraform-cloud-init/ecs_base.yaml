@@ -1,8 +1,0 @@
-timezone: America/Lima
-hostname: ecs-base
-users:
-  - name: devops
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    shell: /bin/bash
-    ssh-authorized-keys:
-      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQ...tu_clave_publica_aqui

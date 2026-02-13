@@ -91,6 +91,7 @@ module "ecs_publico" {
   ecs_password          = null
   availability_zone     = data.huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  user_data             = var.cloud_init_config
   tags                  = var.tags
 }
 

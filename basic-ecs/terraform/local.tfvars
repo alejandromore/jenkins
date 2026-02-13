@@ -13,6 +13,13 @@ tags                             = {
     costcenter  = "it-001"
 }
 
+cloud_init_config = <<-EOF
+  #cloud-config
+  timezone: America/Lima
+  runcmd:
+    - [ timedatectl, set-timezone, America/Lima ]
+EOF
+
 security_group_public_name        = "sg-basic-ecs-public"
 
 vpc_name                          = "vpc-basic-ecs"
