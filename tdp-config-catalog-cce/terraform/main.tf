@@ -342,19 +342,19 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 }
 
 # Instalamos add-ons
-resource "huaweicloud_cce_addon" "pod_identity" {
-  cluster_id    = module.cce_cluster.cluster_id
-  template_name = "pip"
-  version       = "1.5.1"
+resource "huaweicloud_cce_addon" "cce_secrets_manager" {
+  cluster_id    = huaweicloud_cce_cluster.my_cluster.id
+  template_name = "cce-secrets-manager"
+  version       = "1.1.75" 
 
   values {
     basic = {
-      # Dirección específica para la-south-2
       "swr_addr" = "swr.la-south-2.myhuaweicloud.com"
-      "swr_user" = "h00300445" 
+      "swr_user" = "h00300445"
     }
     custom = {
-      "cluster_id" = module.cce_cluster.cluster_id
+      # Muy importante: vincula la Agency aquí para que el add-on tenga permisos
+      "agency_name" = huaweicloud_identity_agency.cce_node_agency.name
     }
   }
 }
