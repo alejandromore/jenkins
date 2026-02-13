@@ -80,6 +80,7 @@ pipeline {
                 }
             }
             steps {
+                deleteDir()
                 script {
                     withFileParameter('SECRETS_FILE') {
                         sh '''
