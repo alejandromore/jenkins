@@ -14,28 +14,18 @@ terraform {
 variable "project_name" {
   type        = string
   description = "Nombre del proyecto"
+  default     = "basic-project"
 }
 
-# Genera llave RSA
-resource "tls_private_key" "ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+# 1. Crear el Key Pair
+resource "huaweicloud_kps_keypair" "ecs_key" {
+  name = "${var.project_name}-keypair"
+  # La llave se crea y se registra en el servicio KPS.
+  save_private_key = true 
 }
 
-# Guarda la llave privada en Huawei Secret Manager
-resource "huaweicloud_secrets_secret_v1" "private_key" {
-  name          = "${var.project_name}-private-key"
-  secret_binary = tls_private_key.ssh_key.private_key_pem
-}
-
-# Crea el KeyPair en Huawei Cloud
-resource "huaweicloud_compute_keypair" "keypair" {
-  name       = "${var.project_name}-keypair"
-  public_key = tls_private_key.ssh_key.public_key_openssh
-}
-
-# Output con el identificador del KeyPair
-output "keypair_name" {
-  description = "Nombre del KeyPair que se usará en futuros ECS"
-  value       = huaweicloud_compute_keypair.keypair.name
+# 2. Output del Nombre (Lo que usará el ECS)
+output "key_pair_name" {
+  value       = huaweicloud_kps_keypair.ecs_key.name
+  description = "Este es el nombre que debes pasar al recurso huaweicloud_compute_instance"
 }
