@@ -341,9 +341,16 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   key_pair           = var.key_pair_name
 }
 
+# 1. Buscamos la versión disponible para tu cluster específico
+data "huaweicloud_cce_addon_template" "pip_template" {
+  cluster_id    = huaweicloud_cce_cluster.my_cluster.id
+  template_name = "pip"
+}
+# 2. Instalamos usando la versión que nos devolvió el data source
 resource "huaweicloud_cce_addon" "pod_identity" {
   cluster_id    = module.cce_cluster.cluster_id
   template_name = "pip"
+  version       = data.huaweicloud_cce_addon_template.pip_template.version
 
   values {
     basic = {
