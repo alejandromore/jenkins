@@ -341,9 +341,11 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   key_pair           = var.key_pair_name
 }
 
+/*
 data "huaweicloud_cce_addon_template" "secrets_manager" {
   cluster_id = module.cce_cluster.cluster_id
   name       = "cce-secrets-manager"
+  version    
 }
 # Instalamos add-ons
 resource "huaweicloud_cce_addon" "cce_secrets_manager" {
@@ -362,6 +364,7 @@ resource "huaweicloud_cce_addon" "cce_secrets_manager" {
     }
   }
 }
+*/
 
 #######################################
 # Agency
