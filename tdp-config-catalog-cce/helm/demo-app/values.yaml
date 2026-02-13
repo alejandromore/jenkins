@@ -6,7 +6,7 @@ configServer:
     organization: cce-jenkins-integration-organization
     repository: config-server-hw
     tag: "1.2.3"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   secretName: secret-config-catalog
 
 catalogError:
@@ -17,7 +17,7 @@ catalogError:
     organization: cce-jenkins-integration-organization
     repository: catalog-error-hw
     tag: "1.0"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   secretName: secret-config-catalog
 
 demoClient:
@@ -27,7 +27,7 @@ demoClient:
     organization: cce-jenkins-integration-organization
     repository: demo-client
     tag: "1.0"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   secretName: secret-config-catalog
   port: 80
   targetPort: 8081
