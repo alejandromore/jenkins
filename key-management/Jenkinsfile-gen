@@ -1,3 +1,5 @@
+// Install plugin Pipeline Utility Steps
+
 pipeline {
     agent any
 
@@ -11,7 +13,10 @@ pipeline {
             choices: ['encrypt', 'decrypt'],
             description: 'Encriptar y desencriptar archvios YAML con SOPS'
         )
-        base64File(name: 'SECRETS_FILE', description: 'Sube archivo')
+        file(
+            name: 'SECRETS_FILE',
+            description: 'Sube archivo'
+        )
         booleanParam(
             name: 'CLEAN_WORKSPACE',
             defaultValue: false,
