@@ -108,8 +108,8 @@ pipeline {
             steps {
                 script {
 
-                    env.ecs_public_ip    = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
-                    env.ecs_private_key  = readFile("${WORKSPACE}/ecs_private_key.txt").trim()
+                    env.ecs_public_ip         = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
+                    env.ecs_private_key_path  = "${WORKSPACE}/ecs_private_key.txt"
 
                     dir(env.ANS_DIR) {
                         //chmod 600 ${env.ecs_private_key}
@@ -133,7 +133,7 @@ pipeline {
                         -i inventory/hosts \
                         -e "ansible_host=${env.ecs_public_ip}" \
                         -e "ansible_user=root" \
-                        --private-key ${env.ecs_private_key} \
+                        --private-key ${env.ecs_private_key_path} \
                         playbooks/deploy-java.yml
 
                         echo "Despliegue finalizado correctamente"
