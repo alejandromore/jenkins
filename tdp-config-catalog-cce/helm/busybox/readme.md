@@ -5,8 +5,8 @@ $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml
 kubectl get nodes
 
 # Orden de despliegue PV Dinamico
-kubectl apply -f agency-test.yaml
-kubectl exec -it agency-test -- /bin/sh
+kubectl apply -f pod-agency-test.yaml
+kubectl exec -it pod-agency-test -- /bin/sh
 
 # Instala curl (en Alpine)
 apk add curl

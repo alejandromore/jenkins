@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: agency-test
+  name: pod-agency-test
   namespace: default
 spec:
   containers:
