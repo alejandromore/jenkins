@@ -34,18 +34,19 @@ pipeline {
                         # Generar la llave
                         gpg --batch --generate-key key-gen.txt
                         
-                        # Escapamos el \$ de shell para que Jenkins no lo procese como Groovy
+                        # USAR \$ para que Jenkins ignore la variable y la lea Shell
                         FINGERPRINT=\$(gpg --with-colons --fingerprint "${params.NAME_EMAIL}" | grep fpr | cut -d: -f10 | head -n1)
                         echo "\$FINGERPRINT" > fingerprint.txt
                         
-                        # Reemplaza el marcador con el fingerprint real
-                        sed "s/__FINGERPRINT__/${FINGERPRINT}/g" ./templates/.sops.yaml > .sops.yaml
+                        # USAR \$FINGERPRINT escapado para que sed reciba el valor de Bash
+                        sed "s/__FINGERPRINT__/\$FINGERPRINT/g" ./templates/.sops.yaml > .sops.yaml
 
                         # Exportar llave privada
                         gpg --armor --export-secret-keys "${params.NAME_EMAIL}" > jenkins-master-key.asc
                         
                         echo "Generación completada para: ${params.NAME_REAL} <${params.NAME_EMAIL}>"
                     """
+
                 }
             }
         }
