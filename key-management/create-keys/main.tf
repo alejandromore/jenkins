@@ -17,15 +17,28 @@ variable "project_name" {
   default     = "basic-project"
 }
 
-# 1. Crear el Key Pair
-resource "huaweicloud_kps_keypair" "ecs_key" {
-  name = "${var.project_name}-keypair"
-  # La llave se crea y se registra en el servicio KPS.
-  save_private_key = true 
+# 1. Generamos la llave en memoria (no toca disco)
+resource "tls_private_key" "rsa_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
 }
 
-# 2. Output del Nombre (Lo que usará el ECS)
+# 2. Registramos la llave pública en KPS para que el ECS la reconozca
+resource "huaweicloud_kps_keypair" "ecs_key" {
+  name       = "${var.project_name}-key"
+  public_key = tls_private_key.rsa_key.public_key_openssh
+}
+
+# 3. Guardamos la llave privada en CSMS (Cloud Secret Management Service)
+resource "huaweicloud_csms_secret" "ecs_private_key_secret" {
+  name        = "${var.project_name}-private-key"
+  description = "Llave privada para el proyecto ${var.project_name}"
+  
+  # Guardamos el contenido de la llave privada como el valor del secreto
+  secret_data = tls_private_key.rsa_key.private_key_pem
+}
+
+# Output: Solo el nombre del keypair (necesario para el ECS)
 output "key_pair_name" {
-  value       = huaweicloud_kps_keypair.ecs_key.name
-  description = "Este es el nombre que debes pasar al recurso huaweicloud_compute_instance"
+  value = huaweicloud_kps_keypair.ecs_key.name
 }
