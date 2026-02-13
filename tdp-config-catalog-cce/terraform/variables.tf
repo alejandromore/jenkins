@@ -195,6 +195,10 @@ variable "cce_node_password" {
   description = "Password del nodo del CCE."
 }
 
+variable "private_key_name" {
+  description = "Nombre del Secret en CSMS que contiene la clave privada"
+  type        = string
+}
 
 # ============================================================================
 # VARIABLES NAT GATEWAY

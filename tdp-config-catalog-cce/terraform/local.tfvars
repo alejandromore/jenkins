@@ -38,11 +38,11 @@ cce_network_cidr                  = "172.16.0.0/16"
 eip_cce_name                      = "eip-cce-app"
 
 cce_cluster_name                  = "cce-config-catalog"
-#cce_cluster_name                  = "cce-jenkins"
 cce_cluster_type                  = "VirtualMachine"
 cce_cluster_flavor                = "cce.s1.small"
 cce_k8s_version                   = "v1.32"
 cce_network_type                  = "vpc-router"
+key_pair_name                     = "basic-project-key"
 
 cce_authentication_mode           = "rbac"
 cce_charging_mode                 = "postPaid"
