@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: agency-test
+  namespace: default
+spec:
+  containers:
+  - name: tester
+    image: alpine:latest
+    command: ["/bin/sh", "-c", "sleep 3600"]
+    # No necesitas AK/SK porque se heredan del nodo
