@@ -17,28 +17,31 @@ variable "project_name" {
   default     = "basic-project"
 }
 
-# 1. Generamos la llave en memoria (no toca disco)
+# 1. Generar la llave en memoria (RSA 4096)
 resource "tls_private_key" "rsa_key" {
   algorithm = "RSA"
   rsa_bits  = 4096
 }
 
-# 2. Registramos la llave pública en KPS para que el ECS la reconozca
+# 2. Registrar la llave pública en KPS (Key Pair Service)
 resource "huaweicloud_kps_keypair" "ecs_key" {
   name       = "${var.project_name}-key"
   public_key = tls_private_key.rsa_key.public_key_openssh
 }
 
-# 3. Guardamos la llave privada en CSMS (Cloud Secret Management Service)
-resource "huaweicloud_csms_secret" "ecs_private_key_secret" {
+# 3. Crear el "Contenedor" del secreto en CSMS
+resource "huaweicloud_csms_secret" "ecs_key_container" {
   name        = "${var.project_name}-private-key"
-  description = "Llave privada para el proyecto ${var.project_name}"
-  
-  # Guardamos el contenido de la llave privada como el valor del secreto
+  description = "Contenedor para la llave privada de ${var.project_name}"
+}
+
+# 4. Crear la "Versión" del secreto (aquí es donde vive el contenido)
+resource "huaweicloud_csms_secret_version" "ecs_key_value" {
+  secret_id   = huaweicloud_csms_secret.ecs_key_container.id
   secret_data = tls_private_key.rsa_key.private_key_pem
 }
 
-# Output: Solo el nombre del keypair (necesario para el ECS)
+# Output para tu ECS
 output "key_pair_name" {
   value = huaweicloud_kps_keypair.ecs_key.name
 }
