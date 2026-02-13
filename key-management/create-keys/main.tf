@@ -11,6 +11,10 @@ terraform {
   }
 }
 
+provider "huaweicloud" {
+  region     = "la-south-2"
+}
+
 variable "project_name" {
   type        = string
   description = "Nombre del proyecto"
