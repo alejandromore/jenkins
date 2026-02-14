@@ -347,7 +347,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 resource "huaweicloud_identity_agency" "cce_node_agency" {
   name                   = "cce_node_agency"
   description            = "Agency para que los nodos de CCE accedan a OBS y DEW"
-  delegated_service_name = "op_svc_cce" 
+  delegated_service_name = "op_svc_ecs" 
 
   project_role {
     project = var.region
