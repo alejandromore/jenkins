@@ -344,20 +344,29 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 #######################################
 # Agency
 #######################################
-resource "huaweicloud_identity_agency" "cce_node_agency" {
-  name                   = "cce_node_agency"
-  description            = "Agency para que los nodos de CCE accedan a OBS y DEW"
-  delegated_service_name = "op_svc_ecs" 
+resource "huaweicloud_identity_agency" "cce_pod_agency" {
+  name                  = "cce_pod_agency_oidc"
+  description           = "Agency para Pod Identity (Workload Identity)"
+  
+  # Importante: Para Pod Identity, se delega al dominio/IDP, 
+  # no necesariamente a un servicio de sistema como ECS.
+  delegated_domain_name = data.huaweicloud_identity_user.current.domain_name
 
   project_role {
     project = var.region
-    roles = [
-      "OBS OperateAccess",  # Para descargar archivos
-      "KMS Administrator",  # Para usar llaves de DEW
-      "CSMS ReadOnlyAccess" # Específico para leer secretos de DEW/Cloud Secret Management Service
+    roles   = [
+      "OBS ReadOnlyAccess",
+      "CSMS ReadOnlyAccess"
     ]
   }
 }
+
+data "huaweicloud_cce_cluster" "my_cluster" {
+  name = "cce-config-catalog"
+}
+
+# El ID de la cuenta de Huawei Cloud
+data "huaweicloud_identity_user" "current" {}
 
 
 #######################################
