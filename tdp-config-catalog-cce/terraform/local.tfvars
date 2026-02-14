@@ -35,7 +35,7 @@ vpc_subnet_cce_eni_cidr           = "10.1.64.0/19"
 vpc_subnet_cce_eni_gateway_ip     = "10.1.64.1"
 
 cce_network_cidr                  = "172.16.0.0/16"
-eip_cce_name                      = "eip-cce-app"
+eip_cce_name                      = "eip-cce-config-server"
 
 cce_cluster_name                  = "cce-config-catalog"
 cce_cluster_type                  = "VirtualMachine"

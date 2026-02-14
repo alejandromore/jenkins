@@ -341,38 +341,13 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   key_pair           = var.key_pair_name
 }
 
-/*
-data "huaweicloud_cce_addon_template" "secrets_manager" {
-  cluster_id = module.cce_cluster.cluster_id
-  name       = "cce-secrets-manager"
-  version    
-}
-# Instalamos add-ons
-resource "huaweicloud_cce_addon" "cce_secrets_manager" {
-  cluster_id    = module.cce_cluster.cluster_id
-  template_name = "cce-secrets-manager"
-  version       = data.huaweicloud_cce_addon_template.secrets_manager.version
-
-  values {
-    basic = {
-      "swr_addr" = "swr.la-south-2.myhuaweicloud.com"
-      "swr_user" = "h00300445"
-    }
-    custom = {
-      # Muy importante: vincula la Agency aquí para que el add-on tenga permisos
-      "agency_name" = huaweicloud_identity_agency.cce_node_agency.name
-    }
-  }
-}
-*/
-
 #######################################
 # Agency
 #######################################
 resource "huaweicloud_identity_agency" "cce_node_agency" {
   name                   = "cce_node_agency"
   description            = "Agency para que los nodos de CCE accedan a OBS y DEW"
-  delegated_service_name = "op_svc_ecs" 
+  delegated_service_name = "op_svc_cce" 
 
   project_role {
     project = var.region
