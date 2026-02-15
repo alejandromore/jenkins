@@ -1,3 +1,8 @@
+# Steps
+- Create agency
+- Associate ECS to agency
+
+
 $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml"
 
 # Validar acceso
