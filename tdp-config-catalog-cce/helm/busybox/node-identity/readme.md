@@ -1,10 +1,6 @@
 # Steps
 - Create agency
-- Associate ECS to agency
-- Enable in CCE console
-En el menú izquierdo, ve a Settings (Configuraciones) > Network (Red).
-Pod Access to Metadata
-Habilitar la opción en la Consola de CCE
+- Associate Node Pool (ECSs) to agency
 - Verify connectivity from POD to 
 rm -rf obsutil*
 wget https://obs-community.obs.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz
@@ -12,6 +8,11 @@ tar -xzf obsutil_linux_amd64.tar.gz
 cd obsutil_linux_amd64_5.7.9
 chmod +x obsutil
 ./obsutil ls obs://obs-alejandro-db-dumps
+
+
+
+
+
 
 apk add python3 py3-pip
 pip install awscli
