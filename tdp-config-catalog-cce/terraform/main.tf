@@ -344,20 +344,48 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 #######################################
 # Agency
 #######################################
-resource "huaweicloud_identity_agency" "cce_node_agency" {
-  name                   = "cce_node_agency"
-  description            = "Agency para que los nodos de CCE accedan a OBS y DEW"
-  #delegated_service_name = "op_svc_ecs" 
-  delegated_service_name = "op_svc_cce"
+resource "huaweicloud_identity_agency" "obs_workload_agency" {
+  name        = "obs-workload-agency"
+  description = "Agency for CCE OIDC Workload Identity"
 
   project_role {
     project = var.region
     roles = [
-      "OBS OperateAccess",  # Para descargar archivos
-      "KMS Administrator",  # Para usar llaves de DEW
-      "CSMS ReadOnlyAccess" # Específico para leer secretos de DEW/Cloud Secret Management Service
+      "OBS OperateAccess"
     ]
   }
+}
+
+resource "huaweicloud_identity_provider" "cce_oidc" {
+  name     = "cce-oidc-provider"
+  protocol = "oidc"
+
+  oidc {
+    issuer_url = "https://oidc.cce.la-south-2.myhuaweicloud.com/${module.cce_cluster.cluster_id}"
+    client_id  = "sts.amazonaws.com" # requerido aunque no sea AWS
+  }
+}
+
+resource "huaweicloud_identity_agency_trust_policy" "cce_trust" {
+  agency_id = huaweicloud_identity_agency.obs_workload_agency.id
+
+  policy = jsonencode({
+    Version = "1.0"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = huaweicloud_identity_provider.cce_oidc.id
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "oidc:sub" = "system:serviceaccount:default:obs-dew-sa"
+          }
+        }
+      }
+    ]
+  })
 }
 
 #######################################

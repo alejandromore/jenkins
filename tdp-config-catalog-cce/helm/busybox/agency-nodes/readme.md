@@ -6,13 +6,17 @@ En el menú izquierdo, ve a Settings (Configuraciones) > Network (Red).
 Pod Access to Metadata
 Habilitar la opción en la Consola de CCE
 - Verify connectivity from POD to 
-kubectl exec -it pod-agency-test -- curl http://169.254.169.254
-curl -X PUT "http://169.254.169.254/latest/api/token" \
-  -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"
-curl -H "X-aws-ec2-metadata-token: <TOKEN>" \
-http://169.254.169.254/latest/meta-data/iam/security-credentials/
-curl https://obs.<region>.myhuaweicloud.com
+rm -rf obsutil*
+wget https://obs-community.obs.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz
+tar -xzf obsutil_linux_amd64.tar.gz
+cd obsutil_linux_amd64_5.7.9
+chmod +x obsutil
+./obsutil ls obs://obs-alejandro-db-dumps
 
+apk add python3 py3-pip
+pip install awscli
+export AWS_DEFAULT_REGION=<tu-region>
+aws s3 ls --endpoint-url https://obs.<region>.myhuaweicloud.com
 
 
 $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml"
@@ -21,6 +25,7 @@ $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml
 kubectl get nodes
 
 # Ejecutar yamls
+kubectl apply -f service-account.yaml
 kubectl apply -f pod-agency-test.yaml
 kubectl delete pod pod-agency-test
 
