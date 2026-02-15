@@ -334,11 +334,11 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
     volumetype = "SAS"
   }
   security_groups    = [module.sg_cce.security_group_id]
-  tags = var.tags
-  # Se vincula el nodo al agency
-  #agency_name        = huaweicloud_identity_agency.cce_node_agency.name
-  #password          = var.cce_node_password
   key_pair           = var.key_pair_name
+  #extend_param = {
+  #  agency_name = "cce_node_agency"
+  #}
+  tags = var.tags
 }
 
 #######################################
@@ -347,7 +347,8 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 resource "huaweicloud_identity_agency" "cce_node_agency" {
   name                   = "cce_node_agency"
   description            = "Agency para que los nodos de CCE accedan a OBS y DEW"
-  delegated_service_name = "op_svc_ecs" 
+  #delegated_service_name = "op_svc_ecs" 
+  delegated_service_name = "op_svc_cce"
 
   project_role {
     project = var.region

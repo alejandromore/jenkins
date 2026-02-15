@@ -4,6 +4,7 @@ metadata:
   name: pod-agency-test
   namespace: default
 spec:
+  serviceAccountName: obs-dew-sa
   containers:
     - name: tester
       image: alpine:latest
