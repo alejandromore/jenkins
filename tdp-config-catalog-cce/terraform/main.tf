@@ -311,32 +311,27 @@ resource "huaweicloud_cce_cluster" "this" {
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
   cluster_version        = "v1.33"
-  container_network_type = "eni" # Cloud Native Network 2.0
+  container_network_type = "eni"
 
-  # Conexión a Infraestructura existente
-  vpc_id        = "65e359fc-2838-417f-8c0c-cf40dfc8cb07"
-  subnet_id     = "ea799d5a-582a-4b97-8956-20c81d4485d1" # vpc-subnet-cce
-  eni_subnet_id = "98d92d4f-914f-4ed3-9e3d-5376f57819da" # vpc-subnet-cce-eni
+  vpc_id    = "65e359fc-2838-417f-8c0c-cf40dfc8cb07"
+  subnet_id = "ea799d5a-582a-4b97-8956-20c81d4485d1"
 
-  # Estos CIDR deben declararse para evitar que el API use valores por defecto 
-  # que causan el error de "not in cluster vpc"
-  container_network_cidr = "10.1.64.0/19" # El mismo CIDR de tu subred ENI
-  service_network_cidr   = "10.247.0.0/16" 
+  # NO pongas eni_subnet_id aquí fuera
+  container_network_cidr = "10.1.64.0/19"
+  service_network_cidr   = "10.247.0.0/16"
 
-  # Bloque de parámetros extendidos para forzar la configuración Turbo
   extend_param = {
-    cluster_external_ip = "176.52.139.200"
-    # Este valor es crítico para que el API reconozca la red ENI correctamente
+    cluster_external_ip    = "176.52.139.200"
     container_network_mode = "eni"
+    # SOLUCIÓN: El API Turbo requiere el ID aquí dentro en ciertos escenarios
+    eni_subnet_id          = "98d92d4f-914f-4ed3-9e3d-5376f57819da"
   }
 
   masters {
     availability_zone = "la-south-2a"
   }
 
-  # Configuración de Seguridad
-  authentication_mode = "rbac"
-  kube_proxy_mode     = "iptables"
+  kube_proxy_mode = "iptables"
 }
 
 data "huaweicloud_compute_flavors" "myflavor" {
