@@ -338,8 +338,9 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   #extend_param = {
   #  agency_name = "cce-obs-agency"
   #}
-  agency_name = huaweicloud_identity_agency.obs_workload_agency.name
-
+  extend_param = {
+    agency_name = huaweicloud_identity_agency.obs_workload_agency.name
+  }
   tags = var.tags
 }
 
