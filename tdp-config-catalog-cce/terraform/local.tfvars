@@ -38,12 +38,12 @@ cce_network_cidr                  = "172.16.0.0/16"
 eip_cce_name                      = "eip-cce-config-server"
 
 cce_cluster_name                  = "cce-config-catalog"
-#cce_cluster_type                  = "VirtualMachine"
-cce_cluster_type                  = "Turbo"
+cce_cluster_type                  = "VirtualMachine"
+#cce_cluster_type                  = "Turbo"
 cce_cluster_flavor                = "cce.s1.small"
 cce_k8s_version                   = "v1.32"
-#cce_network_type                  = "vpc-router"
-cce_network_type                  = "eni"
+#cce_network_type                  = "vpc-router"   #Virtual Machie
+cce_network_type                  = "eni"           #Turbo
 key_pair_name                     = "basic-project-key"
 
 cce_authentication_mode           = "rbac"
