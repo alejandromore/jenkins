@@ -276,7 +276,6 @@ module "eip_cce_cluster" {
   tags                  = var.tags
 }
 
-/*
 module "cce_cluster" {
   source = "../../terraform-modules/cce_cluster"
 
@@ -304,46 +303,6 @@ module "cce_cluster" {
 
   tags                     = var.tags
 }
-*/
-
-# 1. Carga la subred ENI como objeto para obtener sus metadatos reales
-data "huaweicloud_vpc_subnet" "eni_sub" {
-  id = "98d92d4f-914f-4ed3-9e3d-5376f57819da"
-}
-
-resource "huaweicloud_cce_cluster" "this" {
-  name                   = "cce-config-catalog"
-  cluster_type           = "VirtualMachine"
-  flavor_id              = "cce.s1.small"
-  cluster_version        = "v1.33"
-  container_network_type = "eni"
-
-  vpc_id    = "65e359fc-2838-417f-8c0c-cf40dfc8cb07"
-  subnet_id = "ea799d5a-582a-4b97-8956-20c81d4485d1"
-
-  # BEST PRACTICE: Usa la referencia del data source
-  eni_subnet_id   = module.subnet_cce_eni.subnet_id
-  eni_subnet_cidr = module.subnet_cce_eni.subnet_cidr
-
-  # En CCE Turbo, el CIDR de contenedor DEBE ser igual al de la subred ENI
-  container_network_cidr = module.subnet_cce_eni.subnet_cidr
-  service_network_cidr   = "10.247.0.0/16"
-
-  extend_param = {
-    cluster_external_ip    = "176.52.139.200"
-  }
-
-  masters {
-    availability_zone = "la-south-2a"
-  }
-
-  kube_proxy_mode = "iptables"
-}
-
-
-
-
-
 
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
@@ -351,7 +310,7 @@ data "huaweicloud_compute_flavors" "myflavor" {
   cpu_core_count    = 4 
   memory_size       = 8 
 } 
-/*
+
 resource "huaweicloud_cce_node_pool" "nodepool" {
   cluster_id         = module.cce_cluster.cluster_id
   name               = "cce-nodepool-public"
@@ -377,16 +336,16 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   security_groups    = [module.sg_cce.security_group_id]
   key_pair           = var.key_pair_name
   extend_param = {
-    agency_name = "cce_node_agency"
+    agency_name = "obs-agency"
   }
   tags = var.tags
 }
-*/
+
 #######################################
 # Agency
 #######################################
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
-  name                   = "obs-workload-agency"
+  name                   = "obs-agency"
   delegated_service_name = "op_svc_ecs"
 
   project_role {

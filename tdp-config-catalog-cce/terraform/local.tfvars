@@ -39,11 +39,10 @@ eip_cce_name                      = "eip-cce-config-server"
 
 cce_cluster_name                  = "cce-config-catalog"
 cce_cluster_type                  = "VirtualMachine"
-#cce_cluster_type                  = "Turbo"
 cce_cluster_flavor                = "cce.s1.small"
 cce_k8s_version                   = "v1.33"
-#cce_network_type                  = "vpc-router"   #Virtual Machie
-cce_network_type                  = "eni"           #Turbo
+cce_network_type                  = "vpc-router"   #Virtual Machie
+#cce_network_type                  = "eni"           #Turbo
 cce_authentication_mode           = "rbac"
 cce_charging_mode                 = "postPaid"
 key_pair_name                     = "basic-project-key"
