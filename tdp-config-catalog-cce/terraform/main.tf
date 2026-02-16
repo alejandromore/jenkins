@@ -311,30 +311,35 @@ resource "huaweicloud_cce_cluster" "this" {
   cluster_type           = "VirtualMachine"
   flavor_id              = "cce.s1.small"
   cluster_version        = "v1.33"
-  container_network_type = "eni"
+  container_network_type = "eni" # Cloud Native Network 2.0
 
   vpc_id    = "65e359fc-2838-417f-8c0c-cf40dfc8cb07"
-  subnet_id = "ea799d5a-582a-4b97-8956-20c81d4485d1"
+  subnet_id = "ea799d5a-582a-4b97-8956-20c81d4485d1" # vpc-subnet-cce
 
-  # REGLA DE ORO PARA CCE TURBO:
-  # El container_network_cidr DEBE ser igual al CIDR de la subred ENI
-  eni_subnet_id          = "98d92d4f-914f-4ed3-9e3d-5376f57819da"
-  eni_subnet_cidr        = "10.1.64.0/19" # <--- PÁSALO EXPLÍCITO
-  container_network_cidr = "10.1.64.0/19" # <--- DEBE SER EL MISMO
-
+  # BEST PRACTICE: En modo ENI, el CIDR de contenedor debe ser 
+  # el rango de la subred ENI que elegiste.
+  container_network_cidr = "10.1.64.0/19"
   service_network_cidr   = "10.247.0.0/16"
 
   extend_param = {
     cluster_external_ip    = "176.52.139.200"
     container_network_mode = "eni"
+    
+    # PASO CLAVE: Definir la subred ENI aquí como parámetro extendido
+    # Esto replica exactamente el comportamiento de la consola.
+    eni_subnet_id          = "98d92d4f-914f-4ed3-9e3d-5376f57819da"
   }
+
+  # Elimina eni_subnet_id y eni_subnet_cidr de la raíz si los tenías.
 
   masters {
     availability_zone = "la-south-2a"
   }
 
-  kube_proxy_mode = "iptables"
+  authentication_mode = "rbac"
+  kube_proxy_mode     = "iptables"
 }
+
 
 
 
