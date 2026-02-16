@@ -41,13 +41,12 @@ cce_cluster_name                  = "cce-config-catalog"
 cce_cluster_type                  = "VirtualMachine"
 #cce_cluster_type                  = "Turbo"
 cce_cluster_flavor                = "cce.s1.small"
-cce_k8s_version                   = "v1.32"
+cce_k8s_version                   = "v1.33"
 #cce_network_type                  = "vpc-router"   #Virtual Machie
 cce_network_type                  = "eni"           #Turbo
-key_pair_name                     = "basic-project-key"
-
 cce_authentication_mode           = "rbac"
 cce_charging_mode                 = "postPaid"
+key_pair_name                     = "basic-project-key"
 cce_node_password                 = "P@ssw0rdSecure123!"
 
 ng_name                           = "ng-internet"

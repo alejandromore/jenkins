@@ -276,7 +276,7 @@ module "eip_cce_cluster" {
   tags                  = var.tags
 }
 
-/*
+
 module "cce_cluster" {
   source = "../../terraform-modules/cce_cluster"
 
@@ -304,32 +304,7 @@ module "cce_cluster" {
 
   tags                     = var.tags
 }
-*/
-resource "huaweicloud_cce_cluster" "this" {
-  name                   = "cce-config-catalog"
-  cluster_type           = "VirtualMachine" # OBLIGATORIO: No usar "Turbo" aquí
-  flavor_id              = "cce.s1.small"    # Single Master (Santiago compatible)
-  cluster_version        = "v1.32"
-  container_network_type = "eni"            # Esto es lo que activa "Turbo"
 
-  # RED
-  vpc_id        = "210c2a95-e7e9-4273-ac29-cbf1f54aad43"
-  subnet_id     = "622e8822-f11d-4763-bdf9-ae0dc7877919" # Default Node Subnet
-  eni_subnet_id = "ffc6ac72-8912-4827-a527-7a048785d397" # Pod Subnet (ENI)
-
-  # ELIMINA ESTA LÍNEA:
-  # container_network_cidr = "172.16.0.0/16" 
-  # En CCE Turbo (eni), los pods NO usan un CIDR separado, 
-  # usan IPs directamente de la 'eni_subnet_id' (10.1.64.0/19).
-  
-  masters {
-    availability_zone = "la-south-2a"
-  }
-
-  authentication_mode   = "rbac"
-  charging_mode         = "postPaid"
-  enterprise_project_id = "4dcc0216-fe93-4eb0-a1a9-3032e195af78"
-}
 
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
