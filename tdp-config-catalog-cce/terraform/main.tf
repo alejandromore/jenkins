@@ -337,7 +337,7 @@ data "huaweicloud_compute_flavors" "myflavor" {
   cpu_core_count    = 4 
   memory_size       = 8 
 } 
-
+/*
 resource "huaweicloud_cce_node_pool" "nodepool" {
   cluster_id         = module.cce_cluster.cluster_id
   name               = "cce-nodepool-public"
@@ -367,7 +367,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   }
   tags = var.tags
 }
-
+*/
 #######################################
 # Agency
 #######################################
