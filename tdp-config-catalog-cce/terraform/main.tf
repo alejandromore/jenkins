@@ -345,8 +345,8 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 # Agency
 #######################################
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
-  name                   = "obs-agency"
-  delegated_service_name = "cce-obs-agency"
+  name                   = "cce-obs-agency"
+  delegated_service_name = "op_svc_ecs"
 
   project_role {
     project = var.region
