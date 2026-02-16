@@ -3,8 +3,8 @@ kind: Pod
 metadata:
   name: pod-agency-test
   namespace: default
+#serviceAccountName: obs-access-sa
 spec:
-  serviceAccountName: obs-dew-sa
   containers:
     - name: tester
       image: ubuntu:22.04
@@ -12,7 +12,26 @@ spec:
         - /bin/bash
         - -c
         - |
-          apt update && \
-          apt install -y wget tar ca-certificates && \
-          wget https://obs-community.obs.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz && \
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update && apt-get install -y curl tar ca-certificates
+          
+          echo "Descargando obsutil con la URL confirmada..."
+          # Usamos curl con -L para seguir redirecciones y -k por si hay temas de CA
+          curl -Lk "https://obs-community.obs.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz" -o obsutil_linux_amd64.tar.gz
+          
+          tar -xzvf obsutil_linux_amd64.tar.gz
+          # Buscamos el binario dentro de la carpeta extraída
+          FOLDER=$(ls -d obsutil_linux_amd64_*)
+          mv $FOLDER/obsutil /usr/local/bin/
+          chmod +x /usr/local/bin/obsutil
+          
+          # Configuración para usar el Agency heredado del ECS
+          obsutil config -i=ECS -e=obs.la-south-2.myhuaweicloud.com
+          obsutil ls
+          echo "----------------------------------------------------"
+          echo "TODO LISTO. Prueba ejecutando:"
+          echo "kubectl exec -it pod-agency-test -- obsutil ls"
+          echo "----------------------------------------------------"
+
+          
           sleep 3600

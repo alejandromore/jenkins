@@ -335,9 +335,11 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   }
   security_groups    = [module.sg_cce.security_group_id]
   key_pair           = var.key_pair_name
-  extend_param = {
-    agency_name = "cce-obs-agency"
-  }
+  #extend_param = {
+  #  agency_name = "cce-obs-agency"
+  #}
+  agency_name = huaweicloud_identity_agency.obs_workload_agency.name
+
   tags = var.tags
 }
 
