@@ -276,7 +276,7 @@ module "eip_cce_cluster" {
   tags                  = var.tags
 }
 
-
+/*
 module "cce_cluster" {
   source = "../../terraform-modules/cce_cluster"
 
@@ -304,7 +304,40 @@ module "cce_cluster" {
 
   tags                     = var.tags
 }
+*/
 
+resource "huaweicloud_cce_cluster" "this" {
+  name                   = "cce-config-catalog"
+  cluster_type           = "VirtualMachine"
+  flavor_id              = "cce.s1.small"
+  cluster_version        = "v1.33"
+  container_network_type = "eni" # Cloud Native Network 2.0
+
+  # Conexión a Infraestructura existente
+  vpc_id        = "65e359fc-2838-417f-8c0c-cf40dfc8cb07"
+  subnet_id     = "ea799d5a-582a-4b97-8956-20c81d4485d1" # vpc-subnet-cce
+  eni_subnet_id = "98d92d4f-914f-4ed3-9e3d-5376f57819da" # vpc-subnet-cce-eni
+
+  # Estos CIDR deben declararse para evitar que el API use valores por defecto 
+  # que causan el error de "not in cluster vpc"
+  container_network_cidr = "10.1.64.0/19" # El mismo CIDR de tu subred ENI
+  service_network_cidr   = "10.247.0.0/16" 
+
+  # Bloque de parámetros extendidos para forzar la configuración Turbo
+  extend_param = {
+    cluster_external_ip = "176.52.139.200"
+    # Este valor es crítico para que el API reconozca la red ENI correctamente
+    container_network_mode = "eni"
+  }
+
+  masters {
+    availability_zone = "la-south-2a"
+  }
+
+  # Configuración de Seguridad
+  authentication_mode = "rbac"
+  kube_proxy_mode     = "iptables"
+}
 
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
