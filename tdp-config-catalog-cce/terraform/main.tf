@@ -291,10 +291,10 @@ module "cce_cluster" {
   cce_subnet_id            = module.subnet_cce.subnet_id
   #container/pod network "172.16.0.0/16"
   cce_network_type         = var.cce_network_type
-  cce_network_cidr         = var.cce_network_cidr
+  #cce_network_cidr         = var.cce_network_cidr
   #eni network "10.1.64.0/19"
   cce_eni_subnet_id        = module.subnet_cce_eni.subnet_id
-  cce_eni_subnet_cidr      = module.subnet_cce_eni.subnet_cidr
+  #cce_eni_subnet_cidr      = module.subnet_cce_eni.subnet_cidr
 
   cce_authentication_mode  = var.cce_authentication_mode 
   cce_eip                  = module.eip_cce_cluster.address
