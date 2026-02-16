@@ -313,18 +313,19 @@ resource "huaweicloud_cce_cluster" "this" {
   cluster_version        = "v1.33"
   container_network_type = "eni"
 
-  vpc_id        = "65e359fc-2838-417f-8c0c-cf40dfc8cb07"
-  subnet_id     = "ea799d5a-582a-4b97-8956-20c81d4485d1"
-  eni_subnet_id = "98d92d4f-914f-4ed3-9e3d-5376f57819da"
+  vpc_id    = "65e359fc-2838-417f-8c0c-cf40dfc8cb07"
+  subnet_id = "ea799d5a-582a-4b97-8956-20c81d4485d1"
 
-  # IMPORTANTE 1: En CCE Turbo, el container_network_cidr NO debe ser 172.16 ni el de la subred.
-  # Intenta omitirlo o dejarlo como null para que el sistema use el modo nativo ENI.
-  container_network_cidr = null 
+  # REGLA DE ORO PARA CCE TURBO:
+  # El container_network_cidr DEBE ser igual al CIDR de la subred ENI
+  eni_subnet_id          = "98d92d4f-914f-4ed3-9e3d-5376f57819da"
+  eni_subnet_cidr        = "10.1.64.0/19" # <--- PÁSALO EXPLÍCITO
+  container_network_cidr = "10.1.64.0/19" # <--- DEBE SER EL MISMO
+
   service_network_cidr   = "10.247.0.0/16"
 
   extend_param = {
-    cluster_external_ip = "176.52.139.200"
-    # IMPORTANTE 2: Forzar el modo a nivel de API
+    cluster_external_ip    = "176.52.139.200"
     container_network_mode = "eni"
   }
 
@@ -334,6 +335,7 @@ resource "huaweicloud_cce_cluster" "this" {
 
   kube_proxy_mode = "iptables"
 }
+
 
 
 
