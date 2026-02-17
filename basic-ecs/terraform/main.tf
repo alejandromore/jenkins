@@ -148,7 +148,7 @@ resource "huaweicloud_identity_agency" "obs_agency" {
   enterprise_project_roles {
     enterprise_project = "enterprise-app"
     roles = [
-      "OBS OperateAccess"
+      "OBS Buckets Viewer"
     ]
   }
 }
