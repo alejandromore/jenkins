@@ -145,7 +145,7 @@ resource "huaweicloud_identity_agency" "obs_agency" {
   # =========================
   # Enterprise Project roles
   # =========================
-  enterprise_project_role {
+  enterprise_project_roles {
     enterprise_project = "enterprise-app"
     roles = [
       "OBS OperateAccess"
