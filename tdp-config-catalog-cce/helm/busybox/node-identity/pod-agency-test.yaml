@@ -3,7 +3,6 @@ kind: Pod
 metadata:
   name: pod-agency-test
   namespace: default
-#serviceAccountName: obs-access-sa
 spec:
   containers:
     - name: tester

@@ -1,14 +1,10 @@
 # Steps
 - Create agency
 - Associate Node Pool (ECSs) to agency
-- Verify connectivity from POD to 
-rm -rf obsutil*
-wget https://obs-community.obs.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz
-tar -xzf obsutil_linux_amd64.tar.gz
-cd obsutil_linux_amd64_5.7.9
-chmod +x obsutil
-./obsutil ls obs://obs-alejandro-db-dumps
-
+kubectl apply -f service-account.yaml
+kubectl apply -f pod-agency-test.yaml
+kubectl exec -it pod-agency-test -- /bin/sh
+curl http://169.254.169.254
 
 
 
@@ -21,6 +17,7 @@ aws s3 ls --endpoint-url https://obs.<region>.myhuaweicloud.com
 
 
 $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml"
+$env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-turbo-kubeconfig.yaml"
 
 # Validar acceso
 kubectl get nodes
