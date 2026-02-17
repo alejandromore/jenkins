@@ -199,6 +199,15 @@ resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
   remote_ip_prefix  = "100.125.0.0/16"
 }
 
+# ICMP: Para diagnósticos de red internos
+resource "huaweicloud_networking_secgroup_rule" "cce_node_icmp" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "icmp"
+  remote_ip_prefix  = "100.125.0.0/16"
+}
+
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_worker_access" {
   security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
@@ -217,14 +226,15 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
   description       = "Traffic from the source IP addresses defined in the security group must be allowed."
 }
 
-resource "huaweicloud_networking_secgroup_rule" "cce_api_ingress" {
+resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 5443
   port_range_max    = 5443
-  remote_ip_prefix  = "0.0.0.0/0" # O tu IP pública específica
+  remote_ip_prefix  = "0.0.0.0/0" # Por seguridad, podrías poner solo tu IP pública /32
+  description       = "Permitir kubectl desde el exterior"
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
