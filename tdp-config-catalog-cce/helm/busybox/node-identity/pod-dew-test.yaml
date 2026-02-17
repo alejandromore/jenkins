@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-agency-test
+  name: pod-dew-test
 spec:
   containers:
-  - name: pod-agency-test
+  - name: pod-dew-test
     image: ubuntu:latest 
-    command: ["/bin/bash", "-c", "/opt/scripts/setup-obs.sh && tail -f /dev/null"]
+    command: ["/bin/bash", "-c", "/opt/scripts/setup-hcloud.sh && tail -f /dev/null"]
     volumeMounts:
     - name: script-volume
       mountPath: /opt/scripts
   volumes:
   - name: script-volume
     configMap:
-      name: cm-obsutil-setup
+      name: cm-hcloud-setup
       defaultMode: 0755 # Permisos de ejecución
