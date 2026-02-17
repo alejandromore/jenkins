@@ -493,9 +493,6 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   }
   security_groups    = [module.sg_cce.security_group_id]
   key_pair           = var.key_pair_name
-  #extend_param = {
-  #  agency_name = "cce-obs-agency"
-  #}
   extend_param = {
     agency_name = huaweicloud_identity_agency.obs_workload_agency.name
     pod_metadata_access = "true"
@@ -507,15 +504,15 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 # Agency
 #######################################
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
-  name                   = "cce-obs-agency"
+  name                   = "ecs-obs-dew-agency"
   delegated_service_name = "op_svc_ecs"
-  #delegated_service_name = "op_svc_cce" 
 
-  project_role {
-    project = var.region
+  enterprise_project_roles {
+    enterprise_project = var.enterprise_project_name
     roles = [
-      "OBS OperateAccess",
-      "Tenant Guest"
+      #"OBS Administrator",
+      "OBS Buckets Viewer",
+      "CSMS ReadOnlyAccess"
     ]
   }
 }
