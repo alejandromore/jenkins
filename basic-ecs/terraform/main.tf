@@ -92,6 +92,7 @@ module "ecs_publico" {
   availability_zone     = data.huaweicloud_availability_zones.myaz.names[0]
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
   user_data             = var.cloud_init_config
+  agency_name           = huaweicloud_identity_agency.obs_agency.name 
   tags                  = var.tags
 }
 
@@ -106,6 +107,22 @@ module "eip_ecs_publico" {
 resource "huaweicloud_compute_eip_associate" "associated" {
   public_ip   = module.eip_ecs_publico.address
   instance_id = module.ecs_publico.ecs_id
+}
+
+#######################################
+# Agency
+#######################################
+resource "huaweicloud_identity_agency" "obs_agency" {
+  name                   = "cce-obs-agency"
+  delegated_service_name = "op_svc_ecs"
+
+  project_role {
+    project = var.region
+    roles = [
+      "OBS OperateAccess",
+      "Tenant Guest"
+    ]
+  }
 }
 
 #######################################

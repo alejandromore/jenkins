@@ -1,8 +1,11 @@
+$env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml"
+
 # Steps
-- Create agency
-- Associate Node Pool (ECSs) to agency
-kubectl apply -f service-account.yaml
+[Terraform] Create agency
+[Terraform] Associate Node Pool (ECSs) to agency
+kubectl apply -f cm-obsutil-setup.yaml
 kubectl apply -f pod-agency-test.yaml
+
 kubectl exec -it pod-agency-test -- /bin/sh
 curl http://169.254.169.254
 
