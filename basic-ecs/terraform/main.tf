@@ -132,7 +132,7 @@ resource "huaweicloud_identity_agency" "obs_agency" {
   delegated_service_name = "op_svc_ecs"
 
   project_role {
-    project = var.enterprise_project_name
+    project = "0371a9a7f90b493fadebbf130f6fcd2c"
     roles   = ["OBS Administrator"]
   }
 }
