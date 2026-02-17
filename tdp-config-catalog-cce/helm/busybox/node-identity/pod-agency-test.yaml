@@ -4,6 +4,7 @@ metadata:
   name: pod-agency-test
   namespace: default
 spec:
+  #serviceAccountName: obs-sa
   containers:
     - name: tester
       image: ubuntu:22.04
@@ -24,6 +25,13 @@ spec:
           mv $FOLDER/obsutil /usr/local/bin/
           chmod +x /usr/local/bin/obsutil
           
+          # Limpieza total y configuración forzada
+          rm -f /root/.obsutilconfig
+          
+          # Intento manual de obtener el token para debug
+          echo "Verificando acceso a Metadata..."
+          curl -I -m 5 http://169.254.169.254
+
           # Configuración para usar el Agency heredado del ECS
           obsutil config -i=ECS -e=obs.la-south-2.myhuaweicloud.com
           obsutil ls
