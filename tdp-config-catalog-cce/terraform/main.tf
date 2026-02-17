@@ -169,8 +169,19 @@ resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
   protocol          = "tcp"
   port_range_min    = 10250
   port_range_max    = 10250
-  remote_ip_prefix  = "100.125.0.0/16"
+  #remote_ip_prefix  = "100.125.0.0/16"
+  remote_ip_prefix  = "0.0.0.0/0" # SOLO PARA PRUEBA TEMPORAL
   description       = "Permitir al Control Plane acceder al API del Kubelet para logs y exec"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "cce_turbo_addon_comm" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 9443
+  port_range_max    = 9443
+  remote_ip_prefix  = "100.125.0.0/16"
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {

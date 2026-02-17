@@ -17,7 +17,7 @@ aws s3 ls --endpoint-url https://obs.<region>.myhuaweicloud.com
 
 
 $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml"
-$env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-turbo-kubeconfig.yaml"
+$env:KUBECONFIG="C:\Users\Huawei\Downloads\cce-config-catalog-kubeconfig.yaml"
 
 # Validar acceso
 kubectl get nodes
