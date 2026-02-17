@@ -349,7 +349,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     enable_distribute_management = false
     eni_subnet_cidr              = null
     eni_subnet_id                = module.subnet_cce_eni.ipv4_subnet_id
-    eni_security_group_id        = module.sg_cce_eni.security_group_id
+    #eni_security_group_id        = module.sg_cce_eni.security_group_id
     enterprise_project_id        = data.huaweicloud_enterprise_project.ep.id
     flavor_id                    = var.cce_cluster_flavor
     highway_subnet_id            = null
