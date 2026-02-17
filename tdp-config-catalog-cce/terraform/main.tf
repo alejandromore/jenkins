@@ -329,6 +329,13 @@ resource "huaweicloud_nat_snat_rule" "this" {
   description    = "SNAT rule for CCE subnet internet access"
 }
 
+resource "huaweicloud_nat_snat_rule" "snat_cce_pods" {
+  nat_gateway_id = module.nat_gateway.nat_gateway_id
+  subnet_id      = module.subnet_cce_eni.subnet_id
+  floating_ip_id = module.eip_nat_gateway.eip_id
+  description    = "SNAT rule for CCE Turbo Pods (ENI Subnet)"
+}
+
 #######################################
 # CCE
 #######################################
