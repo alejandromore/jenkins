@@ -335,7 +335,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     vpc_id                       = module.vpc.vpc_id
 
     masters {
-        availability_zone = "la-south-2a"
+        availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
     }
 }
 
@@ -399,7 +399,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   cluster_id         = huaweicloud_cce_cluster.cce_cluster_turbo.id
   name               = "cce-nodepool-public"
   initial_node_count = 2
-  subnet_id          = module.subnet_cce.subnet_id
+  subnet_id          = module.subnet_cce.ipv4_subnet_id
   flavor_id          = data.huaweicloud_compute_flavors.myflavor.flavors[0].id
   availability_zone  = data.huaweicloud_availability_zones.myaz.names[0]
   os                 = "EulerOS 2.9"
