@@ -507,8 +507,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 #######################################
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
   name                   = "cce-obs-agency"
-  #delegated_service_name = "op_svc_ecs"
-  delegated_service_name = "ecs.amazonaws.com"
+  delegated_service_name = "op_svc_ecs"
   #delegated_service_name = "op_svc_cce" 
 
   project_role {
