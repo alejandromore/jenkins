@@ -9,13 +9,15 @@ $env:KUBECONFIG="C:\Users\Huawei\Downloads\cce-config-catalog-kubeconfig.yaml"
 kubectl apply -f cm-obsutil-setup.yaml
 kubectl apply -f pod-obs-test.yaml
 kubectl exec -it pod-obs-test -- /bin/sh
-curl http://169.254.169.254
+obsutil ls
+obsutil cp obs://obs-alejandro-app1-dev/CatalogoErroresTabla.json ./CatalogoErroresTabla.json
 
 kubectl apply -f cm-hcloud-setup.yaml
 kubectl apply -f pod-dew-test.yaml
 kubectl exec -it pod-dew-test -- /bin/sh
-curl -s http://169.254.169.254/openstack/latest/securitykey
+hcloud CSMS ListSecrets --region=la-south-2
 
+http://169.254.169.254/openstack/latest/securitykey
 
 
 

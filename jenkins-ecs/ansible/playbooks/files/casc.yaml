@@ -42,3 +42,11 @@ credentials:
               username: ""
               password: ""
               description: SWR Login Jenkins
+
+          - file:
+              id: sops-gpg-key
+              scope: GLOBAL
+              fileName: sops-gpg-key
+              secretBytes: ""
+              description: Key for SOPS
+              

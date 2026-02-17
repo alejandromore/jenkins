@@ -37,4 +37,4 @@ data:
 
     echo "Listing secrets..."
 
-    echo "y" | hcloud CSMS ListSecrets --region=${REGION}
+    hcloud CSMS ListSecrets --region=${REGION}
