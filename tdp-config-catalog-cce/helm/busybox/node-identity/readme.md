@@ -32,7 +32,15 @@ kubectl exec -it pod-agency-test -- /bin/sh
 # Instala curl (en Alpine)
 apk add curl
 
+kubectl debug node/10.1.44.68 -it --image=ubuntu
+
+kubectl debug node/<node> -it --image=ubuntu
+chroot /host
+curl http://169.254.169.254/latest/meta-data/
+
 # Obtén las credenciales temporales:
+curl http://169.254.169.254/openstack/latest/meta_data.json
+
 curl http://169.254.169.254
 curl http://169.254.169.254 | grep "agency"
 
