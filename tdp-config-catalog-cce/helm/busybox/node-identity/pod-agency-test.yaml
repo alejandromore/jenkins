@@ -2,43 +2,16 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod-agency-test
-  namespace: default
 spec:
-  #serviceAccountName: obs-sa
   containers:
-    - name: tester
-      image: ubuntu:22.04
-      command:
-        - /bin/bash
-        - -c
-        - |
-          export DEBIAN_FRONTEND=noninteractive
-          apt-get update && apt-get install -y curl tar ca-certificates
-          
-          echo "Descargando obsutil con la URL confirmada..."
-          # Usamos curl con -L para seguir redirecciones y -k por si hay temas de CA
-          curl -Lk "https://obs-community.obs.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz" -o obsutil_linux_amd64.tar.gz
-          
-          tar -xzvf obsutil_linux_amd64.tar.gz
-          # Buscamos el binario dentro de la carpeta extraída
-          FOLDER=$(ls -d obsutil_linux_amd64_*)
-          mv $FOLDER/obsutil /usr/local/bin/
-          chmod +x /usr/local/bin/obsutil
-          
-          # Limpieza total y configuración forzada
-          rm -f /root/.obsutilconfig
-          
-          # Intento manual de obtener el token para debug
-          echo "Verificando acceso a Metadata..."
-          curl -I -m 5 http://169.254.169.254
-
-          # Configuración para usar el Agency heredado del ECS
-          obsutil config -i=ECS -e=obs.la-south-2.myhuaweicloud.com
-          obsutil ls
-          echo "----------------------------------------------------"
-          echo "TODO LISTO. Prueba ejecutando:"
-          echo "kubectl exec -it pod-agency-test -- obsutil ls"
-          echo "----------------------------------------------------"
-
-          
-          sleep 3600
+  - name: pod-agency-test
+    image: ubuntu:latest 
+    command: ["/bin/bash", "-c", "/opt/scripts/setup-obs.sh && tail -f /dev/null"]
+    volumeMounts:
+    - name: script-volume
+      mountPath: /opt/scripts
+  volumes:
+  - name: script-volume
+    configMap:
+      name: cm-obsutil-setup
+      defaultMode: 0755 # Permisos de ejecución

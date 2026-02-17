@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-obsutil-setup
+data:
+  setup-obs.sh: |
+    #!/bin/bash
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update && apt-get install -y curl tar ca-certificates
+    
+    echo "Descargando obsutil..."
+    curl -Lk "https://obs-community.obs.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz" -o obsutil_linux_amd64.tar.gz
+    
+    tar -xzvf obsutil_linux_amd64.tar.gz
+    FOLDER=$(ls -d obsutil_linux_amd64_*)
+    mv $FOLDER/obsutil /usr/local/bin/
+    chmod +x /usr/local/bin/obsutil
+    
+    # Configuración usando el Agency de Huawei Cloud
+    obsutil config -i=ECS -e=obs.la-south-2.myhuaweicloud.com
+    obsutil ls
+    
+    echo "Setup finalizado."
