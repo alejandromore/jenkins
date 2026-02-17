@@ -348,7 +348,7 @@ data "huaweicloud_compute_flavors" "myflavor" {
 } 
 
 resource "huaweicloud_cce_node_pool" "nodepool" {
-  cluster_id         = huaweicloud_cce_cluster.cce_cluster.cluster_id
+  cluster_id         = huaweicloud_cce_cluster.cce_cluster.id
   name               = "cce-nodepool-public"
   initial_node_count = 2
   subnet_id          = module.subnet_cce.subnet_id
