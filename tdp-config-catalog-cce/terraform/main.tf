@@ -391,6 +391,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
   performance_type  = "computingv3" 
+  generation        = "c7" 
   cpu_core_count    = 4 
   memory_size       = 8 
 } 
