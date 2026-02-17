@@ -131,24 +131,10 @@ resource "huaweicloud_identity_agency" "obs_agency" {
   name                   = "cce-obs-agency"
   delegated_service_name = "op_svc_ecs"
 
-  # =========================
-  # IAM Project roles
-  # =========================
-  project_role {
-    project = var.region
-    roles   = [
-      "OBS Administrator",
-      "OBS Buckets Viewer"
-    ]
-  }
-
-  # =========================
-  # Enterprise Project roles
-  # =========================
   enterprise_project_roles {
-    enterprise_project = "enterprise-app"
+    enterprise_project = var.enterprise_project_name
     roles = [
-      "OBS Buckets Viewer"
+      "OBS Administrator"
     ]
   }
 }
