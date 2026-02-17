@@ -20,3 +20,8 @@ obsutil config -i=ECS -e=obs.la-south-2.myhuaweicloud.com
 obsutil config -i=ECS -k=ECS -t=ECS -e=obs.la-south-2.myhuaweicloud.com
 cat /root/.obsutilconfig | grep util_mode
 obsutil ls
+
+cat <<EOF > /root/.obsutilconfig
+autoChooseSecurityProvider=true
+endpoint=obs.la-south-2.myhuaweicloud.com
+EOF

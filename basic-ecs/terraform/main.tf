@@ -112,6 +112,7 @@ resource "huaweicloud_compute_eip_associate" "associated" {
 #######################################
 # Agency
 #######################################
+/*
 resource "huaweicloud_identity_agency" "obs_agency" {
   name                   = "cce-obs-agency"
   delegated_service_name = "op_svc_ecs"
@@ -122,6 +123,23 @@ resource "huaweicloud_identity_agency" "obs_agency" {
       "OBS Administrator",
       "Tenant Guest"
     ]
+  }
+}
+*/
+
+resource "huaweicloud_identity_agency" "obs_agency" {
+  name                   = "cce-obs-agency"
+  delegated_service_name = "op_svc_ecs"
+
+  # PERMISO A NIVEL DE DOMINIO (GLOBAL) - Importante para listar buckets
+  domain_role {
+    roles = ["OBS Administrator"]
+  }
+
+  # PERMISO A NIVEL DE PROYECTO (REGIONAL)
+  project_role {
+    project = var.region
+    roles   = ["OBS Administrator"]
   }
 }
 
