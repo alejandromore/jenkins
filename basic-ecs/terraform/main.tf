@@ -131,9 +131,8 @@ resource "huaweicloud_identity_agency" "obs_agency" {
   name                   = "cce-obs-agency"
   delegated_service_name = "op_svc_ecs"
 
-  project_role {
-    project = "0371a9a7f90b493fadebbf130f6fcd2c"
-    roles   = ["OBS Administrator"]
+  domain_role {
+    roles = ["OBS Administrator"]
   }
 }
 
