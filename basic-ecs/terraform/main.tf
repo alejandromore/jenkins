@@ -119,7 +119,7 @@ resource "huaweicloud_identity_agency" "obs_agency" {
   project_role {
     project = var.region
     roles = [
-      "OBS OperateAccess",
+      "OBS Administrator",
       "Tenant Guest"
     ]
   }
