@@ -112,23 +112,8 @@ resource "huaweicloud_compute_eip_associate" "associated" {
 #######################################
 # Agency
 #######################################
-/*
 resource "huaweicloud_identity_agency" "obs_agency" {
-  name                   = "cce-obs-agency"
-  delegated_service_name = "op_svc_ecs"
-
-  project_role {
-    project = var.region
-    roles = [
-      "OBS Administrator",
-      "Tenant Guest"
-    ]
-  }
-}
-*/
-
-resource "huaweicloud_identity_agency" "obs_agency" {
-  name                   = "cce-obs-agency"
+  name                   = "ecs-obs-agency"
   delegated_service_name = "op_svc_ecs"
 
   enterprise_project_roles {
