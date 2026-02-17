@@ -333,6 +333,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     tags                         = var.tags
     timezone                     = "America/Lima"
     vpc_id                       = module.vpc.vpc_id
+    eip                          = module.eip_cce_cluster.address
 
     masters {
         availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
