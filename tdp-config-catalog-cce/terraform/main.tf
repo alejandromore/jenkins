@@ -495,7 +495,6 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   key_pair           = var.key_pair_name
   extend_param = {
     agency_name = huaweicloud_identity_agency.obs_workload_agency.name
-    pod_metadata_access = "true"
   }
   tags = var.tags
 }
@@ -510,9 +509,8 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
   enterprise_project_roles {
     enterprise_project = var.enterprise_project_name
     roles = [
-      "OBS Administrator"
-      #"OBS Buckets Viewer"
-      #"CSMS ReadOnlyAccess"
+      "OBS Administrator",
+      "	DEW KeypairFullAccess	"
     ]
   }
 }

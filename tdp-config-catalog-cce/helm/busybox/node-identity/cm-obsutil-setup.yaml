@@ -17,7 +17,10 @@ data:
     chmod +x /usr/local/bin/obsutil
     
     # Configuración usando el Agency de Huawei Cloud
-    obsutil config -i=ECS -e=obs.la-south-2.myhuaweicloud.com
+    cat <<EOF > /root/.obsutilconfig
+    autoChooseSecurityProvider=true
+    endpoint=obs.la-south-2.myhuaweicloud.com
+    EOF
     obsutil ls
     
     echo "Setup finalizado."
