@@ -510,8 +510,8 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
   enterprise_project_roles {
     enterprise_project = var.enterprise_project_name
     roles = [
-      #"OBS Administrator",
-      "OBS Buckets Viewer"
+      "OBS Administrator"
+      #"OBS Buckets Viewer"
       #"CSMS ReadOnlyAccess"
     ]
   }
