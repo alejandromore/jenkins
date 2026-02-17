@@ -306,7 +306,7 @@ module "cce_cluster" {
 */
 
 
-resource "huaweicloud_cce_cluster" "cce_cluster" {
+resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     alias                        = var.cce_cluster_name
     authentication_mode          = var.cce_authentication_mode 
     charging_mode                = var.cce_charging_mode
@@ -318,7 +318,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster" {
     description                  = null
     enable_distribute_management = false
     eni_subnet_cidr              = null
-    eni_subnet_id                = module.subnet_cce_eni.subnet_id
+    eni_subnet_id                = module.subnet_cce_eni.ipv4_subnet_id
     enterprise_project_id        = data.huaweicloud_enterprise_project.ep.id
     flavor_id                    = var.cce_cluster_flavor
     highway_subnet_id            = null
@@ -339,8 +339,8 @@ resource "huaweicloud_cce_cluster" "cce_cluster" {
     }
 }
 
-
-resource "huaweicloud_cce_cluster" "mi_cluster_turbo" {
+/*
+resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     alias                        = "cce-turbo"
     authentication_mode          = "rbac"
     billing_mode                 = 0
@@ -382,6 +382,11 @@ resource "huaweicloud_cce_cluster" "mi_cluster_turbo" {
 
     timeouts {}
 }
+*/
+#VPC: 435c7a7c-362a-4578-afe2-589ba877dac8
+#vpc-subnet-cce: 3143c183-1067-42c2-9fcd-50af82070743
+#vpc-subnet-cce-eni: f4b62b85-77ae-409a-aea1-1ceca61f4a1a
+#sg-tdp-config-catalog-cce-node: aa05ea55-0634-4416-bb9d-68a7530f7ff5
 
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
@@ -391,7 +396,7 @@ data "huaweicloud_compute_flavors" "myflavor" {
 } 
 
 resource "huaweicloud_cce_node_pool" "nodepool" {
-  cluster_id         = huaweicloud_cce_cluster.cce_cluster.id
+  cluster_id         = huaweicloud_cce_cluster.cce_cluster_turbo.id
   name               = "cce-nodepool-public"
   initial_node_count = 2
   subnet_id          = module.subnet_cce.subnet_id
