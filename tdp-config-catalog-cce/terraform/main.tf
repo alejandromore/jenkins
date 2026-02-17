@@ -364,7 +364,7 @@ resource "huaweicloud_cce_cluster" "mi_cluster_turbo" {
     region                       = "la-south-2"
     security_group_id            = "aa05ea55-0634-4416-bb9d-68a7530f7ff5"
     service_network_cidr         = "10.247.0.0/16"
-    status                       = "Available"
+    #status                       = "Available"
     subnet_id                    = "3143c183-1067-42c2-9fcd-50af82070743"
     support_istio                = true
     tags                         = {}
