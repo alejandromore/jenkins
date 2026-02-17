@@ -179,6 +179,26 @@ resource "huaweicloud_networking_secgroup_rule" "private_ingress_elb_health_8080
   description       = "ELB Huawei Cloud → ECS (health check 8080)"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 10250
+  port_range_max    = 10250
+  remote_ip_prefix  = "100.125.0.0/16" # Rango interno de Huawei Cloud
+}
+
+resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 5444
+  port_range_max    = 5444
+  remote_ip_prefix  = "100.125.0.0/16"
+}
+
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_worker_access" {
   security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
@@ -195,6 +215,16 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
   protocol          = "0"
   remote_group_id   = module.sg_cce.security_group_id
   description       = "Traffic from the source IP addresses defined in the security group must be allowed."
+}
+
+resource "huaweicloud_networking_secgroup_rule" "cce_api_ingress" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 5443
+  port_range_max    = 5443
+  remote_ip_prefix  = "0.0.0.0/0" # O tu IP pública específica
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
@@ -319,6 +349,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     enable_distribute_management = false
     eni_subnet_cidr              = null
     eni_subnet_id                = module.subnet_cce_eni.ipv4_subnet_id
+    eni_security_group_id        = module.sg_cce_eni.security_group_id
     enterprise_project_id        = data.huaweicloud_enterprise_project.ep.id
     flavor_id                    = var.cce_cluster_flavor
     highway_subnet_id            = null
