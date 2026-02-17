@@ -309,8 +309,7 @@ module "cce_cluster" {
 resource "huaweicloud_cce_cluster" "cce_cluster" {
     alias                        = var.cce_cluster_name
     authentication_mode          = var.cce_authentication_mode 
-    billing_mode                 = 0
-    category                     = "Turbo"
+    charging_mode                = var.cce_charging_mode
     cluster_type                 = var.cce_cluster_type
     cluster_version              = var.cce_k8s_version
     container_network_cidr       = null
