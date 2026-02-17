@@ -275,7 +275,7 @@ module "eip_cce_cluster" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
   tags                  = var.tags
 }
-
+/*
 module "cce_cluster" {
   source = "../../terraform-modules/cce_cluster"
 
@@ -303,7 +303,7 @@ module "cce_cluster" {
 
   tags                     = var.tags
 }
-
+*/
 
 
 resource "huaweicloud_cce_cluster" "cce_cluster" {
@@ -333,6 +333,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster" {
     support_istio                = true
     tags                         = var.tags
     timezone                     = "America/Lima"
+    vpc_id                       = module.vpc.vpc_id
 
     masters {
         availability_zone = "la-south-2a"
