@@ -147,42 +147,21 @@ resource "huaweicloud_networking_secgroup_rule" "cce_eni_egress_all" {
 # Security Group CCE Node - Rules 
 #######################################
 
-# Reglas para servicios tipo NodePort (TCP y UDP)
-resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_udp" {
-  security_group_id = module.sg_cce.security_group_id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "udp"
-  port_range_min    = 30000
-  port_range_max    = 32767
-  remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Acceso externo a servicios Kubernetes via NodePort (UDP)"
-}
+# --- ACCESO EXTERNO (ADMINISTRACIÓN) ---
 
-resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_tcp" {
+resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 30000
-  port_range_max    = 32767
+  port_range_min    = 5443
+  port_range_max    = 5443
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Acceso externo a servicios Kubernetes via NodePort (TCP)"
+  description       = "Permitir acceso a la API de Kubernetes (kubectl) desde el exterior"
 }
 
-# Regla para Health Checks del ELB
-resource "huaweicloud_networking_secgroup_rule" "private_ingress_elb_health_8080" {
-  security_group_id = module.sg_cce.security_group_id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
-  remote_ip_prefix  = "100.125.0.0/16"
-  description       = "Permitir Health Checks del ELB de Huawei Cloud hacia los nodos"
-}
+# --- COMUNICACIÓN CON CONTROL PLANE (MASTER) ---
 
-# Reglas de comunicación con el Master (Control Plane)
 resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
   security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
@@ -191,7 +170,7 @@ resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
   port_range_min    = 10250
   port_range_max    = 10250
   remote_ip_prefix  = "100.125.0.0/16"
-  description       = "Permitir al Control Plane acceder al API del Kubelet (logs, exec, metrics)"
+  description       = "Permitir al Control Plane acceder al API del Kubelet para logs y exec"
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
@@ -202,7 +181,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
   port_range_min    = 5444
   port_range_max    = 5444
   remote_ip_prefix  = "100.125.0.0/16"
-  description       = "Comunicacion de control interna obligatoria para CCE Turbo"
+  description       = "Puerto de control interno mandatorio para clusters CCE Turbo"
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_node_icmp" {
@@ -211,50 +190,74 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_icmp" {
   ethertype         = "IPv4"
   protocol          = "icmp"
   remote_ip_prefix  = "100.125.0.0/16"
-  description       = "Permitir ICMP desde el Control Plane para diagnostico de red"
+  description       = "Permitir ICMP desde el Control Plane para monitoreo de salud del nodo"
 }
 
-# Reglas de red interna del Cluster
+# --- TRÁFICO DE SERVICIOS (NODEPORT Y ELB) ---
+
+resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_tcp" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 30000
+  port_range_max    = 32767
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "Acceso externo a servicios de red de Kubernetes via NodePort (TCP)"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_udp" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "udp"
+  port_range_min    = 30000
+  port_range_max    = 32767
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "Acceso externo a servicios de red de Kubernetes via NodePort (UDP)"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "private_ingress_elb_health_8080" {
+  security_group_id = module.sg_cce.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 8080
+  port_range_max    = 8080
+  remote_ip_prefix  = "100.125.0.0/16"
+  description       = "Permitir Health Checks del ELB de Huawei Cloud (puerto 8080)"
+}
+
+# --- CONFIANZA INTERNA (RED DEL CLUSTER) ---
+
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_worker_access" {
   security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
-  protocol          = "all" # Cambiado a "all" para cubrir todo el trafico interno
+  protocol          = "0"
   remote_ip_prefix  = var.vpc_subnet_cce_cidr
-  description       = "Permitir trafico interno entre nodos dentro de la subnet del cluster"
+  description       = "Permitir comunicacion total entre nodos dentro de su propia subnet"
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
   security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
-  protocol          = "all"
+  protocol          = "0"
   remote_group_id   = module.sg_cce.security_group_id
-  description       = "Permitir trafico total entre recursos del mismo security group"
+  description       = "Permitir confianza total entre todos los miembros de este security group"
 }
 
-# Acceso externo para administracion
-resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
-  security_group_id = module.sg_cce.security_group_id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 5443
-  port_range_max    = 5443
-  remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Acceso publico al API Server del Cluster (Kubectl)"
-}
+# --- SALIDA A INTERNET (EGRESS) ---
 
-# Salida a internet
 resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
   security_group_id = module.sg_cce.security_group_id
   direction         = "egress"
   ethertype         = "IPv4"
-  protocol          = "all"
+  protocol          = "0"
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Permitir toda la salida de trafico hacia internet (SWR, OBS, actualizaciones)"
+  description       = "Permitir salida total a internet para descarga de imagenes y actualizaciones"
 }
-
 
 #######################################
 # ELB
