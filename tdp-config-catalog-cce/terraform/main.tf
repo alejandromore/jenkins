@@ -304,6 +304,42 @@ module "cce_cluster" {
   tags                     = var.tags
 }
 
+
+
+resource "huaweicloud_cce_cluster" "cce_cluster" {
+    alias                        = var.cce_cluster_name
+    authentication_mode          = var.cce_authentication_mode 
+    billing_mode                 = 0
+    category                     = "Turbo"
+    cluster_type                 = var.cce_cluster_type
+    cluster_version              = var.cce_k8s_version
+    container_network_cidr       = null
+    container_network_type       = var.cce_network_type
+    custom_san                   = []
+    description                  = null
+    enable_distribute_management = false
+    eni_subnet_cidr              = null
+    eni_subnet_id                = module.subnet_cce_eni.subnet_id
+    enterprise_project_id        = data.huaweicloud_enterprise_project.ep.id
+    flavor_id                    = var.cce_cluster_flavor
+    highway_subnet_id            = null
+    ipv6_enable                  = false
+    kube_proxy_mode              = "iptables"
+    name                         = var.cce_cluster_name
+    region                       = var.region
+    security_group_id            = module.sg_cce.security_group_id
+    service_network_cidr         = var.cce_network_cidr
+    subnet_id                    = module.subnet_cce.subnet_id
+    support_istio                = true
+    tags                         = var.tags
+    timezone                     = "America/Lima"
+
+    masters {
+        availability_zone = "la-south-2a"
+    }
+}
+
+
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
   performance_type  = "normal" 
