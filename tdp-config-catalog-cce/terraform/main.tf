@@ -510,7 +510,7 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
     enterprise_project = var.enterprise_project_name
     roles = [
       "OBS Administrator",
-      "	DEW KeypairFullAccess	"
+      "DEW KeypairFullAccess"
     ]
   }
 }
