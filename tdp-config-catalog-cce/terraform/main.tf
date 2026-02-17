@@ -340,6 +340,49 @@ resource "huaweicloud_cce_cluster" "cce_cluster" {
 }
 
 
+resource "huaweicloud_cce_cluster" "mi_cluster_turbo" {
+    alias                        = "cce-turbo"
+    authentication_mode          = "rbac"
+    billing_mode                 = 0
+    #category                     = "Turbo"
+    cluster_type                 = "VirtualMachine"
+    cluster_version              = "v1.33"
+    container_network_cidr       = null
+    container_network_type       = "eni"
+    custom_san                   = []
+    description                  = null
+    enable_distribute_management = false
+    eni_subnet_cidr              = null
+    eni_subnet_id                = "f4b62b85-77ae-409a-aea1-1ceca61f4a1a"
+    enterprise_project_id        = "4dcc0216-fe93-4eb0-a1a9-3032e195af78"
+    flavor_id                    = "cce.s1.small"
+    highway_subnet_id            = null
+    #id                           = "8f2ff6e3-0b77-11f1-8f6f-0255ac10023b"
+    ipv6_enable                  = false
+    kube_proxy_mode              = "iptables"
+    name                         = "cce-turbo"
+    region                       = "la-south-2"
+    security_group_id            = "aa05ea55-0634-4416-bb9d-68a7530f7ff5"
+    service_network_cidr         = "10.247.0.0/16"
+    status                       = "Available"
+    subnet_id                    = "3143c183-1067-42c2-9fcd-50af82070743"
+    support_istio                = true
+    tags                         = {}
+    timezone                     = "America/Santiago"
+    vpc_id                       = "435c7a7c-362a-4578-afe2-589ba877dac8"
+
+    encryption_config {
+        kms_key_id = null
+        mode       = "Default"
+    }
+
+    masters {
+        availability_zone = "la-south-2a"
+    }
+
+    timeouts {}
+}
+
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
   performance_type  = "normal" 
