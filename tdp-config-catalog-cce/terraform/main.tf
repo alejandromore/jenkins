@@ -452,17 +452,13 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 #######################################
 # Agency
 #######################################
-data "huaweicloud_identity_account" "current" {
-
-}
+data "huaweicloud_domain" "current" {}
 
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
   name = "ecs-obs-dew-agency"
   description = "Agencia para workloads en CCE"
   
-  delegation_domain {
-    id = data.huaweicloud_identity_account.current.id 
-  }
+  domain_id   = data.huaweicloud_domain.current.id
 
   enterprise_project_roles {
     enterprise_project = var.enterprise_project_name
@@ -478,7 +474,6 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
 # Crear el Identity Provider para el Clúster CCE
 resource "huaweicloud_identity_provider" "cce_oidc" {
   name     = "cce-config-catalog-idp"
-  protocol = "oidc"
 
   access_config {
     idp_url   = data.huaweicloud_cce_cluster.cce_cluster_turbo.iam_url
