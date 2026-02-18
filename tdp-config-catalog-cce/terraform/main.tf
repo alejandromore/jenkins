@@ -466,23 +466,6 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
   }
 }
 
-#######################################
-# Identity Provider (OIDC)
-#######################################
-############################################
-# Variables
-############################################
-
-variable "region" {
-  description = "Huawei Cloud region"
-  type        = string
-}
-
-variable "cce_cluster_id" {
-  description = "CCE Turbo cluster ID"
-  type        = string
-}
-
 ############################################
 # Identity Provider (OIDC)
 ############################################
@@ -496,7 +479,7 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
     access_type = "program"
 
     # Issuer URL del cluster CCE Turbo
-    provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${var.cce_cluster_id}"
+    provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${huaweicloud_cce_cluster.cce_cluster_turbo.id}"
 
     # Debe coincidir con el audience (aud) del token del ServiceAccount
     client_id = "huawei-cce"
