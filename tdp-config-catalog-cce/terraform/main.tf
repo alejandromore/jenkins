@@ -473,6 +473,7 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
 resource "huaweicloud_identity_provider" "cce_oidc" {
   name     = "cce-workload-oidc"
   protocol = "oidc"
+  description = "Identity Provider for CCE"
 
   access_config {
     # Para Workload Identity debe ser program
@@ -501,7 +502,7 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
   }
 }
 
-resource "huaweicloud_identity_provider_mapping" "dew_workload_mapping" {
+resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
   provider_id = huaweicloud_identity_provider.cce_oidc.id
 
   mapping_rules = jsonencode([
@@ -514,7 +515,6 @@ resource "huaweicloud_identity_provider_mapping" "dew_workload_mapping" {
           ]
         }
       ]
-
       local = [
         {
           group = {
@@ -522,14 +522,7 @@ resource "huaweicloud_identity_provider_mapping" "dew_workload_mapping" {
           }
         }
       ]
-    }
-  ])
-}
-
-resource "huaweicloud_identity_provider_mapping" "obs_workload_mapping" {
-  provider_id = huaweicloud_identity_provider.cce_oidc.id
-
-  mapping_rules = jsonencode([
+    },
     {
       remote = [
         {
@@ -539,7 +532,6 @@ resource "huaweicloud_identity_provider_mapping" "obs_workload_mapping" {
           ]
         }
       ]
-
       local = [
         {
           group = {
@@ -550,6 +542,7 @@ resource "huaweicloud_identity_provider_mapping" "obs_workload_mapping" {
     }
   ])
 }
+
 
 # 1. Identity Provider (Configuración base)
 /*
