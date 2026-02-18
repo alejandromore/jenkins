@@ -480,12 +480,18 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
     client_id    = "sts.myhuaweicloud.com"
     signing_key  = huaweicloud_cce_cluster.cce_cluster_turbo.certificate_clusters[0].certificate_authority_data
   }
+}
 
+resource "huaweicloud_identity_provider_mapping" "cce_sa_mapping" {
+  # Se vincula usando el ID del identity provider
+  identity_provider_id = huaweicloud_identity_provider.cce_oidc.id
+
+  # El contenido del mapeo debe ser un JSON string
   mapping = jsonencode([
     {
       "local": [
         {
-          "agency": "cce-workload-agency"
+          "agency": huaweicloud_identity_agency.obs_workload_agency.name
         }
       ],
       "remote": [
@@ -500,7 +506,6 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
     }
   ])
 }
-
 
 #######################################
 # DEW - Secret
