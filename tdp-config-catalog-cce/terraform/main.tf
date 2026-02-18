@@ -469,15 +469,55 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
 #######################################
 # Identity Provider (OIDC)
 #######################################
+############################################
+# Variables
+############################################
+
+variable "region" {
+  description = "Huawei Cloud region"
+  type        = string
+}
+
+variable "cce_cluster_id" {
+  description = "CCE Turbo cluster ID"
+  type        = string
+}
+
+############################################
+# Identity Provider (OIDC)
+############################################
+
 resource "huaweicloud_identity_provider" "cce_oidc" {
-  name     = "cce-workload-idp"
+  name     = "cce-workload-oidc"
   protocol = "oidc"
 
   access_config {
-    access_type  = "program"
-    provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${huaweicloud_cce_cluster.cce_cluster_turbo.id}"
+    # Para Workload Identity debe ser program
+    access_type = "program"
+
+    # Issuer URL del cluster CCE Turbo
+    provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${var.cce_cluster_id}"
+
+    # Debe coincidir con el audience (aud) del token del ServiceAccount
+    client_id = "huawei-cce"
+
+    # JWKS obtenido con:
+    # kubectl get --raw /openid/v1/jwks
+    signing_key = jsonencode({
+      keys = [
+        {
+          use = "sig"
+          kty = "RSA"
+          kid = "n5jiym54iuC-e9Duf29jjMJ7OmqoO8tRWvlld7-QfFI"
+          alg = "RS256"
+          n   = "xjl9H8qop2rEj4Rd1mryNhpqmAb5RL1VL8iXQHxJmNzMsjYykR4G3raGFfEDqO9n5eBXwGLNqilrLj_HfFJADl93Pb5sfBJUvzBMabduxI1SUlATouaBW2HPl-yHzPgnCrZtfUB2A9k8AKFSXhSZ6TSb_vEkjmvJ4FmoFJhjiivLBFh1FzlnhCGFmm6_KcBJaZrOSohDc2Fa-4eHTOsuC8fnEuDwaHpH-BgJNtMu-Op2hMNkpUrZb08Ng1bLHJuBsxk5Vr0Iv6rPfB92xpQTybnm-qGfq9S0KZb-F0PrOg1opDkJT7lnwYeT3ci5BhbCCW7yfU5Qb9k8s1wEw0laY_dc61Knc5bgQzk5yPOu05_q6066z0JG3GYZJGs6hCHxz_1NIWDhLFIAJlVQozgDhCNNhpQcmud3B81Be9-jdglPfdntLd8s6WHItWhlNV20NX4k6gPn4B3kUxrbXN_KIyoqLDyI7AQ-Tq-idaHeLnrSRHh1KCLpvjVX13apz-Qf"
+          e   = "AQAB"
+        }
+      ]
+    })
   }
 }
+
 
 
 
