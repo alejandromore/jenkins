@@ -443,9 +443,9 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   }
   security_groups    = [module.sg_cce.security_group_id]
   key_pair           = var.key_pair_name
-  #extend_param = {
-  #  agency_name = huaweicloud_identity_agency.obs_workload_agency.name
-  #}
+  extend_param = {
+    agency_name = huaweicloud_identity_agency.obs_workload_agency.name
+  }
   tags = var.tags
 }
 
@@ -459,6 +459,7 @@ resource "huaweicloud_identity_agency" "workload_agency" {
   description           = "Agencia para workloads en CCE"
 
   delegated_domain_name = "hwstaff_intl_a00392472"
+  #delegated_service_name = "op_svc_cce"
 
   enterprise_project_roles {
     enterprise_project = var.enterprise_project_name
