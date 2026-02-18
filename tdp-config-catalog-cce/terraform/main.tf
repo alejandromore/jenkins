@@ -470,6 +470,7 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
 # Identity Provider (OIDC)
 #######################################
 # 1. Identity Provider (Configuración base)
+/*
 resource "huaweicloud_identity_provider" "cce_oidc" {
   name        = "cce-config-catalog-idp"
   protocol    = "oidc"
@@ -508,7 +509,7 @@ resource "huaweicloud_identity_provider_mapping" "cce_sa_mapping" {
 ]
 RULES
 }
-
+*/
 #######################################
 # DEW - Secret
 #######################################
