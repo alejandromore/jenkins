@@ -469,33 +469,39 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
 #######################################
 # Identity Provider (OIDC)
 #######################################
+# 1. Identity Provider (Configuración base)
 resource "huaweicloud_identity_provider" "cce_oidc" {
   name        = "cce-config-catalog-idp"
   protocol    = "oidc"
-  access_type = "program" # Requerido
 
   access_config {
-    provider_url = "https://iam-pub-oidc.${var.region}://${huaweicloud_cce_cluster.cce_cluster_turbo.id}"
+    access_type  = "program" 
+    provider_url = "https://iam-pub-oidc.${var.region}://{huaweicloud_cce_cluster.cce_cluster_turbo.id}"
     client_id    = "sts.myhuaweicloud.com"
     signing_key  = huaweicloud_cce_cluster.cce_cluster_turbo.certificate_clusters[0].certificate_authority_data
   }
+}
 
-  # El mapping ya no es un recurso independiente, es un bloque JSON
-  mapping = jsonencode([
-    {
-      "local": [{ "agency": huaweicloud_identity_agency.obs_workload_agency.name }],
-      "remote": [
-        {
-          "type": "sub",
-          "any_one_of": [
-            "system:serviceaccount:default:sa-obs",
-            "system:serviceaccount:default:sa-dew"
-          ]
-        }
+# 2. Recurso Independiente de Mapping (v1.86.0 requiere este recurso separado)
+resource "huaweicloud_identity_mapping" "cce_sa_mapping" {
+  identity_provider_id = huaweicloud_identity_provider.cce_oidc.id
+
+  # Reglas de conversión siguiendo el esquema JSON esperado por el API
+  rules {
+    local {
+      agency = huaweicloud_identity_agency.obs_workload_agency.name
+    }
+    remote {
+      attribute = "sub"
+      condition = "anyOf"
+      value     = [
+        "system:serviceaccount:default:sa-obs",
+        "system:serviceaccount:default:sa-dew"
       ]
     }
-  ])
+  }
 }
+
 
 #######################################
 # DEW - Secret
