@@ -526,6 +526,31 @@ resource "huaweicloud_identity_provider_mapping" "dew_workload_mapping" {
   ])
 }
 
+resource "huaweicloud_identity_provider_mapping" "obs_workload_mapping" {
+  provider_id = huaweicloud_identity_provider.cce_oidc.id
+
+  mapping_rules = jsonencode([
+    {
+      remote = [
+        {
+          type = "sub"
+          any_one_of = [
+            "system:serviceaccount:default:sa-obs"
+          ]
+        }
+      ]
+
+      local = [
+        {
+          group = {
+            name = huaweicloud_identity_agency.obs_workload_agency.name
+          }
+        }
+      ]
+    }
+  ])
+}
+
 # 1. Identity Provider (Configuración base)
 /*
 resource "huaweicloud_identity_provider" "cce_oidc" {
