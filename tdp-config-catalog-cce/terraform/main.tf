@@ -480,26 +480,25 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
     client_id    = "sts.myhuaweicloud.com"
     signing_key  = huaweicloud_cce_cluster.cce_cluster_turbo.certificate_clusters[0].certificate_authority_data
   }
-}
 
-# 2. Recurso Independiente de Mapping (v1.86.0 requiere este recurso separado)
-resource "huaweicloud_identity_mapping" "cce_sa_mapping" {
-  identity_provider_id = huaweicloud_identity_provider.cce_oidc.id
-
-  # Reglas de conversión siguiendo el esquema JSON esperado por el API
-  rules {
-    local {
-      agency = huaweicloud_identity_agency.obs_workload_agency.name
-    }
-    remote {
-      attribute = "sub"
-      condition = "anyOf"
-      value     = [
-        "system:serviceaccount:default:sa-obs",
-        "system:serviceaccount:default:sa-dew"
+  mapping = jsonencode([
+    {
+      "local": [
+        {
+          "agency": "cce-workload-agency"
+        }
+      ],
+      "remote": [
+        {
+          "type": "sub",
+          "any_one_of": [
+            "system:serviceaccount:default:sa-obs",
+            "system:serviceaccount:default:sa-dew"
+          ]
+        }
       ]
     }
-  }
+  ])
 }
 
 
