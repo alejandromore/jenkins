@@ -12,8 +12,18 @@ spec:
     volumeMounts:
     - name: script-volume
       mountPath: /opt/scripts
+    - name: iam-token
+      mountPath: /var/run/secrets/tokens
+      readOnly: true
   volumes:
   - name: script-volume
     configMap:
       name: cm-obsutil-setup
       defaultMode: 0755
+  - name: iam-token
+    projected:
+      sources:
+      - serviceAccountToken:
+          path: huaweicloud-token
+          expirationSeconds: 7200
+          audience: iam

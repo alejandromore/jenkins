@@ -16,25 +16,12 @@ data:
     FOLDER=$(ls -d obsutil_linux_amd64_*)
     mv $FOLDER/obsutil /usr/local/bin/
     chmod +x /usr/local/bin/obsutil
-    
-    # 1. Definir variables de identidad (Deben coincidir con tu Terraform de IAM)
-    IDP_ID="cce-workload-identity"
-    AGENCY_NAME="ecs-obs-dew-agency"
-    TOKEN_PATH="/var/run/secrets/tokens/huaweicloud-token"
-    REGION="la-south-2"
 
     echo "Configurando obsutil con Workload Identity..."
+    export OBS_SECURITY_TOKEN=$(cat /var/run/secrets/tokens/huaweicloud-token)
+    export OBS_ENDPOINT=obs.la-south-2.myhuaweicloud.com
 
-    # 2. Configurar obsutil para usar el token de Kubernetes (OIDC)
-    # autoChooseSecurityProvider=true intentará usar el token si los campos están presentes
-    obsutil config \
-      -i=$IDP_ID \
-      -k=$AGENCY_NAME \
-      -e=obs.${REGION}.myhuaweicloud.com \
-      -tokenFile=$TOKEN_PATH \
-      -method=oidc
-
-    echo "Verificando acceso a OBS..."
-    obsutil ls
+    # echo "Verificando acceso a OBS..."
+    # obsutil ls
     
     echo "Setup finalizado."

@@ -1,6 +1,7 @@
 resource "huaweicloud_identity_agency" "identity_agency" {
   name                   = "ecs-obs-dew-agency"
   delegated_service_name = "op_svc_ecs"
+  description            = "Agencia para los Nodos del CCE"
 
   enterprise_project_roles {
     enterprise_project = var.enterprise_project_name

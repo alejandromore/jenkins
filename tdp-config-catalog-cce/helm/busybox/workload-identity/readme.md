@@ -7,6 +7,8 @@ $env:KUBECONFIG="C:\Users\Huawei\Downloads\cce-config-catalog-kubeconfig.yaml"
 [Helm]      Desplegar PODs
 
 
+
+
 # Obtain the Signature Public Key of the CCE Cluster
 kubectl get --raw /openid/v1/jwks
 
