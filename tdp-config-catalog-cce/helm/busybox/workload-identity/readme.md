@@ -2,7 +2,6 @@ $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml
 $env:KUBECONFIG="C:\Users\Huawei\Downloads\cce-config-catalog-kubeconfig.yaml"
 
 [Terraform] Create agency
-[Kubectl]   Obtener issuer
 [Terraform] Create Identity Provider y Rules
 [Helm]      Create Service Account
 [Helm]      Desplegar PODs
