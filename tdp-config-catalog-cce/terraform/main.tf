@@ -469,6 +469,30 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
 #######################################
 # Identity Provider (OIDC)
 #######################################
+# 1. Obtener la configuración OIDC del cluster
+data "http" "cce_oidc_config" {
+  url = "https://oidc.${var.region}.myhuaweicloud.com/id/${huaweicloud_cce_cluster.cce_cluster_turbo.id}/.well-known/openid-configuration"
+}
+
+# 2. Obtener el JWKS (las llaves públicas de firma)
+data "http" "cce_jwks" {
+  url = jsondecode(data.http.cce_oidc_config.response_body).jwks_uri
+}
+
+# 3. Crear el Identity Provider con la llave real
+resource "huaweicloud_identity_provider" "cce_oidc" {
+  name     = "cce-oidc-provider"
+  protocol = "oidc"
+
+  access_config {
+    access_type  = "program"
+    provider_url = "https://oidc.${var.region}.myhuaweicloud.com/id/${huaweicloud_cce_cluster.cce_cluster_turbo.id}"
+    client_id    = "sts.myhuaweicloud.com"
+    
+    # IMPORTANTE: El signing_key debe ser el contenido del JWKS obtenido
+    signing_key  = data.http.cce_jwks.response_body
+  }
+}
 # 1. Identity Provider (Configuración base)
 /*
 resource "huaweicloud_identity_provider" "cce_oidc" {

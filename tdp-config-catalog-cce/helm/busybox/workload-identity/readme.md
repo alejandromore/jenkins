@@ -34,9 +34,7 @@ hcloud CSMS ListSecrets --region=la-south-2
 
 
 # documentacion
-https://support.huaweicloud.com/intl/en-us/bestpractice-cce/cce_bestpractice_0333.html#:~:text=Workload%20identities%20enable%20workloads%20within%20a%20cluster,for%20an%20IAM%20account's%20AK/SK.%20This%20helps.
-
-
+https://support.huaweicloud.com/intl/en-us/bestpractice-cce/cce_bestpractice_0333.html
 
 
 http://169.254.169.254/openstack/latest/securitykey
