@@ -475,7 +475,7 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
   protocol    = "oidc"
 
   access_config {
-    access_type  = "idp"
+    access_type  = "program"
     provider_url = "https://oidc.${var.region}.myhuaweicloud.com/id/${huaweicloud_cce_cluster.cce_cluster_turbo.id}"
     client_id    = "sts.myhuaweicloud.com"
     signing_key  = huaweicloud_cce_cluster.cce_cluster_turbo.certificate_clusters[0].certificate_authority_data
