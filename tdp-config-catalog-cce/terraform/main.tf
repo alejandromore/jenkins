@@ -482,28 +482,31 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
   }
 }
 
+# 2. Mapeo de Identidad usando Heredoc (v1.86.0)
 resource "huaweicloud_identity_provider_mapping" "cce_sa_mapping" {
   provider_id = huaweicloud_identity_provider.cce_oidc.id
 
-  # Se asigna como argumento (=) con una lista de objetos [ {} ]
-  mapping_rules = [
+  # Siguiendo la referencia oficial: argumento string con formato JSON
+  mapping_rules = <<RULES
+[
     {
-      local = [
-        {
-          agency = huaweicloud_identity_agency.obs_workload_agency.name
-        }
-      ]
-      remote = [
-        {
-          type       = "sub"
-          any_one_of = [
-            "system:serviceaccount:default:sa-obs",
-            "system:serviceaccount:default:sa-dew"
-          ]
-        }
-      ]
+        "local": [
+            {
+                "agency": "${huaweicloud_identity_agency.obs_workload_agency.name}"
+            }
+        ],
+        "remote": [
+            {
+                "type": "sub",
+                "any_one_of": [
+                    "system:serviceaccount:default:sa-obs",
+                    "system:serviceaccount:default:sa-dew"
+                ]
+            }
+        ]
     }
-  ]
+]
+RULES
 }
 
 #######################################
