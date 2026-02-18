@@ -9,29 +9,11 @@ spec:
   - name: pod-obs-test
     image: ubuntu:latest 
     command: ["/bin/bash", "-c", "/opt/scripts/setup-obs.sh && tail -f /dev/null"]
-    env:
-      # 2. Configuramos las variables para que las herramientas de Huawei Cloud
-      # detecten automáticamente el uso de Workload Identity
-      - name: CLOUD_SDK_AUTH_TOKEN_PATH
-        value: /var/run/secrets/tokens/huaweicloud-token
     volumeMounts:
     - name: script-volume
       mountPath: /opt/scripts
-    # 3. Montamos el volumen del token proyectado
-    - name: token-volume
-      mountPath: /var/run/secrets/tokens
-      readOnly: true
   volumes:
   - name: script-volume
     configMap:
       name: cm-obsutil-setup
       defaultMode: 0755
-  # 4. Definición del volumen proyectado para el token OIDC
-  - name: token-volume
-    projected:
-      sources:
-      - serviceAccountToken:
-          # El 'audience' debe coincidir con el 'client_id' configurado en el IdP de IAM
-          audience: "sts.myhuaweicloud.com"
-          expirationSeconds: 3600
-          path: huaweicloud-token
