@@ -31,8 +31,6 @@ demoClient:
   secretName: secret-config-catalog
   port: 80
   targetPort: 8081
-  #env:
-  #  SPRING_CLOUD_CONFIG_URI: "http://config-server:8888"
 
 elb:
   id: ""                # Se inyecta dinámicamente desde Jenkins

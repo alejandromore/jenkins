@@ -4,7 +4,7 @@ metadata:
   name: pod-obs-test
 spec:
   containers:
-  - name: pod-agency-test
+  - name: pod-obs-test
     image: ubuntu:latest 
     command: ["/bin/bash", "-c", "/opt/scripts/setup-obs.sh && tail -f /dev/null"]
     volumeMounts:

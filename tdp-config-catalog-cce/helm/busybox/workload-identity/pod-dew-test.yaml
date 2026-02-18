@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-dew-test
+spec:
+  # 1. Asociamos el ServiceAccount específico para DEW
+  serviceAccountName: sa-dew
+  containers:
+  - name: pod-dew-test
+    image: ubuntu:latest 
+    command: ["/bin/bash", "-c", "/opt/scripts/setup-hcloud.sh && tail -f /dev/null"]
+    env:
+      # 2. Variable de entorno para que el SDK/CLI encuentre el token
+      - name: CLOUD_SDK_AUTH_TOKEN_PATH
+        value: /var/run/secrets/tokens/huaweicloud-token
+    volumeMounts:
+    - name: script-volume
+      mountPath: /opt/scripts
+    # 3. Montaje del token proyectado
+    - name: token-volume
+      mountPath: /var/run/secrets/tokens
+      readOnly: true
+  volumes:
+  - name: script-volume
+    configMap:
+      name: cm-hcloud-setup
+      defaultMode: 0755
+  # 4. Volumen proyectado para el token OIDC
+  - name: token-volume
+    projected:
+      sources:
+      - serviceAccountToken:
+          # Debe coincidir con el client_id del IdP en IAM
+          audience: "sts.myhuaweicloud.com"
+          expirationSeconds: 3600
+          path: huaweicloud-token

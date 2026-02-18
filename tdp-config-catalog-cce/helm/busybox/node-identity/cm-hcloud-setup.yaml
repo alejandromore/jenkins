@@ -38,3 +38,5 @@ data:
     echo "Listing secrets..."
 
     hcloud CSMS ListSecrets --region=${REGION}
+
+    echo "Setup finalizado."

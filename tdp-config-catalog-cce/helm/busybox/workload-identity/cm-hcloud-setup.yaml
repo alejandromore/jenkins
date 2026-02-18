@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-hcloud-setup
+data:
+  setup-hcloud.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "Installing prerequisites..."
+    apt update && apt install -y curl jq
+
+    echo "Installing Huawei Cloud CLI..."
+    # Usamos el endpoint global o de tu región para descargar la CLI
+    curl -sSL https://hwcloudcli.obs.cn-north-1.myhuaweicloud.com/cli/latest/hcloud_install.sh -o /tmp/hcloud_install.sh
+    chmod +x /tmp/hcloud_install.sh
+    /tmp/hcloud_install.sh -y
+    rm -f /tmp/hcloud_install.sh
+
+    REGION="la-south-2"
+
+    echo "Configuring hcloud with Workload Identity..."
+
+    # 1. Obtenemos el ID del Identity Provider y el nombre de la Agency
+    # Nota: Estos valores son los que configuraste en IAM
+    IDP_ID="cce-workload-identity" 
+    AGENCY_NAME="ecs-obs-dew-agency"
+
+    # 2. Configuramos la CLI en modo OIDC
+    # Esto intercambia el token de Kubernetes por credenciales temporales de IAM automáticamente
+    hcloud configure set --cli-read-timeout=30 --cli-connect-timeout=10
+    
+    # Usamos el comando login específico para identidades federadas/OIDC
+    # La variable $CLOUD_SDK_AUTH_TOKEN_PATH viene definida en el Deployment
+    hcloud configure set \
+      --mode=oidc \
+      --region=${REGION} \
+      --oidc-idp-id=${IDP_ID} \
+      --oidc-agency-name=${AGENCY_NAME} \
+      --oidc-token-file=${CLOUD_SDK_AUTH_TOKEN_PATH}
+
+    echo "Listing secrets from DEW (CSMS)..."
+    hcloud CSMS ListSecrets --region=${REGION}
+
+    echo "Setup finalizado."

@@ -390,7 +390,6 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     enable_distribute_management = false
     eni_subnet_cidr              = null
     eni_subnet_id                = module.subnet_cce_eni.ipv4_subnet_id
-    #eni_security_group_id        = module.sg_cce_eni.security_group_id
     enterprise_project_id        = data.huaweicloud_enterprise_project.ep.id
     flavor_id                    = var.cce_cluster_flavor
     highway_subnet_id            = null
@@ -411,55 +410,6 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
         availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
     }
 }
-
-/*
-resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
-    alias                        = "cce-turbo"
-    authentication_mode          = "rbac"
-    billing_mode                 = 0
-    #category                     = "Turbo"
-    cluster_type                 = "VirtualMachine"
-    cluster_version              = "v1.33"
-    container_network_cidr       = null
-    container_network_type       = "eni"
-    custom_san                   = []
-    description                  = null
-    enable_distribute_management = false
-    eni_subnet_cidr              = null
-    eni_subnet_id                = "f4b62b85-77ae-409a-aea1-1ceca61f4a1a"
-    enterprise_project_id        = "4dcc0216-fe93-4eb0-a1a9-3032e195af78"
-    flavor_id                    = "cce.s1.small"
-    highway_subnet_id            = null
-    #id                           = "8f2ff6e3-0b77-11f1-8f6f-0255ac10023b"
-    ipv6_enable                  = false
-    kube_proxy_mode              = "iptables"
-    name                         = "cce-turbo"
-    region                       = "la-south-2"
-    security_group_id            = "aa05ea55-0634-4416-bb9d-68a7530f7ff5"
-    service_network_cidr         = "10.247.0.0/16"
-    #status                       = "Available"
-    subnet_id                    = "3143c183-1067-42c2-9fcd-50af82070743"
-    support_istio                = true
-    tags                         = {}
-    timezone                     = "America/Santiago"
-    vpc_id                       = "435c7a7c-362a-4578-afe2-589ba877dac8"
-
-    encryption_config {
-        kms_key_id = null
-        mode       = "Default"
-    }
-
-    masters {
-        availability_zone = "la-south-2a"
-    }
-
-    timeouts {}
-}
-*/
-#VPC: 435c7a7c-362a-4578-afe2-589ba877dac8
-#vpc-subnet-cce: 3143c183-1067-42c2-9fcd-50af82070743
-#vpc-subnet-cce-eni: f4b62b85-77ae-409a-aea1-1ceca61f4a1a
-#sg-tdp-config-catalog-cce-node: aa05ea55-0634-4416-bb9d-68a7530f7ff5
 
 data "huaweicloud_compute_flavors" "myflavor" {
   availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
@@ -495,7 +445,6 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   key_pair           = var.key_pair_name
   extend_param = {
     agency_name = huaweicloud_identity_agency.obs_workload_agency.name
-    pod_metadata_access = true #quitar, no funciona
   }
   tags = var.tags
 }
@@ -504,15 +453,71 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 # Agency
 #######################################
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
-  name                   = "ecs-obs-dew-agency"
-  delegated_service_name = "op_svc_ecs"
+  name = "ecs-obs-dew-agency"
+  
+  # Ahora permitimos que el Identity Provider asuma esta Agency
+  trust_policy = jsonencode({
+    Version = "1.1"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = ["iam:agencies:assume"]
+        Principal = {
+          "IAM" = ["idp:${huaweicloud_identity_provider.cce_oidc.id}"]
+        }
+      }
+    ]
+  })
 
   enterprise_project_roles {
     enterprise_project = var.enterprise_project_name
-    roles = [
-      "OBS Administrator",
-      "CSMS FullAccess"
-    ]
+    roles = ["OBS Administrator", "CSMS FullAccess"]
+  }
+}
+
+
+#######################################
+# Identity Provider (OIDC)
+#######################################
+
+# Crear el Identity Provider para el Clúster CCE
+resource "huaweicloud_identity_provider" "cce_oidc" {
+  name     = "cce-config-catalog-idp"
+  protocol = "oidc"
+  active   = true
+
+  access_config {
+    idp_url   = data.huaweicloud_cce_cluster.cce_cluster_turbo.iam_url
+    client_id = "sts.myhuaweicloud.com"
+  }
+}
+
+# Configuración de Reglas de Conversión
+resource "huaweicloud_identity_mapping" "cce_sa_mapping" {
+  identity_provider_id = huaweicloud_identity_provider.cce_oidc.id
+
+  # Regla para el SA de OBS
+  rules {
+    local {
+      agency = huaweicloud_identity_agency.obs_workload_agency.name
+    }
+    remote {
+      attribute = "sub"
+      condition = "anyOf"
+      value     = ["system:serviceaccount:default:sa-obs"]  #default es el namespace
+    }
+  }
+
+  # Regla para el SA de DEW
+  rules {
+    local {
+      agency = huaweicloud_identity_agency.obs_workload_agency.name
+    }
+    remote {
+      attribute = "sub"
+      condition = "anyOf"
+      value     = ["system:serviceaccount:default:sa-dew"]  #default es el namespace
+    }
   }
 }
 
