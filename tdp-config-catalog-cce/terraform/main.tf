@@ -454,7 +454,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 #######################################
 # Agency
 #######################################
-resource "huaweicloud_identity_agency" "obs_dewworkload_agency" {
+resource "huaweicloud_identity_agency" "obs_workload_agency" {
   name                  = "cce-workload-agency"
   description           = "Agencia para workloads en CCE"
 
@@ -501,28 +501,69 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
   }
 }
 
-resource "huaweicloud_identity_provider_mapping" "dew_workload_mapping" {
-  identity_provider_id = huaweicloud_identity_provider.cce_oidc.id
-  agency_id            = huaweicloud_identity_agency.obs_workload_agency.id
-  mapping_name         = "mapping-sa-dew"
+#########################################################
+# Mapping SA-DEW
+#########################################################
 
-  rules {
-    remote = "sub"
-    local  = "system:serviceaccount:default:sa-dew"
-  }
+resource "huaweicloud_identity_provider_mapping" "dew_workload_mapping" {
+  provider_id = huaweicloud_identity_provider.cce_oidc.id
+
+  mapping_rules = jsonencode([
+    {
+      local = [
+        {
+          user = {
+            name = "system:serviceaccount:default:sa-dew"
+          }
+        },
+        {
+          group = {
+            name = huaweicloud_identity_agency.obs_workload_agency.name
+          }
+        }
+      ]
+
+      remote = [
+        {
+          type  = "sub"
+          value = "system:serviceaccount:default:sa-dew"
+        }
+      ]
+    }
+  ])
 }
+
+#########################################################
+# Mapping SA-OBS
+#########################################################
 
 resource "huaweicloud_identity_provider_mapping" "obs_workload_mapping" {
-  identity_provider_id = huaweicloud_identity_provider.cce_oidc.id
-  agency_id            = huaweicloud_identity_agency.obs_workload_agency.id
-  mapping_name         = "mapping-sa-obs"
+  provider_id = huaweicloud_identity_provider.cce_oidc.id
 
-  rules {
-    remote = "sub"
-    local  = "system:serviceaccount:default:sa-obs"
-  }
+  mapping_rules = jsonencode([
+    {
+      local = [
+        {
+          user = {
+            name = "system:serviceaccount:default:sa-obs"
+          }
+        },
+        {
+          group = {
+            name = huaweicloud_identity_agency.obs_workload_agency.name
+          }
+        }
+      ]
+
+      remote = [
+        {
+          type  = "sub"
+          value = "system:serviceaccount:default:sa-obs"
+        }
+      ]
+    }
+  ])
 }
-
 # 1. Identity Provider (Configuración base)
 /*
 resource "huaweicloud_identity_provider" "cce_oidc" {
