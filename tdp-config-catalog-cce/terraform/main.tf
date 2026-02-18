@@ -454,7 +454,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 #######################################
 # Agency
 #######################################
-resource "huaweicloud_identity_agency" "obs_workload_agency" {
+resource "huaweicloud_identity_agency" "workload_agency" {
   name                  = "cce-workload-agency"
   description           = "Agencia para workloads en CCE"
 
@@ -518,7 +518,7 @@ resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
       local = [
         {
           group = {
-            name = huaweicloud_identity_agency.obs_workload_agency.name
+            name = huaweicloud_identity_agency.workload_agency.name
           }
         }
       ]
@@ -535,7 +535,7 @@ resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
       local = [
         {
           group = {
-            name = huaweicloud_identity_agency.obs_workload_agency.name
+            name = huaweicloud_identity_agency.workload_agency.name
           }
         }
       ]
@@ -544,47 +544,6 @@ resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
 }
 
 
-# 1. Identity Provider (Configuración base)
-/*
-resource "huaweicloud_identity_provider" "cce_oidc" {
-  name        = "cce-config-catalog-idp"
-  protocol    = "oidc"
-
-  access_config {
-    access_type  = "program"
-    provider_url = "https://oidc.${var.region}.myhuaweicloud.com/id/${huaweicloud_cce_cluster.cce_cluster_turbo.id}"
-    client_id    = "sts.myhuaweicloud.com"
-    signing_key  = huaweicloud_cce_cluster.cce_cluster_turbo.certificate_clusters[0].certificate_authority_data
-  }
-}
-
-# 2. Mapeo de Identidad usando Heredoc (v1.86.0)
-resource "huaweicloud_identity_provider_mapping" "cce_sa_mapping" {
-  provider_id = huaweicloud_identity_provider.cce_oidc.id
-
-  # Siguiendo la referencia oficial: argumento string con formato JSON
-  mapping_rules = <<RULES
-[
-    {
-        "local": [
-            {
-                "agency": "${huaweicloud_identity_agency.obs_workload_agency.name}"
-            }
-        ],
-        "remote": [
-            {
-                "type": "sub",
-                "any_one_of": [
-                    "system:serviceaccount:default:sa-obs",
-                    "system:serviceaccount:default:sa-dew"
-                ]
-            }
-        ]
-    }
-]
-RULES
-}
-*/
 #######################################
 # DEW - Secret
 #######################################
