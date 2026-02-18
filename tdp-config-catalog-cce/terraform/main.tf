@@ -475,10 +475,9 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
   access_type = "program" # Requerido
 
   access_config {
-    # Cambios de nombres de atributos según la v1.86.0
-    provider_url = huaweicloud_cce_cluster.cce_cluster_turbo.iam_url
+    provider_url = "https://iam-pub-oidc.${var.region}://${huaweicloud_cce_cluster.cce_cluster_turbo.id}"
     client_id    = "sts.myhuaweicloud.com"
-    signing_key  = huaweicloud_cce_cluster.cce_cluster_turbo.oidc_config[0].issuer_key
+    signing_key  = huaweicloud_cce_cluster.cce_cluster_turbo.certificate_clusters[0].certificate_authority_data
   }
 
   # El mapping ya no es un recurso independiente, es un bloque JSON
