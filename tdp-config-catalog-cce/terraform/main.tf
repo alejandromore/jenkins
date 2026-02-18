@@ -454,7 +454,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
 #######################################
 # Agency
 #######################################
-resource "huaweicloud_identity_agency" "workload_agency" {
+resource "huaweicloud_identity_agency" "obs_workload_agency" {
   name                  = "cce-workload-agency"
   description           = "Agencia para workloads en CCE"
 
@@ -519,7 +519,7 @@ resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
       local = [
         {
           group = {
-            name = huaweicloud_identity_agency.workload_agency.name
+            name = huaweicloud_identity_agency.obs_workload_agency.name
           }
         }
       ]
@@ -536,7 +536,7 @@ resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
       local = [
         {
           group = {
-            name = huaweicloud_identity_agency.workload_agency.name
+            name = huaweicloud_identity_agency.obs_workload_agency.name
           }
         }
       ]
