@@ -8,7 +8,7 @@ data "huaweicloud_identity_user" "current" {}
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
   name                  = "cce-workload-agency"
   description           = "Agencia para workloads en CCE"
-  
+
   delegated_domain_name = "hwstaff_intl_a00392472"
 
   enterprise_project_roles {
@@ -28,9 +28,9 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
 
   access_config {
     # Cambios de nombres de atributos según la v1.86.0
-    provider_url = data.huaweicloud_cce_cluster.cce_cluster_turbo.iam_url
+    provider_url = huaweicloud_cce_cluster.cce_cluster_turbo.iam_url
     client_id    = "sts.myhuaweicloud.com"
-    signing_key  = data.huaweicloud_cce_cluster.cce_cluster_turbo.oidc_config[0].issuer_key
+    signing_key  = huaweicloud_cce_cluster.cce_cluster_turbo.oidc_config[0].issuer_key
   }
 
   # El mapping ya no es un recurso independiente, es un bloque JSON
