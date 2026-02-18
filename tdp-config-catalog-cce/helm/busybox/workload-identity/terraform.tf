@@ -8,7 +8,8 @@ data "huaweicloud_identity_user" "current" {}
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
   name                  = "cce-workload-agency"
   description           = "Agencia para workloads en CCE"
-  delegated_domain_name = data.huaweicloud_identity_user.current.domain_name
+  
+  delegated_domain_name = "hwstaff_intl_a00392472"
 
   enterprise_project_roles {
     enterprise_project = var.enterprise_project_name
