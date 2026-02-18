@@ -1,10 +1,6 @@
 #######################################
 # Agency
 #######################################
-# 1. El data source correcto es 'identity_user' (v1.86.0 no tiene identity_account)
-data "huaweicloud_identity_user" "current" {}
-
-# 2. Corregir Agency (Se usa delegated_domain_name en lugar de delegation_domain)
 resource "huaweicloud_identity_agency" "obs_workload_agency" {
   name                  = "cce-workload-agency"
   description           = "Agencia para workloads en CCE"
@@ -20,7 +16,6 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
 #######################################
 # Identity Provider (OIDC)
 #######################################
-# 3. Identity Provider (OIDC) - Mapeo ahora es un atributo JSON interno
 resource "huaweicloud_identity_provider" "cce_oidc" {
   name        = "cce-config-catalog-idp"
   protocol    = "oidc"
