@@ -544,36 +544,3 @@ resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
   ])
 }
 
-
-#######################################
-# DEW - Secret
-#######################################
-locals {
-  dew_secret_payload = {
-    URL      = "wwww.google.com"
-    USUARIO  = "alejandro"
-    PASSWORD = "P@ssw0rdSecure123!"
-    PORT     = "5432"
-  }
-}
-
-module "dew_secret" {
-  source = "../../terraform-modules/dew"
-
-  secret_name           = var.dew_secret_name
-  secret_description    = var.dew_secret_description
-  secret_payload        = local.dew_secret_payload
-
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-}
-
-#######################################
-# Output Final
-#######################################
-output "resources" {
-  description = "Resource information"
-  value = {
-    cce_name         = var.cce_cluster_name
-    cce_public_ip    = module.eip_cce_cluster.address
-  }
-}

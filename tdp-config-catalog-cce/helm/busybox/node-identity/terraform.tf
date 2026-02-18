@@ -1,4 +1,4 @@
-resource "huaweicloud_identity_agency" "obs_workload_agency" {
+resource "huaweicloud_identity_agency" "identity_agency" {
   name                   = "ecs-obs-dew-agency"
   delegated_service_name = "op_svc_ecs"
 
@@ -13,6 +13,6 @@ resource "huaweicloud_identity_agency" "obs_workload_agency" {
 
 resource "huaweicloud_cce_node_pool" "nodepool" {
   extend_param = {
-    agency_name = huaweicloud_identity_agency.obs_workload_agency.name
+    agency_name = huaweicloud_identity_agency.identity_agency.name
   }
 }
