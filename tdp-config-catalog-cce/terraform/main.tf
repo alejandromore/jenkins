@@ -473,6 +473,7 @@ resource "huaweicloud_identity_agency" "cce_cluster_agency" {
 #######################################
 # Instalar Add On
 #######################################
+/*
 resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
   template_name = "cce-secrets-manager"
@@ -491,7 +492,7 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
     huaweicloud_cce_cluster.cce_cluster_turbo
   ]
 }
-
+*/
 #######################################
 # DEW - Secret
 #######################################

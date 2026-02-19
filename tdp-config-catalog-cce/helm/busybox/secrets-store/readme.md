@@ -1,17 +1,19 @@
 Patron: Secrets Store CSI Driver with Azure Key Vault
 Service Principal legacy (client_id + client_secret)
 
-Azure Legacy	   | Huawei Equivalente
----------------------------------------
-Service Principal  | IAM User
-client_id	       | Access Key
-client_secret	   | Secret Key
-Managed Identity   | Agency
-Key Vault	       | CSMS
+Azure Legacy	                  | Huawei Equivalente
+----------------------------------------------------------------
+Service Principal                 | IAM User Programatic
+client_id	                      | Access Key
+client_secret	                  | Secret Key
+Managed Identity                  | Agency
+Key Vault	                      | CSMS (DEW)
+csi-secrets-store-provider-azure  | CCE Secrets Manager for DEW
 
-[terraform] crear usuario IAM y privilegios
-[terraform] crear CSMS (DEW) guardando AK y SK
-[helm] instalar add on Secrets Store CSI Driver
+[Terraform] crear usuario IAM (AK y SK) y privilegios
+[Terraform] crear CSMS (DEW) guardando AK y SK
+[Terraform] instalar add on Secrets Store CSI Driver
+
 
 $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml"
 $env:KUBECONFIG="C:\Users\Huawei\Downloads\cce-config-catalog-kubeconfig.yaml"
