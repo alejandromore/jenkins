@@ -346,36 +346,6 @@ module "eip_cce_cluster" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
   tags                  = var.tags
 }
-/*
-module "cce_cluster" {
-  source = "../../terraform-modules/cce_cluster"
-
-  cce_cluster_name         = var.cce_cluster_name
-  cce_cluster_type         = var.cce_cluster_type
-  cce_cluster_flavor       = var.cce_cluster_flavor
-  cce_k8s_version          = var.cce_k8s_version
-  security_group_id        = module.sg_cce.security_group_id
-
-  #service network "10.1.32.0/19"
-  cce_vpc_id               = module.vpc.vpc_id
-  cce_subnet_id            = module.subnet_cce.subnet_id
-  #container/pod network "172.16.0.0/16"
-  cce_network_type         = var.cce_network_type
-  #cce_network_cidr         = var.cce_network_cidr
-  #eni network "10.1.64.0/19"
-  cce_eni_subnet_id        = module.subnet_cce_eni.subnet_id
-  #cce_eni_subnet_cidr      = module.subnet_cce_eni.subnet_cidr
-
-  cce_authentication_mode  = var.cce_authentication_mode 
-  cce_eip                  = module.eip_cce_cluster.address
-  cce_charging_mode        = var.cce_charging_mode
-  cce_availability_zone    = data.huaweicloud_availability_zones.myaz.names[0]
-  cce_enteprise_project_id = data.huaweicloud_enterprise_project.ep.id
-
-  tags                     = var.tags
-}
-*/
-
 
 resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     alias                        = var.cce_cluster_name
@@ -443,27 +413,7 @@ resource "huaweicloud_cce_node_pool" "nodepool" {
   }
   security_groups    = [module.sg_cce.security_group_id]
   key_pair           = var.key_pair_name
-  extend_param = {
-    agency_name = huaweicloud_identity_agency.identity_agency.name
-  }
   tags = var.tags
-}
-
-#######################################
-# DEW - Secret
-#######################################
-resource "huaweicloud_identity_agency" "identity_agency" {
-  name                   = "ecs-obs-dew-agency"
-  delegated_service_name = "op_svc_ecs"
-  description            = "Agencia para los Nodos del CCE"
-
-  enterprise_project_roles {
-    enterprise_project = var.enterprise_project_name
-    roles = [
-      "OBS Administrator",
-      "CSMS FullAccess"
-    ]
-  }
 }
 
 #######################################
