@@ -432,6 +432,7 @@ resource "huaweicloud_identity_access_key" "cce_user_key" {
 #######################################
 # Asignar privilegios al IAM User
 #######################################
+/*
 data "huaweicloud_identity_role" "obs_operate" {
   name = "OBS OperateAccess"
 }
@@ -451,7 +452,7 @@ resource "huaweicloud_identity_user_role_assignment" "csms_role_attach" {
   role_id = data.huaweicloud_identity_role.csms_secret_user.id
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
-
+*/
 #######################################
 # Modificar Agency
 #######################################
