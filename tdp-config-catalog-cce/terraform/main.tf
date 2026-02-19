@@ -439,6 +439,7 @@ data "huaweicloud_identity_role" "obs_operate" {
 resource "huaweicloud_identity_user_role_assignment" "obs_role_attach" {
   user_id = huaweicloud_identity_user.cce_programmatic_user.id
   role_id = data.huaweicloud_identity_role.obs_operate.id
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 data "huaweicloud_identity_role" "csms_secret_user" {
@@ -448,11 +449,13 @@ data "huaweicloud_identity_role" "csms_secret_user" {
 resource "huaweicloud_identity_user_role_assignment" "csms_role_attach" {
   user_id = huaweicloud_identity_user.cce_programmatic_user.id
   role_id = data.huaweicloud_identity_role.csms_secret_user.id
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 #######################################
 # Modificar Agency
 #######################################
+/*
 data "huaweicloud_identity_agency" "cce_cluster_agency" {
   name = "cce_cluster_agency"
 }
@@ -465,7 +468,7 @@ resource "huaweicloud_identity_agency" "cce_cluster_agency" {
     roles              = ["CSMS Secret User"]
   }
 }
-
+*/
 #######################################
 # Instalar Add On
 #######################################
