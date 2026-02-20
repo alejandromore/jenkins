@@ -459,35 +459,10 @@ resource "huaweicloud_identity_user_role_assignment" "csms_role_attach" {
 #######################################
 resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
-  template_name = "cce-secrets-manager"
+  template_name = "cce-secret-manager"
   version       = "1.1.95"
 }
 
-output "secrets_manager_versions" {
-  value = data.huaweicloud_cce_addon_template.secrets_manager.versions
-}
-
-/*
-resource "huaweicloud_cce_addon" "secrets_manager_dew" {
-  cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
-  #template_name = "secrets-store.csi.x-k8s.io"
-  template_name = "cce-secrets-manager"
-  version       = "1.1.95"
-
-  # Valores opcionales del add-on
-  # rotation_poll_interval es el periodo de sincronización de secretos, en minutos
-  values {
-    basic = {
-      rotation_poll_interval = "2m"
-    }
-  }
-
-  # Asegura aplicar después del cluster
-  depends_on = [
-    huaweicloud_cce_cluster.cce_cluster_turbo
-  ]
-}
-*/
 #######################################
 # DEW - Secret
 #######################################
