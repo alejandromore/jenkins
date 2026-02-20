@@ -462,15 +462,9 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   template_name = "dew-provider"
   version       = "1.1.95"
 
-  values = jsonencode({
-    basic = {
-      rotation_poll_interval = "2m"
-    }
-  })
-
-  depends_on = [
-    huaweicloud_cce_cluster.cce_cluster_turbo
-  ]
+  values {
+    rotation_poll_interval = "2m"
+  }
 }
 
 #######################################
