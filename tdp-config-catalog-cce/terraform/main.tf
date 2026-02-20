@@ -463,7 +463,9 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   version       = "1.1.95"
 
   values {
-    rotation_poll_interval = "2m"
+    custom = {
+      rotation_poll_interval = "2m"
+    }
   }
 }
 
