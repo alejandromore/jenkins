@@ -453,30 +453,14 @@ resource "huaweicloud_identity_user_role_assignment" "csms_role_attach" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 */
-#######################################
-# Modificar Agency
-#######################################
-/*
-data "huaweicloud_identity_agency" "cce_cluster_agency" {
-  name = "cce_cluster_agency"
-}
 
-resource "huaweicloud_identity_agency" "cce_cluster_agency" {
-  agency_name       = data.huaweicloud_identity_agency.cce_cluster_agency.name
-
-  enterprise_project_roles {
-    enterprise_project = var.enterprise_project_name
-    roles              = ["CSMS Secret User"]
-  }
-}
-*/
 #######################################
 # Instalar Add On
 #######################################
 /*
 resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
-  template_name = "cce-secrets-manager"
+  template_name = "secrets-store.csi.x-k8s.io"
   version       = "latest"
 
   # Valores opcionales del add-on
