@@ -461,6 +461,16 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
   template_name = "dew-provider"
   version       = "1.1.95"
+
+  values {
+    basic = {
+      rotation_poll_interval = "2m"
+    }
+  }
+
+  depends_on = [
+    huaweicloud_cce_cluster.cce_cluster_turbo
+  ]
 }
 
 #######################################
