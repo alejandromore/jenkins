@@ -463,9 +463,30 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   version       = "1.1.95"
 
   values {
-    basic_json = jsonencode({
+
+    basic = {
+      dewEndpoint                = "https://kms.la-south-2.myhuaweicloud.com"
+      dew_provider_image_version = "1.1.95"
+      region                     = "la-south-2"
+      swr_addr                   = "swr.la-south-2.myhuaweicloud.com"
+      swr_user                   = "hwofficial"
+      rbac_enabled               = "true"
+      cluster_version            = "v1.33"
+    }
+
+    custom = {
+      agency_name           = ""
       rotation_poll_interval = "2m"
-    })
+      aksk_secret_name      = "paas.elb"
+      driver_writes_secrets = "false"
+      get_version_burst     = "5"
+      get_version_qps       = "5"
+      project_id            = "0371a9a7f90b493fadebbf130f6fcd2c"
+    }
+
+    flavor = {
+      name = "custom-resources"
+    }
   }
 }
 
