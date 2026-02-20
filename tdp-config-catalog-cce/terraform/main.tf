@@ -461,7 +461,7 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
   #template_name = "secrets-store.csi.x-k8s.io"
   template_name = "cce-secrets-manager"
-  version       = "1.1.111"
+  version       = "1.1.95"
 
   # Valores opcionales del add-on
   # rotation_poll_interval es el periodo de sincronización de secretos, en minutos
