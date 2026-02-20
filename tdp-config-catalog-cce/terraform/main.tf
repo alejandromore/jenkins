@@ -457,13 +457,14 @@ resource "huaweicloud_identity_user_role_assignment" "csms_role_attach" {
 #######################################
 # Instalar Add On
 #######################################
-data "huaweicloud_cce_addon_templates" "available" {
-  cluster_id = huaweicloud_cce_cluster.cce_cluster_turbo.id
+data "huaweicloud_cce_addon_template" "secrets_manager" {
+  template_name = "cce-secrets-manager"
 }
 
-output "addon_templates_raw" {
-  value = data.huaweicloud_cce_addon_templates.available
+output "secrets_manager_versions" {
+  value = data.huaweicloud_cce_addon_template.secrets_manager.versions
 }
+
 /*
 resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
