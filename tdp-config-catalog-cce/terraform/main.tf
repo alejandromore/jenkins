@@ -432,27 +432,19 @@ resource "huaweicloud_identity_access_key" "cce_user_key" {
 #######################################
 # Asignar privilegios al IAM User
 #######################################
-/*
-data "huaweicloud_identity_role" "obs_operate" {
-  name = "OBS OperateAccess"
-}
-
-resource "huaweicloud_identity_user_role_assignment" "obs_role_attach" {
-  user_id = huaweicloud_identity_user.cce_programmatic_user.id
-  role_id = data.huaweicloud_identity_role.obs_operate.id
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-}
-
 data "huaweicloud_identity_role" "csms_secret_user" {
   name = "CSMS Secret User"
 }
 
-resource "huaweicloud_identity_user_role_assignment" "csms_role_attach" {
-  user_id = huaweicloud_identity_user.cce_programmatic_user.id
-  role_id = data.huaweicloud_identity_role.csms_secret_user.id
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+data "huaweicloud_identity_project" "current" {
+  name = var.region
 }
-*/
+
+resource "huaweicloud_identity_user_role_assignment" "cce_user_csms_role" {
+  user_id    = huaweicloud_identity_user.cce_programmatic_user.id
+  role_id    = data.huaweicloud_identity_role.csms_secret_user.id
+  project_id = data.huaweicloud_identity_project.current.id
+}
 
 #######################################
 # Instalar Add On
@@ -467,11 +459,11 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
     basic = {
       dewEndpoint                = "https://kms.la-south-2.myhuaweicloud.com"
       dew_provider_image_version = "1.1.95"
-      region                     = "la-south-2"
+      region                     = var.region
       swr_addr                   = "swr.la-south-2.myhuaweicloud.com"
       swr_user                   = "hwofficial"
       rbac_enabled               = "true"
-      cluster_version            = "v1.33"
+      cluster_version            = var.cce_k8s_version
     }
 
     custom = {
@@ -481,7 +473,7 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
       driver_writes_secrets = "false"
       get_version_burst     = "5"
       get_version_qps       = "5"
-      project_id            = "0371a9a7f90b493fadebbf130f6fcd2c"
+      project_id            = data.huaweicloud_enterprise_project.ep.id
     }
 
     flavor = {
