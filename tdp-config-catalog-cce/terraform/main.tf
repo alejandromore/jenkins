@@ -463,9 +463,9 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   version       = "1.1.95"
 
   values {
-    custom = {
+    basic_json = jsonencode({
       rotation_poll_interval = "2m"
-    }
+    })
   }
 }
 
