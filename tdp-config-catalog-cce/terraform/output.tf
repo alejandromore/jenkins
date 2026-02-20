@@ -19,10 +19,10 @@ output "elb_public_ip" {
 }
 
 output "cce_user_access_key" {
-  value = huaweicloud_identity_access_key.cce_user_key.access_key
+  value = huaweicloud_identity_access_key.cce_user_key.key
 }
 
 output "cce_user_secret_key" {
-  value     = huaweicloud_identity_access_key.cce_user_key.secret_key
+  value     = huaweicloud_identity_access_key.cce_user_key.secret
   sensitive = true
 }
