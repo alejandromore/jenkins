@@ -459,7 +459,7 @@ resource "huaweicloud_identity_user_role_assignment" "csms_role_attach" {
 #######################################
 resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
-  template_name = "cce-secret-manager"
+  template_name = "dew-provider"
   version       = "1.1.95"
 }
 
