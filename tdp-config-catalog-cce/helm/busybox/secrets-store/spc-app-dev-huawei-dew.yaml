@@ -1,0 +1,35 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: app-dev-huawei-dew
+spec:
+  provider: cce
+  parameters:
+    authType: aksk
+    credentialsSecretName: secrets-store-creds
+    objects: |
+      - objectName: "secret-app1-dev"
+        objectType: "csms"
+        objectVersion: "latest"
+        jmesPath:
+          - path: PORT
+            objectAlias: port
+          - path: PASSWORD
+            objectAlias: passowrd
+          - path: URL
+            objectAlias: url
+          - path: USUARIO
+            objectAlias: usuario
+
+  secretObjects:
+    - secretName: app-secret-from-csms
+      type: Opaque
+      data:
+        - objectName: port
+          key: PORT
+        - objectName: passowrd
+          key: PASSWORD
+        - objectName: url
+          key: URL
+        - objectName: usuario
+          key: USUARIO

@@ -3,21 +3,31 @@ kind: Pod
 metadata:
   name: pod-obs-test
 spec:
+  serviceAccountName: sa-app-dev-dew
   containers:
   - name: pod-obs-test
-    image: ubuntu:latest 
+    image: ubuntu:latest
     command: ["/bin/bash", "-c", "/opt/scripts/setup-obs.sh && tail -f /dev/null"]
+
+    env:
+      - name: access_key
+        valueFrom:
+          secretKeyRef:
+            name: secrets-store-creds
+            key: access_key
+      - name: secret_key
+        valueFrom:
+          secretKeyRef:
+            name: secrets-store-creds
+            key: secret_key
+
     volumeMounts:
     - name: script-volume
       mountPath: /opt/scripts
+
   volumes:
   - name: script-volume
     configMap:
       name: cm-obsutil-setup
-      defaultMode: 0755 # Permisos de ejecución
-  - name: secrets-store-inline
-    csi:
-      driver: secrets-store.csi.k8s.io
-      readOnly: true
-      volumeAttributes:
-        secretProviderClass: "csms-provider"
+      defaultMode: 0755
+
