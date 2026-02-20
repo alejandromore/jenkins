@@ -432,6 +432,7 @@ resource "huaweicloud_identity_access_key" "cce_user_key" {
 #######################################
 # Asignar privilegios al IAM User
 #######################################
+/*
 data "huaweicloud_identity_role" "csms_secret_user" {
   name = "CSMS Secret User"
 }
@@ -445,7 +446,7 @@ resource "huaweicloud_identity_user_role_assignment" "cce_user_csms_role" {
   role_id    = data.huaweicloud_identity_role.csms_secret_user.id
   project_id = data.huaweicloud_identity_project.current.id
 }
-
+*/
 #######################################
 # Instalar Add On
 #######################################
