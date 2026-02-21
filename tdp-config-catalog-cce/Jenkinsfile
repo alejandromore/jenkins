@@ -34,7 +34,7 @@ pipeline {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
         TF_DIR   = 'tdp-config-catalog-cce/terraform'
-        HELM_DIR = 'tdp-config-catalog-cce/helm'
+        HELM_DIR = 'tdp-config-catalog-cce/secrets-store/helm'
         REGION   = 'la-south-2'
     }
 
@@ -107,8 +107,8 @@ pipeline {
                 dir(env.HELM_DIR) {
 
                     withCredentials([
-                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG'),
-                        file(credentialsId: 'sops-gpg-key', variable: 'GPG_KEY_FILE')
+                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                        //file(credentialsId: 'sops-gpg-key', variable: 'GPG_KEY_FILE')
                     ]) {
 
                         sh '''
@@ -121,16 +121,15 @@ pipeline {
                         echo "=========================================="
 
                         # Aislar entorno GPG (best practice)
-                        export GNUPGHOME=$(mktemp -d)
-
-                        gpg --batch --import $GPG_KEY_FILE
+                        # export GNUPGHOME=$(mktemp -d)
+                        # gpg --batch --import $GPG_KEY_FILE
 
                         echo ""
                         echo "=========================================="
                         echo "Desencriptando secrets..."
                         echo "=========================================="
 
-                        sops -d demo-app/secrets/secrets-enc.yaml > demo-app/templates/secret.yaml
+                        # sops -d demo-app/secrets/secrets-enc.yaml > demo-app/templates/secret.yaml
 
                         echo ""
                         echo "=========================================="
@@ -154,7 +153,6 @@ pipeline {
                         --set elb.id=${elb_public_id} \
                         --set stringData.access_key=${HW_AK} \
                         --set stringData.secret_key=${HW_SK}
-
 
                         echo ""
                         echo "=========================================="
