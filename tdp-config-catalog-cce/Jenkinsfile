@@ -89,6 +89,19 @@ pipeline {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
                 }
+                // Leer archivo de credentiales CSV
+                dir(env.TF_DIR){
+                    def content = readFile(file: 'credentials-cce-programmatic-user.csv')
+                    def lines = content.split('\n')
+                    def values = lines[1].split(',')
+
+                    env.HW_USER_ID = values[0].trim()
+                    env.HW_AK = values[1].trim()
+                    env.HW_SK = values[2].trim()
+
+                    echo "Access Key cargado correctamente"
+                }
+
                 dir(env.HELM_DIR) {
 
                     withCredentials([
@@ -136,7 +149,9 @@ pipeline {
                         --create-namespace \
                         --wait \
                         --timeout ${TIMEOUT_SECONDS}s \
-                        --set elb.id=${elb_public_id}
+                        --set elb.id=${elb_public_id} \
+                        --set stringData.access_key=${HW_AK} \
+                        --set stringData.secret_key=${HW_SK}
 
 
                         echo ""
