@@ -432,14 +432,31 @@ resource "huaweicloud_identity_access_key" "cce_user_key" {
 #######################################
 # Asignar privilegios al IAM User
 #######################################
-data "huaweicloud_identity_role" "csms_secret_user" {
-  display_name = "CSMS Secret User"
+# Crear rol con permisos de lectura a CSMS (KMS)
+resource "huaweicloud_identity_role" "csms_read_policy" {
+  name        = "csms-read-policy"
+  description = "Allow read access to CSMS secrets"
+  type        = "XA"
+
+  policy = jsonencode({
+    Version = "1.1"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:secrets:get",
+          "kms:secrets:list"
+        ]
+        Resource = ["*"]
+      }
+    ]
+  })
 }
 
 # Asignar rol al usuario
 resource "huaweicloud_identity_user_role_assignment" "cce_user_csms_role" {
   user_id               = huaweicloud_identity_user.cce_programmatic_user.id
-  role_id               = data.huaweicloud_identity_role.csms_secret_user.id
+  role_id               = huaweicloud_identity_role.csms_read_policy.id
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
