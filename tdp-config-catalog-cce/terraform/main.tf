@@ -486,7 +486,7 @@ resource "huaweicloud_identity_role" "obs_read_policy" {
 
 resource "huaweicloud_identity_user_role_assignment" "cce_user_obs_role" {
   user_id               = huaweicloud_identity_user.cce_programmatic_user.id
-  role_id               = huaweicloud_identity_role.obs_read_all_policy.id
+  role_id               = huaweicloud_identity_role.obs_read_policy.id
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
