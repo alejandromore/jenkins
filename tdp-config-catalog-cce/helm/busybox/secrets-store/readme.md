@@ -20,6 +20,9 @@ $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml
 $env:KUBECONFIG="C:\Users\Huawei\Downloads\cce-config-catalog-kubeconfig.yaml"
 
 
+helm upgrade --install secrets-store ./busybox/secrets-store -n secrets-store --create-namespace --wait --timeout 300s --set elb.id=2a49bd8f-9ce0-4ffa-a466-c3f3b065a17b --set access_key=HPUA9APU12JSNHEKRHBH --set secret_key=6IPWwZMHYinNvbZrQoZSg4V62l4aezRm6cR7MX1i
+
+
 kubectl apply -f secrets-store-creds.yaml
 kubectl apply -f spc-app-dev-huawei-dew.yaml
 kubectl apply -f sa-app-dev-dew.yaml

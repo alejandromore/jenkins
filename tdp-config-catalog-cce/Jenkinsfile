@@ -136,29 +136,8 @@ pipeline {
                         --wait \
                         --timeout ${TIMEOUT_SECONDS}s \
                         --set elb.id=${elb_public_id} \
-                        --set stringData.access_key=${HW_AK} \
-                        --set stringData.secret_key=${HW_SK}
-
-                        echo ""
-                        echo "=========================================="
-                        echo "Iniciando Health Check ..."
-                        echo "ELB IP: ${elb_public_ip}"
-                        echo "=========================================="
-
-                        for i in \$(seq 1 30); do
-                        echo "Intento \$i..."
-                        if curl -sf http://${elb_public_ip}/index.html > /dev/null; then
-                            echo ""
-                            echo "App disponible."
-                            exit 0
-                        fi
-                        sleep 10
-                        done
-
-                        echo ""
-                        echo "ERROR: No respondió después de múltiples intentos."
-                        exit 1
-
+                        --set access_key=${HW_AK} \
+                        --set secret_key=${HW_SK}
 
                         '''
                     }

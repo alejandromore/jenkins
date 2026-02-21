@@ -460,6 +460,36 @@ resource "huaweicloud_identity_user_role_assignment" "cce_user_csms_role" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
+resource "huaweicloud_identity_policy" "obs_read_all_policy" {
+  name        = "obs-read-all-policy"
+  description = "Permite listar y descargar todos los buckets y objetos OBS"
+  type        = "Custom"
+
+  policy = jsonencode({
+    Version = "1.1"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "obs:bucket:GetBucketLocation",
+          "obs:bucket:ListBucket",
+          "obs:object:GetObject"
+        ]
+        Resource = [
+          "obs:*:*:bucket:*",
+          "obs:*:*:object:*/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "huaweicloud_identity_user_role_assignment" "cce_user_obs_role" {
+  user_id               = huaweicloud_identity_user.cce_programmatic_user.id
+  role_id               = huaweicloud_identity_role.obs_read_all_policy.id
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+}
+
 #######################################
 # Instalar Add On
 #######################################
