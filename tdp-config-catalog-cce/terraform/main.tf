@@ -429,14 +429,6 @@ resource "huaweicloud_identity_access_key" "cce_user_key" {
   user_id = huaweicloud_identity_user.cce_programmatic_user.id
 }
 
-resource "local_sensitive_file" "aksk" {
-  filename = "credentials.txt"
-  content  = <<EOT
-AK=${huaweicloud_identity_access_key.cce_user_key.id}
-SK=${huaweicloud_identity_access_key.cce_user_key.secret}
-EOT
-}
-
 #######################################
 # Asignar privilegios al IAM User
 #######################################
