@@ -61,9 +61,7 @@ pipeline {
                         action: params.ACTION,
                         outputs: [
                             'elb_public_ip', 
-                            'elb_public_id',
-                            'cce_user_access_key_id',
-                            'cce_user_secret_access_key'
+                            'elb_public_id'
                         ]
                     )
                 }
@@ -90,8 +88,6 @@ pipeline {
                     // Lectura de archivos generados en stages previos
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
-                    env.cce_user_access_key_id = readFile("${WORKSPACE}/cce_user_access_key_id.txt").trim()
-                    env.cce_user_secret_access_key = readFile("${WORKSPACE}/cce_user_secret_access_key.txt").trim()
                 }
                 dir(env.HELM_DIR) {
 
