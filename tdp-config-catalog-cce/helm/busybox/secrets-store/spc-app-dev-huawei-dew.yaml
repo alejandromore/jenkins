@@ -13,23 +13,23 @@ spec:
         objectVersion: "latest"
         jmesPath:
           - path: PORT
-            objectAlias: port
+            objectAlias: PORT
           - path: PASSWORD
-            objectAlias: passowrd
+            objectAlias: PASSWORD
           - path: URL
-            objectAlias: url
+            objectAlias: URL
           - path: USUARIO
-            objectAlias: usuario
+            objectAlias: USUARIO
 
   secretObjects:
     - secretName: app-secret-from-csms
       type: Opaque
       data:
-        - objectName: port
+        - objectName: PORT
           key: PORT
-        - objectName: passowrd
+        - objectName: PASSWORD
           key: PASSWORD
-        - objectName: url
+        - objectName: URL
           key: URL
-        - objectName: usuario
+        - objectName: USUARIO
           key: USUARIO

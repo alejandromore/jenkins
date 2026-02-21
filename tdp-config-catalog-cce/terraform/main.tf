@@ -429,6 +429,14 @@ resource "huaweicloud_identity_access_key" "cce_user_key" {
   user_id = huaweicloud_identity_user.cce_programmatic_user.id
 }
 
+resource "local_sensitive_file" "aksk" {
+  filename = "credentials.txt"
+  content  = <<EOT
+AK=${huaweicloud_identity_access_key.cce_user_key.id}
+SK=${huaweicloud_identity_access_key.cce_user_key.secret}
+EOT
+}
+
 #######################################
 # Asignar privilegios al IAM User
 #######################################
@@ -516,15 +524,4 @@ module "dew_secret" {
   secret_payload        = local.dew_secret_payload
 
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-}
-
-#######################################
-# Output Final
-#######################################
-output "resources" {
-  description = "Resource information"
-  value = {
-    cce_name         = var.cce_cluster_name
-    cce_public_ip    = module.eip_cce_cluster.address
-  }
 }
