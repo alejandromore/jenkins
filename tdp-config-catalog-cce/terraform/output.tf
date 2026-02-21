@@ -17,13 +17,15 @@ output "elb_public_id" {
 output "elb_public_ip" {
   value = module.eip_elb_public.address
 }
-/*
-output "cce_user_access_key" {
-  value = huaweicloud_identity_access_key.cce_user_key.key
+
+output "cce_user_access_key_id" {
+  description = "Access Key ID (AK) for CCE programmatic user"
+  value       = huaweicloud_identity_access_key.cce_user_key.access
+  sensitive   = true
 }
 
-output "cce_user_secret_key" {
-  value     = huaweicloud_identity_access_key.cce_user_key.secret
-  sensitive = true
+output "cce_user_secret_access_key" {
+  description = "Secret Access Key (SK) for CCE programmatic user"
+  value       = huaweicloud_identity_access_key.cce_user_key.secret
+  sensitive   = true
 }
-*/
