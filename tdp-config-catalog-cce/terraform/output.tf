@@ -20,12 +20,12 @@ output "elb_public_ip" {
 
 output "cce_user_access_key_id" {
   description = "Access Key ID (AK) for CCE programmatic user"
-  value       = huaweicloud_identity_access_key.cce_user_key.access
+  value       = huaweicloud_identity_access_key.cce_user_key.access_key
   sensitive   = true
 }
 
 output "cce_user_secret_access_key" {
   description = "Secret Access Key (SK) for CCE programmatic user"
-  value       = huaweicloud_identity_access_key.cce_user_key.secret
+  value       = huaweicloud_identity_access_key.cce_user_key.secret_key
   sensitive   = true
 }
