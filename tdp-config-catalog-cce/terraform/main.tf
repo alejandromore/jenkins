@@ -435,7 +435,7 @@ resource "huaweicloud_identity_access_key" "cce_user_key" {
 # Crear rol con permisos de lectura a CSMS (KMS)
 resource "huaweicloud_identity_role" "csms_read_policy" {
   name        = "csms-read-policy"
-  description = "Allow read access to CSMS secrets"
+  description = "Allow read access to CSMS secrets for CCE"
   type        = "XA"
 
   policy = jsonencode({
@@ -444,8 +444,9 @@ resource "huaweicloud_identity_role" "csms_read_policy" {
       {
         Effect = "Allow"
         Action = [
-          "kms:secrets:getSecret",
-          "kms:secrets:listSecrets"
+          "kms:secret:list",
+          "kms:secret:get",
+          "kms:secretVersion:get"
         ]
         Resource = ["*"]
       }
