@@ -17,6 +17,6 @@ data:
     chmod +x /usr/local/bin/obsutil
     
     # listar
-    obsutil ls -i $access_key -k $secret_key -e obs.la-south-2.myhuaweicloud.com
+    obsutil ls obs://obs-alejandro-app1-dev -i $access_key -k $secret_key -e obs.la-south-2.myhuaweicloud.com
     
     echo "Setup finalizado."
