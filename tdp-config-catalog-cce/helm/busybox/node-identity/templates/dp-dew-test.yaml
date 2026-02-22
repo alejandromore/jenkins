@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-dew-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-dew-test
+  template:
+    metadata:
+      labels:
+        app: pod-dew-test
+    spec:
+      containers:
+      - name: pod-dew-test
+        image: ubuntu:latest
+        command: ["/bin/bash", "-c", "/opt/scripts/setup-hcloud.sh && tail -f /dev/null"]
+        volumeMounts:
+        - name: script-volume
+          mountPath: /opt/scripts
+      volumes:
+      - name: script-volume
+        configMap:
+          name: cm-hcloud-setup
+          defaultMode: 0755
