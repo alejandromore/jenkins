@@ -26,6 +26,11 @@ variable "key_pair_name" {
   type        = string
 }
 
+variable "key_alias" {
+  description = "Alias del KMS Key para cifrar secretos"
+  type        = string
+}
+
 variable "tags" {
   description = "Tags to assign to the ECS"
   type        = map(string)
