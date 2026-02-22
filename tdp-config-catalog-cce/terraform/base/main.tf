@@ -450,10 +450,7 @@ resource "huaweicloud_csms_secret" "cluster_id" {
   name        = "infra/base/cluster_id"
   description = "CCE Cluster ID"
   kms_key_id  = data.huaweicloud_kms_key.infra_key.id
-}
 
-resource "huaweicloud_csms_secret_version" "cluster_id_version" {
-  secret_id   = huaweicloud_csms_secret.cluster_id.id
   secret_text = huaweicloud_cce_cluster.cce_cluster_turbo.id
 }
 
@@ -461,10 +458,7 @@ resource "huaweicloud_csms_secret" "subnet_id" {
   name        = "infra/base/cce_subnet_id"
   description = "CCE Subnet ID"
   kms_key_id  = data.huaweicloud_kms_key.infra_key.id
-}
 
-resource "huaweicloud_csms_secret_version" "subnet_id_version" {
-  secret_id   = huaweicloud_csms_secret.subnet_id.id
   secret_text = module.subnet_cce.subnet_id
 }
 
@@ -472,9 +466,6 @@ resource "huaweicloud_csms_secret" "cce_sg_id" {
   name        = "infra/base/cce_sg_id"
   description = "CCE Security Group ID"
   kms_key_id  = data.huaweicloud_kms_key.infra_key.id
-}
 
-resource "huaweicloud_csms_secret_version" "cce_sg_id_version" {
-  secret_id   = huaweicloud_csms_secret.cce_sg_id.id
   secret_text = module.sg_cce.security_group_id
 }
