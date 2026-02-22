@@ -14,9 +14,24 @@ pipeline {
             description: 'Acción sobre el ambiente'
         )
         booleanParam(
-            name: 'RUN_TERRAFORM',
+            name: 'RUN_TERRAFORM_BASE',
             defaultValue: false,
-            description: 'Construir infraestructura con Terraform'
+            description: 'Construir infraestructura con Terraform Base'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM_NODE_IDENTITY',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform Node Identity'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM_WORKLOAD_IDENTITY',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform Workload Identity'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM_SECRETS_STORE',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform Secrets Store'
         )
         booleanParam(
             name: 'RUN_HELM',
@@ -33,9 +48,12 @@ pipeline {
     environment {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
-        TF_DIR   = 'tdp-config-catalog-cce/terraform'
-        HELM_DIR = 'tdp-config-catalog-cce/helm'
-        REGION   = 'la-south-2'
+        TF_DIR_BASE = 'tdp-config-catalog-cce/terraform/base'
+        TF_DIR_NI   = 'tdp-config-catalog-cce/terraform/node-identity'
+        TF_DIR_WK   = 'tdp-config-catalog-cce/terraform/workload-identity'
+        TF_DIR_ST   = 'tdp-config-catalog-cce/terraform/secrets-store'
+        HELM_DIR    = 'tdp-config-catalog-cce/helm'
+        REGION      = 'la-south-2'
     }
 
     stages {
@@ -47,11 +65,33 @@ pipeline {
         }
 
         // -----------------------------
-        // Terraform: infraestructura
+        // Terraform: infraestructura base
         // -----------------------------
-        stage('Terraform Deploy') {
+        stage('Terraform Deploy Base') {
             when {
-                expression { params.RUN_TERRAFORM }
+                expression { params.RUN_TERRAFORM_BASE }
+            }
+            steps {
+                script {
+                    terraformDeploy(
+                        dir: env.TF_DIR_BASE,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: [
+                            'elb_public_ip', 
+                            'elb_public_id'
+                        ]
+                    )
+                }
+            }
+        }
+
+        // -----------------------------
+        // Terraform: infraestructura Node Identity
+        // -----------------------------
+        stage('Terraform Deploy Node Identity') {
+            when {
+                expression { params.RUN_TERRAFORM_NODE_IDENTITY }
             }
             steps {
                 script {
@@ -59,10 +99,45 @@ pipeline {
                         dir: env.TF_DIR,
                         varsFile: 'local.tfvars',
                         action: params.ACTION,
-                        outputs: [
-                            'elb_public_ip', 
-                            'elb_public_id'
-                        ]
+                        outputs: []
+                    )
+                }
+            }
+        }
+
+        // -----------------------------
+        // Terraform: infraestructura Workload Identity
+        // -----------------------------
+        stage('Terraform Deploy Workload Identity') {
+            when {
+                expression { params.RUN_TERRAFORM_WORKLOAD_IDENTITY }
+            }
+            steps {
+                script {
+                    terraformDeploy(
+                        dir: env.TF_DIR_WK,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: []
+                    )
+                }
+            }
+        }
+
+        // -----------------------------
+        // Terraform: infraestructura Secrets Store
+        // -----------------------------
+        stage('Terraform Deploy Secrets Store') {
+            when {
+                expression { params.RUN_TERRAFORM_SECRETS_STORE }
+            }
+            steps {
+                script {
+                    terraformDeploy(
+                        dir: env.TF_DIR_ST,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: []
                     )
                 }
             }
@@ -90,7 +165,7 @@ pipeline {
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
                 }
                 // Leer archivo de credentiales CSV
-                dir(env.TF_DIR){
+                dir(env.TF_DIR_BASE){
                     script {
                         def content = readFile(file: 'credentials-cce-programmatic-user.csv')
                         def lines = content.split('\n')

@@ -1,11 +1,18 @@
+# Enterprise Project
+data "huaweicloud_enterprise_project" "ep" {
+  name = var.enterprise_project_name
+}
+
+data "huaweicloud_availability_zones" "myaz" {}
 
 
 #######################################
 # Agency
 #######################################
-resource "huaweicloud_identity_agency" "identity_agency" {
+resource "huaweicloud_identity_agency" "workload_agency" {
   name                  = "cce-workload-agency"
   description           = "Agencia para workloads en CCE"
+
   delegated_service_name = "op_svc_cce"
 
   enterprise_project_roles {
@@ -17,7 +24,6 @@ resource "huaweicloud_identity_agency" "identity_agency" {
 ############################################
 # Identity Provider (OIDC)
 ############################################
-
 resource "huaweicloud_identity_provider" "cce_oidc" {
   name     = "cce-workload-oidc"
   protocol = "oidc"
@@ -90,3 +96,4 @@ resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
     }
   ])
 }
+

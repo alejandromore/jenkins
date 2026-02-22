@@ -200,6 +200,11 @@ variable "key_pair_name" {
   type        = string
 }
 
+variable "key_alias" {
+  description = "Alias del KMS Key para cifrar secretos"
+  type        = string
+}
+
 # ============================================================================
 # VARIABLES NAT GATEWAY
 # ============================================================================

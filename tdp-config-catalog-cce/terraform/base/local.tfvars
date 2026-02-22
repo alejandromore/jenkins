@@ -54,3 +54,6 @@ ng_description                    = "NAT Gateway"
 
 dew_secret_name                   = "secret-app1-dev"
 dew_secret_description            = "App Dev Secrets"
+
+
+key_alias                         = "alias/infra-secrets-key"

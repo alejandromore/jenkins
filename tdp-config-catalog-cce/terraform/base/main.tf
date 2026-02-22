@@ -9,7 +9,7 @@ data "huaweicloud_availability_zones" "myaz" {}
 # VPC Module
 #######################################
 module "vpc" {
-  source            = "../../terraform-modules/vpc"
+  source            = "../../../terraform-modules/vpc"
   name              = var.vpc_name
   cidr              = var.vpc_cidr
   project_id        = data.huaweicloud_enterprise_project.ep.id
@@ -21,7 +21,7 @@ module "vpc" {
 # Subnets
 #######################################
 module "subnet_public" {
-  source            = "../../terraform-modules/subnet"
+  source            = "../../../terraform-modules/subnet"
   vpc_id            = module.vpc.vpc_id
   subnet_name       = var.vpc_subnet_public_name
   cidr              = var.vpc_subnet_public_cidr
@@ -32,7 +32,7 @@ module "subnet_public" {
 }
 
 module "subnet_cce" {
-  source            = "../../terraform-modules/subnet"
+  source            = "../../../terraform-modules/subnet"
   vpc_id            = module.vpc.vpc_id
   subnet_name       = var.vpc_subnet_cce_name
   cidr              = var.vpc_subnet_cce_cidr
@@ -43,7 +43,7 @@ module "subnet_cce" {
 }
 
 module "subnet_cce_eni" {
-  source            = "../../terraform-modules/subnet"
+  source            = "../../../terraform-modules/subnet"
   vpc_id            = module.vpc.vpc_id
   subnet_name       = var.vpc_subnet_cce_eni_name
   cidr              = var.vpc_subnet_cce_eni_cidr
@@ -57,19 +57,19 @@ module "subnet_cce_eni" {
 # Security Group
 #######################################
 module "sg_public" {
-  source                = "../../terraform-modules/security_group"
+  source                = "../../../terraform-modules/security_group"
   sg_name               = var.security_group_public
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 module "sg_cce_eni" {
-  source                = "../../terraform-modules/security_group"
+  source                = "../../../terraform-modules/security_group"
   sg_name               = var.security_group_cce_eni
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 module "sg_cce" {
-  source                = "../../terraform-modules/security_group"
+  source                = "../../../terraform-modules/security_group"
   sg_name               = var.security_group_cce
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
@@ -274,7 +274,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
 # ELB
 #######################################
 module "eip_elb_public" {
-  source                = "../../terraform-modules/eip"
+  source                = "../../../terraform-modules/eip"
   eip_name              = "eip-elb-public"
   bandwidth_name        = "mieip-bandwidth"
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
@@ -302,7 +302,7 @@ resource "huaweicloud_vpc_eip_associate" "eip_1" {
 # NAT Gateway
 #######################################
 module "nat_gateway" {
-  source                = "../../terraform-modules/nat_gateway"
+  source                = "../../../terraform-modules/nat_gateway"
   name                  = var.ng_name
   vpc_id                = module.vpc.vpc_id
   subnet_id             = module.subnet_cce.subnet_id
@@ -314,7 +314,7 @@ module "nat_gateway" {
 }
 
 module "eip_nat_gateway" {
-  source                = "../../terraform-modules/eip"
+  source                = "../../../terraform-modules/eip"
   eip_name              = "eip-nat-gateway"
   bandwidth_name        = "mieip-bandwidth"
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
@@ -340,7 +340,7 @@ resource "huaweicloud_nat_snat_rule" "snat_cce_pods" {
 # CCE
 #######################################
 module "eip_cce_cluster" {
-  source                = "../../terraform-modules/eip"
+  source                = "../../../terraform-modules/eip"
   eip_name              = var.eip_cce_name
   bandwidth_name        = "mieip-bandwidth"
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
@@ -379,114 +379,6 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     masters {
         availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
     }
-}
-
-data "huaweicloud_compute_flavors" "myflavor" {
-  availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
-  performance_type  = "computingv3" 
-  generation        = "c7" 
-  cpu_core_count    = 4 
-  memory_size       = 8 
-} 
-
-resource "huaweicloud_cce_node_pool" "nodepool" {
-  cluster_id         = huaweicloud_cce_cluster.cce_cluster_turbo.id
-  name               = "cce-nodepool-public"
-  initial_node_count = 2
-  subnet_id          = module.subnet_cce.subnet_id
-  flavor_id          = data.huaweicloud_compute_flavors.myflavor.flavors[0].id
-  availability_zone  = data.huaweicloud_availability_zones.myaz.names[0]
-  os                 = "EulerOS 2.9"
-  scall_enable             = true
-  min_node_count           = 4
-  max_node_count           = 50
-  scale_down_cooldown_time = 100
-  priority                 = 1
-  type                     = "vm"
-  root_volume {
-    size       = 40
-    volumetype = "SAS"
-  }
-  data_volumes {
-    size       = 100
-    volumetype = "SAS"
-  }
-  security_groups    = [module.sg_cce.security_group_id]
-  key_pair           = var.key_pair_name
-  tags = var.tags
-}
-
-#######################################
-# Crear IAM User
-#######################################
-resource "huaweicloud_identity_user" "cce_programmatic_user" {
-  name        = "cce-programmatic-user"
-  description = "IAM user for legacy pattern from CCE"
-  enabled     = true
-}
-
-resource "huaweicloud_identity_access_key" "cce_user_key" {
-  user_id = huaweicloud_identity_user.cce_programmatic_user.id
-}
-
-#######################################
-# Asignar privilegios al IAM User
-#######################################
-# Crear rol con permisos de lectura a CSMS (KMS)
-resource "huaweicloud_identity_role" "csms_read_policy" {
-  name        = "csms-read-policy"
-  description = "Allow read access to CSMS secrets for CCE"
-  type        = "XA"
-
-  policy = jsonencode({
-    Version = "1.1"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "csms:secret:list",
-          "csms:secret:get"
-        ]
-        Resource = ["*"]
-      }
-    ]
-  })
-}
-
-# Asignar rol al usuario
-resource "huaweicloud_identity_user_role_assignment" "cce_user_csms_role" {
-  user_id               = huaweicloud_identity_user.cce_programmatic_user.id
-  role_id               = huaweicloud_identity_role.csms_read_policy.id
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-}
-
-resource "huaweicloud_identity_role" "obs_read_policy" {
-  name        = "obs-read-policy"
-  description = "Allow list and download access to all OBS buckets"
-  type        = "XA"
-
-  policy = jsonencode({
-    Version = "1.1"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "obs:bucket:ListAllMyBuckets",
-          "obs:object:GetObject"
-        ]
-        Resource = [
-          "obs:*:*:bucket:*",
-          "obs:*:*:object:*/*"
-        ]
-      }
-    ]
-  })
-}
-
-resource "huaweicloud_identity_user_role_assignment" "cce_user_obs_role" {
-  user_id               = huaweicloud_identity_user.cce_programmatic_user.id
-  role_id               = huaweicloud_identity_role.obs_read_policy.id
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 #######################################
@@ -538,11 +430,51 @@ locals {
 }
 
 module "dew_secret" {
-  source = "../../terraform-modules/dew"
+  source = "../../../terraform-modules/dew"
 
   secret_name           = var.dew_secret_name
   secret_description    = var.dew_secret_description
   secret_payload        = local.dew_secret_payload
 
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+}
+
+#######################################
+# Guardar valores en el KMS - Secrets
+#######################################
+data "huaweicloud_kms_key" "infra_key" {
+  key_alias = var.key_alias
+}
+
+resource "huaweicloud_csms_secret" "cluster_id" {
+  name        = "infra/base/cluster_id"
+  description = "CCE Cluster ID"
+  kms_key_id  = data.huaweicloud_kms_key.infra_key.id
+}
+
+resource "huaweicloud_csms_secret_version" "cluster_id_version" {
+  secret_id     = huaweicloud_csms_secret.cluster_id.id
+  secret_string = huaweicloud_cce_cluster.cce_cluster_turbo.id
+}
+
+resource "huaweicloud_csms_secret" "subnet_id" {
+  name        = "infra/base/cce_subnet_id"
+  description = "CCE Subnet ID"
+  kms_key_id  = data.huaweicloud_kms_key.infra_key.id
+}
+
+resource "huaweicloud_csms_secret_version" "subnet_id_version" {
+  secret_id     = huaweicloud_csms_secret.subnet_id.id
+  secret_string = module.subnet_cce.subnet_id
+}
+
+resource "huaweicloud_csms_secret" "cce_sg_id" {
+  name        = "infra/base/cce_sg_id"
+  description = "CCE Security Group ID"
+  kms_key_id  = data.huaweicloud_kms_key.infra_key.id
+}
+
+resource "huaweicloud_csms_secret_version" "cce_sg_id_version" {
+  secret_id     = huaweicloud_csms_secret.cce_sg_id.id
+  secret_string = module.sg_cce.security_group_id
 }

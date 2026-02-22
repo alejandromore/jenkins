@@ -7,7 +7,7 @@ terraform {
 
     # Bucket y archivo en el OBS
     bucket = "obs-alejandro-terraform-tfstate"
-    key    = "tdp-config-catalog-cce.tfstate"
+    key    = "tdp-config-catalog-cce-node-identity.tfstate"
     endpoint = "https://obs.la-south-2.myhuaweicloud.com"
 
     # Usa virtual-hosted style (requerido por Huawei Cloud)
