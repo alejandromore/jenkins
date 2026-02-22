@@ -27,6 +27,10 @@ data:
     REGION="la-south-2"
 
     echo "Configuring hcloud..."
+    echo "AK: $AK"
+    echo "SK: $SK"
+    echo "Token: $TOKEN"
+    echo "Region: $REGION"
 
     # Aceptar términos automáticamente
     echo "y" | hcloud configure set \

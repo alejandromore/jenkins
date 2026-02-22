@@ -36,7 +36,7 @@ pipeline {
         string(
             name: '==== Workload Identity ====',
             defaultValue: '',
-            description: '---------------------------'
+            description: '--------------------------- Activar manualmente en el CCE Pod Access to Metadata'
         )
         booleanParam(
             name: 'RUN_TERRAFORM_WORKLOAD_IDENTITY',
