@@ -116,13 +116,11 @@ resource "huaweicloud_identity_role" "obs_read_policy" {
       {
         Effect = "Allow"
         Action = [
+          "obs:bucket:ListBucket",
           "obs:bucket:ListAllBuckets",
           "obs:object:GetObject"
         ]
-        Resource = [
-          "obs:*:*:bucket:*",
-          "obs:*:*:object:*/*"
-        ]
+        Resource = ["*"]
       }
     ]
   })
