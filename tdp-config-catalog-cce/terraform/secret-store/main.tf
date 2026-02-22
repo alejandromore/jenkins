@@ -1,3 +1,7 @@
+data "huaweicloud_enterprise_project" "ep" {
+  name = var.enterprise_project_name
+}
+
 #######################################
 # Crear IAM User
 #######################################
