@@ -18,15 +18,35 @@ pipeline {
             defaultValue: false,
             description: 'Construir infraestructura con Terraform Base'
         )
+        string(
+            name: '==== Node Identity ====',
+            defaultValue: '',
+            description: '---------------------------'
+        )
         booleanParam(
             name: 'RUN_TERRAFORM_NODE_IDENTITY',
             defaultValue: false,
             description: 'Construir infraestructura con Terraform Node Identity'
         )
         booleanParam(
+            name: 'RUN_HELM_NODE_IDENTITY',
+            defaultValue: false,
+            description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
+        )
+        string(
+            name: '==== Workload Identity ====',
+            defaultValue: '',
+            description: '---------------------------'
+        )
+        booleanParam(
             name: 'RUN_TERRAFORM_WORKLOAD_IDENTITY',
             defaultValue: false,
             description: 'Construir infraestructura con Terraform Workload Identity'
+        )
+        string(
+            name: '==== Secret Store + Service Principal Legacy ====',
+            defaultValue: '',
+            description: '---------------------------'
         )
         booleanParam(
             name: 'RUN_TERRAFORM_SECRETS_STORE',
@@ -35,11 +55,6 @@ pipeline {
         )
         booleanParam(
             name: 'RUN_HELM_SECRETS_STORE',
-            defaultValue: false,
-            description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
-        )
-        booleanParam(
-            name: 'RUN_HELM_NODE_IDENTITY',
             defaultValue: false,
             description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
         )
