@@ -10,17 +10,17 @@ data "huaweicloud_availability_zones" "myaz" {}
 
 # Recuperar Cluster ID
 data "huaweicloud_csms_secret_version" "cluster_id" {
-  secret_name = "infra/base/cluster_id"
+  secret_name = "infra_base_cluster_id"
 }
 
 # Recuperar Subnet ID
 data "huaweicloud_csms_secret_version" "subnet_id" {
-  secret_name = "infra/base/cce_subnet_id"
+  secret_name = "infra_base_cce_subnet_id"
 }
 
 # Recuperar Security Group ID
 data "huaweicloud_csms_secret_version" "security_group_id" {
-  secret_name = "infra/base/cce_sg_id"
+  secret_name = "infra_base_cce_sg_id"
 }
 
 #######################################
