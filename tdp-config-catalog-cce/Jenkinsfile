@@ -96,7 +96,7 @@ pipeline {
             steps {
                 script {
                     terraformDeploy(
-                        dir: env.TF_DIR,
+                        dir: env.TF_DIR_NI,
                         varsFile: 'local.tfvars',
                         action: params.ACTION,
                         outputs: []
