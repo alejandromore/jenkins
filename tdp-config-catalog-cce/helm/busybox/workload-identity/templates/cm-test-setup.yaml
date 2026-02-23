@@ -30,8 +30,8 @@ data:
         \"auth\": {
           \"id_token\": {\"id\": \"${OIDC_TOKEN}\"},
           \"scope\": {
-            \"project\": {
-              \"name\": \"la-south-2\"
+            \"enterprise_project\": {
+              \"id\": \"4dcc0216-fe93-4eb0-a1a9-3032e195af78\"
             }
           }
         }
