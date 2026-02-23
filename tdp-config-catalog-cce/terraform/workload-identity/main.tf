@@ -86,7 +86,7 @@ resource "huaweicloud_identity_group" "workload_group" {
 }
 
 data "huaweicloud_identity_role" "obs_role" {
-  name = "OBS Administrator"
+  name = "obs_adm"
 }
 
 resource "huaweicloud_identity_group_role_assignment" "obs_assignment" {
@@ -96,7 +96,7 @@ resource "huaweicloud_identity_group_role_assignment" "obs_assignment" {
 }
 
 data "huaweicloud_identity_role" "csms_role" {
-  name = "CSMS FullAccess"
+  name = "csms_full_access"
 }
 
 resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
