@@ -135,7 +135,7 @@ pipeline {
             }
             steps {
                 script {
-                    # Obtener el JWKS del cluster CCE
+                    // Obtener el JWKS del cluster CCE
                     env.JWKS = sh(
                         script: "kubectl get --raw /openid/v1/jwks | jq -c .",
                         returnStdout: true
@@ -144,6 +144,7 @@ pipeline {
                     export TF_VAR_namespace = "workload-identity"
                     export TF_VAR_service_account_name = "workload-identity-sa"
 
+                    //Ejecutar Terraform
                     terraformDeploy(
                         dir: env.TF_DIR_WK,
                         varsFile: 'local.tfvars',
