@@ -355,7 +355,7 @@ pipeline {
                     env.JWKS = sh(script: "kubectl get --raw /openid/v1/jwks | jq -c .", returnStdout: true).trim()
                 }
 
-                dir(env.HELM_DIR_NI) {
+                dir(env.HELM_DIR_WK) {
 
                     withCredentials([
                         file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
