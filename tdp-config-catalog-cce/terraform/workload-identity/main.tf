@@ -84,27 +84,19 @@ resource "huaweicloud_identity_group" "workload_group" {
   name        = var.group_name
   description = "IAM group for CCE Workload Identity"
 }
-/*
-data "huaweicloud_identity_role" "obs_role" {
-  name = "obs_adm"
-}
 
 resource "huaweicloud_identity_group_role_assignment" "obs_assignment" {
   group_id   = huaweicloud_identity_group.workload_group.id
-  role_id    = data.huaweicloud_identity_role.obs_role.id
+  role_id    = "8eb36151949e434e857a3446e58cf107" # OBS Administrator
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-}
-
-data "huaweicloud_identity_role" "csms_role" {
-  name = "csms_full_access"
 }
 
 resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
   group_id   = huaweicloud_identity_group.workload_group.id
-  role_id    = data.huaweicloud_identity_role.csms_role.id
+  role_id    = "0536f2ae1ea5465ca498c7f98ad58510" # CSMS Administrator
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
-*/
+
 resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
   provider_id = huaweicloud_identity_provider.cce_oidc.id
 
