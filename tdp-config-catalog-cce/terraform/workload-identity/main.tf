@@ -73,7 +73,7 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
   access_config {
     access_type = "program"
 
-    provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${huaweicloud_csms_secret_version.cluster_id.secret_text}"
+    provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${data.huaweicloud_csms_secret_version.cluster_id.secret_text}"
 
     client_id   = var.client_id
     signing_key = var.oidc_jwks

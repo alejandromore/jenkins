@@ -21,6 +21,11 @@ variable "enterprise_project_name" {
   type        = string
 }
 
+variable "key_pair_name" {
+  description = "Nombre del Key Pair para los nodos"
+  type        = string
+}
+
 variable "tags" {
   description = "Tags to assign to the ECS"
   type        = map(string)
