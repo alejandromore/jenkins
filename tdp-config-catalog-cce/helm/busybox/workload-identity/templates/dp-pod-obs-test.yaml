@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-obs-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pod-obs-test
+  template:
+    metadata:
+      labels:
+        app: pod-obs-test
+    spec:
+      # 1️⃣ ServiceAccount mapeado en IAM
+      serviceAccountName: workload-identity-sa
+
+      containers:
+      - name: pod-obs-test
+        image: ubuntu:latest
+        command: ["/bin/bash", "-c", "/opt/scripts/setup-obs.sh && tail -f /dev/null"]
+
+        volumeMounts:
+        # Script desde ConfigMap
+        - name: script-volume
+          mountPath: /opt/scripts
+
+        # 🔐 OIDC Token proyectado
+        - name: oidc-token
+          mountPath: /var/run/secrets/tokens
+          readOnly: true
+
+      volumes:
+      # ConfigMap con obsutil
+      - name: script-volume
+        configMap:
+          name: cm-obsutil-setup
+          defaultMode: 0755
+
+      # Token OIDC proyectado para Workload Identity
+      - name: oidc-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              path: oidc-token
+              expirationSeconds: 7200
+              audience: huawei-cce   # ← Debe coincidir con client_id del IdP
