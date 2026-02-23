@@ -5,58 +5,107 @@ data "huaweicloud_enterprise_project" "ep" {
 
 data "huaweicloud_availability_zones" "myaz" {}
 
+########################################
+# Recuperar valores desde DEW (CSMS)
+########################################
+# Recuperar Cluster ID
+data "huaweicloud_csms_secret_version" "cluster_id" {
+  secret_name = "infra_base_cluster_id"
+}
+
+# Recuperar Subnet ID
+data "huaweicloud_csms_secret_version" "subnet_id" {
+  secret_name = "infra_base_cce_subnet_id"
+}
+
+# Recuperar Security Group ID
+data "huaweicloud_csms_secret_version" "security_group_id" {
+  secret_name = "infra_base_cce_sg_id"
+}
 
 #######################################
-# Agency
+# Node Pool
 #######################################
-resource "huaweicloud_identity_agency" "workload_agency" {
-  name                  = "cce-workload-agency"
-  description           = "Agencia para workloads en CCE"
+data "huaweicloud_compute_flavors" "myflavor" {
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0] 
+  performance_type  = "computingv3" 
+  generation        = "c7" 
+  cpu_core_count    = 4 
+  memory_size       = 8 
+} 
 
-  delegated_service_name = "op_svc_cce"
-
-  enterprise_project_roles {
-    enterprise_project = var.enterprise_project_name
-    roles              = ["OBS Administrator", "CSMS FullAccess"]
+resource "huaweicloud_cce_node_pool" "nodepool" {
+  cluster_id         = data.huaweicloud_csms_secret_version.cluster_id.secret_text
+  name               = "cce-nodepool-public"
+  initial_node_count = 2
+  subnet_id          = data.huaweicloud_csms_secret_version.subnet_id.secret_text
+  flavor_id          = data.huaweicloud_compute_flavors.myflavor.flavors[0].id
+  availability_zone  = data.huaweicloud_availability_zones.myaz.names[0]
+  os                 = "EulerOS 2.9"
+  scall_enable             = true
+  min_node_count           = 4
+  max_node_count           = 50
+  scale_down_cooldown_time = 100
+  priority                 = 1
+  type                     = "vm"
+  root_volume {
+    size       = 40
+    volumetype = "SAS"
   }
+  data_volumes {
+    size       = 100
+    volumetype = "SAS"
+  }
+  security_groups    = [data.huaweicloud_csms_secret_version.security_group_id.secret_text]
+  key_pair           = var.key_pair_name
+  tags = var.tags
 }
 
 ############################################
 # Identity Provider (OIDC)
 ############################################
 resource "huaweicloud_identity_provider" "cce_oidc" {
-  name     = "cce-workload-oidc"
-  protocol = "oidc"
-  description = "Identity Provider for CCE"
+  name        = "cce-workload-oidc"
+  protocol    = "oidc"
+  description = "OIDC provider for CCE workloads"
+  sso_type    = "virtual_user_sso"
 
   access_config {
-    # Para Workload Identity debe ser program
     access_type = "program"
 
-    # Issuer URL del cluster CCE Turbo
-    provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${huaweicloud_cce_cluster.cce_cluster_turbo.id}"
+    provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${huaweicloud_csms_secret_version.cluster_id.secret_text}"
 
-    # Debe coincidir con el audience (aud) del token del ServiceAccount
-    client_id = "huawei-cce"
-
-    # JWKS obtenido con:
-    # kubectl get --raw /openid/v1/jwks
-    signing_key = jsonencode({
-      "keys": [
-        {
-          "use": "sig",
-          "kty": "RSA",
-          "kid": "LH4pnQHcibGHMWNeTIRXAjWKRfKBJGk5UpEgLMpptfI",
-          "alg": "RS256",
-          "n": "w4L393mn8J7s0xW9gBYPUGVe-CrEWNBJonqM5JL-37TvZEAbQBEcJz7GbwthS8UaBiLbtc6SVq-ESAbFnCv4-EWmhAqZcyJyReG9Nd849cCTkfHag9yMKzw0xNbvUxlnKdk-72dg5S82yFboAGX8V5bBCcvBsfsTHSZP5-e7cmIU2JxECGaC4zkkcGQbx-rTVxsSsNT4EfrwI5AmAEcqA_M1A9Vvj_N65urZJ4NWK2YcpraRQWH8jpD4cj6nXUVPjbrRSz6-tUoJ9B5DKvdgv2tODWYekNPvZa_TLvgHVpSIL75PcqQ8FFOhZBluP2tJVu1XhHoqWAhNA-6_Zdrue3guppHjuTALF3W0xKmaCfsEX0E9rWnGp8yK2emmcQBCcfim6Ddqbdxijnbs5QOXsoP3RKfm6eeJoH6fdvSeSfnONP04qWVA0R3QJPMj-rmIYRPUmTfHnxqYnYKP7IZSUG5VKXNLs5Gp6uZKK8ffFYntdJIEnJzWbv-G5z5pcLdb",
-          "e": "AQAB"
-        }
-      ]
-    })
+    client_id   = var.client_id
+    signing_key = var.oidc_jwks
   }
 }
 
-resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
+resource "huaweicloud_identity_group" "workload_group" {
+  name        = var.group_name
+  description = "IAM group for CCE Workload Identity"
+}
+
+data "huaweicloud_identity_role" "obs_role" {
+  name = "OBS Administrator"
+}
+
+resource "huaweicloud_identity_group_role_assignment" "obs_assignment" {
+  group_id   = huaweicloud_identity_group.workload_group.id
+  role_id    = data.huaweicloud_identity_role.obs_role.id
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+}
+
+data "huaweicloud_identity_role" "csms_role" {
+  name = "CSMS FullAccess"
+}
+
+resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
+  group_id   = huaweicloud_identity_group.workload_group.id
+  role_id    = data.huaweicloud_identity_role.csms_role.id
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+}
+
+resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
   provider_id = huaweicloud_identity_provider.cce_oidc.id
 
   mapping_rules = jsonencode([
@@ -65,31 +114,14 @@ resource "huaweicloud_identity_provider_mapping" "cce_workload_mapping" {
         {
           type = "sub"
           any_one_of = [
-            "system:serviceaccount:default:sa-dew"
+            "system:serviceaccount:${var.namespace}:${var.service_account_name}"
           ]
         }
       ]
       local = [
         {
           group = {
-            name = huaweicloud_identity_agency.workload_agency.name
-          }
-        }
-      ]
-    },
-    {
-      remote = [
-        {
-          type = "sub"
-          any_one_of = [
-            "system:serviceaccount:default:sa-obs"
-          ]
-        }
-      ]
-      local = [
-        {
-          group = {
-            name = huaweicloud_identity_agency.workload_agency.name
+            name = huaweicloud_identity_group.workload_group.name
           }
         }
       ]
