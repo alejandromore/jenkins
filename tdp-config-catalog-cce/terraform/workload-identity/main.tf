@@ -84,7 +84,7 @@ resource "huaweicloud_identity_group" "workload_group" {
   name        = var.group_name
   description = "IAM group for CCE Workload Identity"
 }
-
+/*
 data "huaweicloud_identity_role" "obs_role" {
   name = "obs_adm"
 }
@@ -104,7 +104,7 @@ resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
   role_id    = data.huaweicloud_identity_role.csms_role.id
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
-
+*/
 resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
   provider_id = huaweicloud_identity_provider.cce_oidc.id
 
