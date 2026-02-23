@@ -135,22 +135,35 @@ pipeline {
             }
             steps {
                 script {
-                    // Obtener el JWKS del cluster CCE
-                    env.JWKS = sh(
-                        script: "kubectl get --raw /openid/v1/jwks | jq -c .",
-                        returnStdout: true
-                    ).trim()
-                    export TF_VAR_oidc_jwks='${JWKS}'
-                    export TF_VAR_namespace = "workload-identity"
-                    export TF_VAR_service_account_name = "workload-identity-sa"
 
-                    //Ejecutar Terraform
-                    terraformDeploy(
-                        dir: env.TF_DIR_WK,
-                        varsFile: 'local.tfvars',
-                        action: params.ACTION,
-                        outputs: []
-                    )
+                    withCredentials([
+                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                    ]) {
+
+                        // Obtener JWKS usando el kubeconfig inyectado
+                        env.JWKS = sh(
+                            script: '''
+                                export KUBECONFIG=$KUBECONFIG
+                                kubectl get --raw /openid/v1/jwks | jq -c .
+                            ''',
+                            returnStdout: true
+                        ).trim()
+                    }
+
+                    // Exportar variables para Terraform (forma correcta en Jenkins)
+                    withEnv([
+                        "TF_VAR_oidc_jwks=${env.JWKS}",
+                        "TF_VAR_namespace=workload-identity",
+                        "TF_VAR_service_account_name=workload-identity-sa"
+                    ]) {
+
+                        terraformDeploy(
+                            dir: env.TF_DIR_WK,
+                            varsFile: 'local.tfvars',
+                            action: params.ACTION,
+                            outputs: []
+                        )
+                    }
                 }
             }
         }
