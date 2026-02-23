@@ -20,7 +20,7 @@ data:
     fi
 
     echo "OIDC token leído correctamente"
-    echo "Intercambiando token contra IAM..."
+    echo "Intercambiando token contra IAM (Enterprise Project scope)..."
 
     RESPONSE=$(curl -s -i \
       -X POST https://iam.la-south-2.myhuaweicloud.com/v3.0/OS-AUTH/id-token/tokens \
