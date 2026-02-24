@@ -18,12 +18,12 @@ spec:
       containers:
       - name: pod-test
         image: ubuntu:latest
-        command: ["/bin/bash", "-c", "/opt/scripts/setup-test.sh"]
+        #command: ["/bin/bash", "-c", "/opt/scripts/setup-test.sh"]
 
         volumeMounts:
         # Script desde ConfigMap
-        - name: script-volume
-          mountPath: /opt/scripts
+        #- name: script-volume
+        #  mountPath: /opt/scripts
 
         # Token OIDC proyectado
         - name: oidc-token
