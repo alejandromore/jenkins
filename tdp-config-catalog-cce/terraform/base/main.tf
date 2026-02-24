@@ -420,16 +420,28 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
 #######################################
 # DEW - Secret
 #######################################
+/*
 locals {
   dew_secret_payload = {
     URL      = "wwww.google.com"
     USUARIO  = "alejandro"
     PASSWORD = "P@ssw0rdSecure123!"
     PORT     = "5432"
-    GIT_URI  = ""
-    GIT_USERNAME = ""
-    GIT_TOKEN    = ""
   }
+}
+*/
+//Utiliza el AK y SK del usuario Terraform, no del usuario IAM para DEW
+locals {
+  secrets_file = yamldecode(file("secrets/secrets.dec.yaml"))
+  dew_secret_payload = merge(
+    local.secrets_file.stringData,
+    {
+      URL      = "wwww.google.com"
+      USUARIO  = "alejandro"
+      PASSWORD = "P@ssw0rdSecure123!"
+      PORT     = "5432"
+    }
+  )
 }
 
 module "dew_secret" {
