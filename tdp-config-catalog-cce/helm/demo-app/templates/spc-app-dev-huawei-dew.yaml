@@ -20,9 +20,35 @@ spec:
             objectAlias: URL
           - path: USUARIO
             objectAlias: USUARIO
+          - path: GIT_URI
+            objectAlias: GIT_URI
+          - path: GIT_USERNAME
+            objectAlias: GIT_USERNAME
+          - path: GIT_TOKEN
+            objectAlias: GIT_TOKEN
+          - path: HUAWEI_CLOUD_REGION
+            objectAlias: HUAWEI_CLOUD_REGION
+          - path: HUAWEI_CLOUD_PROJECT_ID
+            objectAlias: HUAWEI_CLOUD_PROJECT_ID
+          - path: HUAWEI_CLOUD_AK
+            objectAlias: HUAWEI_CLOUD_AK
+          - path: HUAWEI_CLOUD_SK
+            objectAlias: HUAWEI_CLOUD_SK
+          - path: HUAWEI_CLOUD_SECRET_NAME
+            objectAlias: HUAWEI_CLOUD_SECRET_NAME
+          - path: HUAWEI_END_POINT
+            objectAlias: HUAWEI_END_POINT
+          - path: HUAWEI_BUCKET_NAME
+            objectAlias: HUAWEI_BUCKET_NAME
+          - path: HUAWEI_BUCKET_NAME
+            objectAlias: HUAWEI_BUCKET_NAME
+          - path: SCHEDULE_TIME
+            objectAlias: SCHEDULE_TIME
+          - path: FILE_NAME
+            objectAlias: FILE_NAME 
 
   secretObjects:
-    - secretName: app-secret-from-csms
+    - secretName: ms-app-config-server-keyvault-secrets
       type: Opaque
       data:
         - objectName: PORT
@@ -33,3 +59,43 @@ spec:
           key: URL
         - objectName: USUARIO
           key: USUARIO
+        - objectName: GIT_URI
+          key: GIT_URI
+        - objectName: GIT_USERNAME
+          key: GIT_USERNAME
+        - objectName: GIT_TOKEN
+          key: GIT_TOKEN
+        - objectName: HUAWEI_CLOUD_REGION
+          key: HUAWEI_CLOUD_REGION
+        - objectName: HUAWEI_CLOUD_PROJECT_ID
+          key: HUAWEI_CLOUD_PROJECT_ID
+        - objectName: HUAWEI_CLOUD_AK
+          key: HUAWEI_CLOUD_AK
+        - objectName: HUAWEI_CLOUD_SK
+          key: HUAWEI_CLOUD_SK
+        - objectName: HUAWEI_CLOUD_SECRET_NAME
+          key: HUAWEI_CLOUD_SECRET_NAME
+        - objectName: HUAWEI_END_POINT
+          key: HUAWEI_END_POINT
+        - objectName: HUAWEI_BUCKET_NAME
+          key: HUAWEI_BUCKET_NAME
+        - objectName: CATALOG_ERROR_PROFILE
+          key: CATALOG_ERROR_PROFILE
+        - objectName: FILE_NAME
+          key: FILE_NAME
+
+# Config Server
+GIT_URI=https://alejandromore@bitbucket.org/integratelperu/cfg-huawei-dev.git
+GIT_USERNAME=alejandromore
+GIT_TOKEN=ATATT3xFfGF0H1sHxBaj1ssaG5Yl_wOjzLntspOIA5YaRNJjDa8tetrisBNb331VCeahfJVRB8LRop3KzGNPdjB7v7ijBYa6OAWWO-3hxLjkOCx4kofyCHRjdHKHB3aT6Jh1KDPxGJjRW9dLCpsLkUlTdymmpOc0upqgV0aagJUMIaScX4DUAPs=9C597ACA
+HUAWEI_CLOUD_REGION=la-south-2
+HUAWEI_CLOUD_PROJECT_ID=0371a9a7f90b493fadebbf130f6fcd2c
+HUAWEI_CLOUD_AK=8ENLOAE2QCECKCRKANEU
+HUAWEI_CLOUD_SK=vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8
+HUAWEI_CLOUD_SECRET_NAME=secret-app1-dev
+# Catalog Error
+HUAWEI_END_POINT=https://obs.la-south-2.myhuaweicloud.com/
+HUAWEI_BUCKET_NAME=obs-alejandro-app1-dev
+SCHEDULE_TIME=10
+CATALOG_ERROR_PROFILE=Huawei
+FILE_NAME=CatalogoErroresTabla.json
