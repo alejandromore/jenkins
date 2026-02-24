@@ -32,10 +32,10 @@ spec:
 
       volumes:
       # ConfigMap con script de prueba
-      - name: script-volume
-        configMap:
-          name: cm-test-setup
-          defaultMode: 0755
+      #- name: script-volume
+      #  configMap:
+      #    name: cm-test-setup
+      #    defaultMode: 0755
 
       # 🔐 Token OIDC proyectado para Workload Identity
       - name: oidc-token
