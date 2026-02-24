@@ -83,19 +83,3 @@ spec:
           key: CATALOG_ERROR_PROFILE
         - objectName: FILE_NAME
           key: FILE_NAME
-
-# Config Server
-GIT_URI=https://alejandromore@bitbucket.org/integratelperu/cfg-huawei-dev.git
-GIT_USERNAME=alejandromore
-GIT_TOKEN=ATATT3xFfGF0H1sHxBaj1ssaG5Yl_wOjzLntspOIA5YaRNJjDa8tetrisBNb331VCeahfJVRB8LRop3KzGNPdjB7v7ijBYa6OAWWO-3hxLjkOCx4kofyCHRjdHKHB3aT6Jh1KDPxGJjRW9dLCpsLkUlTdymmpOc0upqgV0aagJUMIaScX4DUAPs=9C597ACA
-HUAWEI_CLOUD_REGION=la-south-2
-HUAWEI_CLOUD_PROJECT_ID=0371a9a7f90b493fadebbf130f6fcd2c
-HUAWEI_CLOUD_AK=8ENLOAE2QCECKCRKANEU
-HUAWEI_CLOUD_SK=vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8
-HUAWEI_CLOUD_SECRET_NAME=secret-app1-dev
-# Catalog Error
-HUAWEI_END_POINT=https://obs.la-south-2.myhuaweicloud.com/
-HUAWEI_BUCKET_NAME=obs-alejandro-app1-dev
-SCHEDULE_TIME=10
-CATALOG_ERROR_PROFILE=Huawei
-FILE_NAME=CatalogoErroresTabla.json
