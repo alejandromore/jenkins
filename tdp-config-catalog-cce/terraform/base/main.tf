@@ -432,7 +432,7 @@ locals {
 */
 //Utiliza el AK y SK del usuario Terraform, no del usuario IAM para DEW
 locals {
-  secrets_file = yamldecode(file("secrets/secrets.dec.yaml"))
+  secrets_file = yamldecode(file("secrets/secrets-dec.yaml"))
   dew_secret_payload = merge(
     local.secrets_file.stringData,
     {

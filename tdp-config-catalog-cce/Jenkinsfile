@@ -113,7 +113,7 @@ pipeline {
                         gpg --batch --import "$GPG_KEY_FILE"
 
                         echo "Desencriptando..."
-                        sops -d secrets/secrets-enc.yaml > secrets/secrets.dec.yaml
+                        sops -d secrets/secrets-enc.yaml > secrets/secrets-dec.yaml
 
                         '''
                     }
