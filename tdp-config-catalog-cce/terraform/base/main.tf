@@ -426,6 +426,9 @@ locals {
     USUARIO  = "alejandro"
     PASSWORD = "P@ssw0rdSecure123!"
     PORT     = "5432"
+    GIT_URI  = ""
+    GIT_USERNAME = ""
+    GIT_TOKEN    = ""
   }
 }
 

@@ -20,6 +20,12 @@ spec:
             objectAlias: URL
           - path: USUARIO
             objectAlias: USUARIO
+          - path: GIT_URI
+            objectAlias: GIT_URI
+          - path: GIT_USERNAME
+            objectAlias: GIT_USERNAME
+          - path: GIT_TOKEN
+            objectAlias: GIT_TOKEN
 
   secretObjects:
     - secretName: app-secret-from-csms
@@ -33,3 +39,9 @@ spec:
           key: URL
         - objectName: USUARIO
           key: USUARIO
+        - objectName: GIT_URI
+          key: GIT_URI
+        - objectName: GIT_USERNAME
+          key: GIT_USERNAME
+        - objectName: GIT_TOKEN
+          key: GIT_TOKEN
