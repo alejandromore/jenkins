@@ -23,10 +23,9 @@ ls /var/run/secrets/tokens
 ls /var/run/secrets/kubernetes.io/serviceaccount
 
 
-
+kubectl create namespace workload-identity
 kubectl apply -f sa-workload-identity.yaml -n workload-identity
 kubectl apply -f spc-app-dev-huawei-dew.yaml -n workload-identity
-kubectl apply -f dp-pod-test.yaml -n workload-identity
 kubectl apply -f cm-obsutil-setup.yaml -n workload-identity
 kubectl apply -f dp-pod-obs-test.yaml -n workload-identity
 

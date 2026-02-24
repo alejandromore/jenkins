@@ -73,7 +73,6 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
   access_config {
     access_type = "program"
 
-    #provider_url = "https://oidc.cce.${var.region}.myhuaweicloud.com/id/${data.huaweicloud_csms_secret_version.cluster_id.secret_text}"
     provider_url = "https://kubernetes.default.svc.cluster.local"
 
     client_id   = var.client_id
@@ -111,7 +110,7 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
     {
       remote = [
         {
-          type = "sub"
+          type = "UserName"
           any_one_of = [
             "system:serviceaccount:${var.namespace}:${var.service_account_name}"
           ]
@@ -120,7 +119,7 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
       local = [
         {
           group = {
-            name = huaweicloud_identity_group.workload_group.name
+            id = huaweicloud_identity_group.workload_group.id
           }
         }
       ]
