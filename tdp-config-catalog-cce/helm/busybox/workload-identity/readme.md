@@ -1,7 +1,6 @@
 $env:KUBECONFIG="C:\Users\A00392472\Downloads\cce-config-catalog-kubeconfig.yaml"
 $env:KUBECONFIG="C:\Users\Huawei\Downloads\cce-config-catalog-kubeconfig.yaml"
 
-[Terraform] Create agency
 [Terraform] Create Identity Provider y Rules
 [Helm]      Create Service Account
 [Helm]      Desplegar PODs
@@ -18,7 +17,20 @@ obtener campo issuer - para crear el Identity Provider
 
 
 # Create service account
-kubectl apply -f service-accounts.yaml
+en el POD se han mantado 2 carpetas
+ls /mnt/secrets-store
+ls /var/run/secrets/tokens
+ls /var/run/secrets/kubernetes.io/serviceaccount
+
+
+
+kubectl apply -f sa-workload-identity.yaml -n workload-identity
+kubectl apply -f spc-app-dev-huawei-dew.yaml -n workload-identity
+kubectl apply -f dp-pod-test.yaml -n workload-identity
+kubectl apply -f cm-obsutil-setup.yaml -n workload-identity
+kubectl apply -f dp-pod-obs-test.yaml -n workload-identity
+
+
 # Create test obs
 kubectl apply -f cm-obsutil-setup.yaml
 kubectl apply -f pod-obs-test.yaml

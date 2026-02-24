@@ -12,8 +12,8 @@ spec:
       labels:
         app: pod-obs-test
     spec:
-      # 1️⃣ ServiceAccount mapeado en IAM
-      serviceAccountName: workload-identity-sa
+      # ServiceAccount mapeado en IAM
+      serviceAccountName: sa-workload-identity
 
       containers:
       - name: pod-obs-test
@@ -25,7 +25,7 @@ spec:
         - name: script-volume
           mountPath: /opt/scripts
 
-        # 🔐 OIDC Token proyectado
+        # OIDC Token proyectado
         - name: oidc-token
           mountPath: /var/run/secrets/tokens
           readOnly: true

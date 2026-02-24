@@ -7,7 +7,14 @@ data:
     #!/bin/bash
     set -e
     export DEBIAN_FRONTEND=noninteractive
-    apt-get update && apt-get install -y curl tar ca-certificates
+    echo "Instalando dependencias necesarias..."
+
+    apt-get update -qq
+    apt-get install -y -qq \
+        curl \
+        jq \
+        tar \
+        ca-certificates
     
     echo "Descargando obsutil..."
     curl -Lk "https://obs-community.obs.myhuaweicloud.com/obsutil/current/obsutil_linux_amd64.tar.gz" -o obsutil_linux_amd64.tar.gz
@@ -17,9 +24,45 @@ data:
     mv $FOLDER/obsutil /usr/local/bin/
     chmod +x /usr/local/bin/obsutil
 
-    echo "Configurando obsutil con Workload Identity..."
-    export OBS_SECURITY_TOKEN=$(cat /var/run/secrets/tokens/huaweicloud-token)
-    export OBS_ENDPOINT=obs.la-south-2.myhuaweicloud.com
+    echo "Intercambiar OIDC por IAM token..."
+    OIDC_TOKEN=$(cat /var/run/secrets/tokens/oidc-token)
+    echo "OIDC TOKEN: $OIDC_TOKEN".
+
+    IAM_RESPONSE=$(curl -s -D - \
+      -X POST https://iam.la-south-2.myhuaweicloud.com/v3.0/OS-AUTH/id-token/tokens \
+      -H "Content-Type: application/json" \
+      -H "X-Idp-Id: cce-workload-oidc" \
+      -d "{
+        \"auth\": {
+          \"id_token\": {\"id\": \"${OIDC_TOKEN}\"},
+          \"scope\": {
+            \"project\": {\"name\": \"la-south-2\"}
+          }
+        }
+      }")
+
+    echo "$IAM_RESPONSE"
+
+    IAM_TOKEN=$(echo "$IAM_RESPONSE" | awk '/X-Subject-Token/ {print $2}' | tr -d '\r')
+
+    echo "IAM TOKEN: $IAM_TOKEN"
+
+    echo "Obtener credenciales temporales STS..."
+    STS_RESPONSE=$(curl -s -X POST https://iam.la-south-2.myhuaweicloud.com/v3.0/OS-CREDENTIAL/securitytokens \
+      -H "X-Auth-Token: ${IAM_TOKEN}" \
+      -H "Content-Type: application/json")
+    echo "STS RESPONSE: $STS_RESPONSE".
+
+    AK=$(echo "$STS_RESPONSE" | jq -r '.credential.access')
+    SK=$(echo "$STS_RESPONSE" | jq -r '.credential.secret')
+    SECURITY_TOKEN=$(echo "$STS_RESPONSE" | jq -r '.credential.securitytoken')
+
+    echo "Configurar obsutil con credenciales temporales..."
+    obsutil config \
+      -i "$AK" \
+      -k "$SK" \
+      -t "$SECURITY_TOKEN" \
+      -e obs.la-south-2.myhuaweicloud.com
 
     # echo "Verificando acceso a OBS..."
     # obsutil ls

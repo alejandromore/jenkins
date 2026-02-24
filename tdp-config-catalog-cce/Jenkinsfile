@@ -161,7 +161,7 @@ pipeline {
                     withEnv([
                         "TF_VAR_oidc_jwks=${env.JWKS}",
                         "TF_VAR_namespace=workload-identity",
-                        "TF_VAR_service_account_name=workload-identity-sa"
+                        "TF_VAR_service_account_name=sa-workload-identity"
                     ]) {
 
                         terraformDeploy(
