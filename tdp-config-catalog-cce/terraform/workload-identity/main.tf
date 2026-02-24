@@ -108,6 +108,13 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
 
   mapping_rules = jsonencode([
     {
+      local = [
+        {
+          group = {
+            name = huaweicloud_identity_group.workload_group.name
+          }
+        }
+      ]
       remote = [
         {
           type = "UserName"
@@ -116,14 +123,6 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
           ]
         }
       ]
-      local = [
-        {
-          group = {
-            id = huaweicloud_identity_group.workload_group.id
-          }
-        }
-      ]
     }
   ])
 }
-
