@@ -22,37 +22,37 @@ spec:
         - name: PORT
           valueFrom:
             secretKeyRef:
-              name: app-secret-from-csms
+              name: ms-app-config-server-keyvault-secrets
               key: PORT
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
-              name: app-secret-from-csms
+              name: ms-app-config-server-keyvault-secrets
               key: PASSWORD
         - name: URL
           valueFrom:
             secretKeyRef:
-              name: app-secret-from-csms
+              name: ms-app-config-server-keyvault-secrets
               key: URL
         - name: USUARIO
           valueFrom:
             secretKeyRef:
-              name: app-secret-from-csms
+              name: ms-app-config-server-keyvault-secrets
               key: USUARIO
         - name: GIT_URI
           valueFrom:
             secretKeyRef:
-              name: app-secret-from-csms
+              name: ms-app-config-server-keyvault-secrets
               key: GIT_URI
         - name: GIT_USERNAME
           valueFrom:
             secretKeyRef:
-              name: app-secret-from-csms
+              name: ms-app-config-server-keyvault-secrets
               key: GIT_USERNAME
         - name: GIT_TOKEN
           valueFrom:
             secretKeyRef:
-              name: app-secret-from-csms
+              name: ms-app-config-server-keyvault-secrets
               key: GIT_TOKEN
 
         volumeMounts:
