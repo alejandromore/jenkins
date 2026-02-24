@@ -77,7 +77,7 @@ pipeline {
         TF_DIR_NI   = 'tdp-config-catalog-cce/terraform/node-identity'
         TF_DIR_WK   = 'tdp-config-catalog-cce/terraform/workload-identity'
         TF_DIR_ST   = 'tdp-config-catalog-cce/terraform/secrets-store'
-        HELM_DIR_ST = 'tdp-config-catalog-cce/helm/busybox/secrets-store'
+        HELM_DIR_ST = 'tdp-config-catalog-cce/helm/demo-app'
         HELM_DIR_NI = 'tdp-config-catalog-cce/helm/busybox/node-identity'
         HELM_DIR_WK = 'tdp-config-catalog-cce/helm/busybox/workload-identity'
         REGION      = 'la-south-2'
