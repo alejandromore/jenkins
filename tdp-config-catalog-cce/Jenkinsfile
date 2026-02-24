@@ -224,8 +224,8 @@ pipeline {
             }
 
             environment {
-                NAMESPACE = "secrets-store"
-                RELEASE_NAME = "secrets-store"
+                NAMESPACE = "demo-app"
+                RELEASE_NAME = "demo-app"
                 TIMEOUT_SECONDS = "300"
             }
 
