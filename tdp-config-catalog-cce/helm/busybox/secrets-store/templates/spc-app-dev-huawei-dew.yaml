@@ -28,7 +28,7 @@ spec:
             objectAlias: GIT_TOKEN
 
   secretObjects:
-    - secretName: app-secret-from-csms
+    - secretName: ms-app-config-server-keyvault-secrets
       type: Opaque
       data:
         - objectName: PORT
