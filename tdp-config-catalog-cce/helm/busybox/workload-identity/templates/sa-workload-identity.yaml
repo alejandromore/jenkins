@@ -2,3 +2,4 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: sa-workload-identity
+    cce.io/dew-resource: '["secret-app1-dev"]'

@@ -19,9 +19,9 @@ pipeline {
             description: 'Construir infraestructura con Terraform Base'
         )
         string(
-            name: '==== Node Identity ====',
+            name: '==== Node Identity ==== Activar manualmente en el CCE Pod Access to Metadata',
             defaultValue: '',
-            description: '--------------------------- Activar manualmente en el CCE Pod Access to Metadata'
+            description: ''
         )
         booleanParam(
             name: 'RUN_TERRAFORM_NODE_IDENTITY',
@@ -36,7 +36,7 @@ pipeline {
         string(
             name: '==== Workload Identity ====',
             defaultValue: '',
-            description: '--------------------------- Activar OIDC Provider en el CCE'
+            description: ''
         )
         booleanParam(
             name: 'RUN_TERRAFORM_WORKLOAD_IDENTITY',
@@ -51,7 +51,7 @@ pipeline {
         string(
             name: '==== Secret Store + Service Principal Legacy ====',
             defaultValue: '',
-            description: '---------------------------'
+            description: ''
         )
         booleanParam(
             name: 'RUN_TERRAFORM_SECRETS_STORE',
