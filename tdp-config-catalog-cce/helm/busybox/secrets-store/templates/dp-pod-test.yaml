@@ -39,6 +39,21 @@ spec:
             secretKeyRef:
               name: app-secret-from-csms
               key: USUARIO
+        - name: GIT_URI
+          valueFrom:
+            secretKeyRef:
+              name: app-secret-from-csms
+              key: GIT_URI
+        - name: GIT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: app-secret-from-csms
+              key: GIT_USERNAME
+        - name: GIT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: app-secret-from-csms
+              key: GIT_TOKEN
 
         volumeMounts:
         - name: secrets-store-inline
