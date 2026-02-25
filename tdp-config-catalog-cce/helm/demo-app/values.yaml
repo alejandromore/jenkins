@@ -22,7 +22,7 @@ catalogError:
     tag: "1.1" #usando AK y SK
     pullPolicy: Always
   secretName: ms-app-catalog-error-keyvault-secrets
-  enabled: true
+  enabled: false
 
 demoClient:
   replicaCount: 1
@@ -38,7 +38,7 @@ demoClient:
   enabled: false
 
 podTest:
-  enabled: false
+  enabled: true
 
 # Se inyecta dinámicamente desde Jenkins
 secretsStoreCreds:

@@ -89,14 +89,10 @@ resource "huaweicloud_identity_role" "csms_read_policy" {
       {
         Effect = "Allow"
         Action = [
-          #acceso aal DEW
           "csms:secret:list",
           "csms:secret:get",
           "csms:secretVersion:list",
           "csms:secretVersion:get",
-          #acceso al OBS
-          "obs:bucket:GetBucketLocation",
-          "obs:object:GetObject"
         ]
         Resource = ["*"]
       }
