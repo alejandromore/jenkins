@@ -132,3 +132,42 @@ resource "huaweicloud_identity_user_role_assignment" "cce_user_obs_role" {
   role_id               = huaweicloud_identity_role.obs_read_policy.id
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
+
+#######################################
+# DEW - Secret
+#######################################
+/*
+locals {
+  dew_secret_payload = {
+    URL      = "wwww.google.com"
+    USUARIO  = "alejandro"
+    PASSWORD = "P@ssw0rdSecure123!"
+    PORT     = "5432"
+  }
+}
+*/
+//Utiliza el AK y SK del usuario Terraform, no del usuario IAM para DEW
+locals {
+  secrets_file = yamldecode(file("secrets/secrets-dec.yaml"))
+  dew_secret_payload = merge(
+    local.secrets_file.stringData,
+    {
+      URL      = "wwww.google.com"
+      USUARIO  = "alejandro"
+      PASSWORD = "P@ssw0rdSecure123!"
+      PORT     = "5432"
+      HUAWEI_CLOUD_AK = huaweicloud_identity_access_key.cce_user_key.access
+      HUAWEI_CLOUD_SK = huaweicloud_identity_access_key.cce_user_key.secret
+    }
+  )
+}
+
+module "dew_secret" {
+  source = "../../../terraform-modules/dew"
+
+  secret_name           = var.dew_secret_name
+  secret_description    = var.dew_secret_description
+  secret_payload        = local.dew_secret_payload
+
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+}

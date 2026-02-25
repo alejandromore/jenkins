@@ -429,7 +429,7 @@ locals {
     PORT     = "5432"
   }
 }
-*/
+
 //Utiliza el AK y SK del usuario Terraform, no del usuario IAM para DEW
 locals {
   secrets_file = yamldecode(file("secrets/secrets-dec.yaml"))
@@ -453,7 +453,7 @@ module "dew_secret" {
 
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
-
+*/
 #######################################
 # Guardar valores en el KMS - Secrets
 #######################################
