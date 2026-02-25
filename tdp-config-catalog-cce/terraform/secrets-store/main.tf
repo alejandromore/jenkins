@@ -162,10 +162,6 @@ locals {
   HW_SK      = local.credentials["Secret Access Key"]
 }
 
-User ID,Access Key ID,Secret Access Key
-355b8746ec064d68ae3d5c7f471ad968,HPUAXZ0YZBK3SMTB03EI,sujwPuBxocdI9GW0ZDc0z87QOhfzCVfZJMpLinkr
-
-
 locals {
   secrets_file = yamldecode(file("${path.module}/secrets/secrets-dec.yaml"))
   dew_secret_payload = merge( 
