@@ -37,3 +37,18 @@ variable "tags" {
   default     = {}
 }
 
+# ============================================================================
+# VARIABLES PARA EL DEW
+# ============================================================================
+
+variable "dew_secret_name" {
+  description = "Nombre del Secret"
+  type        = string
+  default = ""
+}
+
+variable "dew_secret_description" {
+  description = "Descripcion del Secret"
+  type        = string
+  default = ""
+}

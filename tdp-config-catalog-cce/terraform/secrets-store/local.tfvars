@@ -15,3 +15,6 @@ tags                             = {
 
 key_pair_name                     = "basic-project-key"
 key_alias                         = "alias/infra-secrets-key"
+
+dew_secret_name                   = "secret-app1-dev"
+dew_secret_description            = "App Dev Secrets"
