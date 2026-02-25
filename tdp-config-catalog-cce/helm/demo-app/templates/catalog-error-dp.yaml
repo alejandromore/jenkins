@@ -1,3 +1,4 @@
+{{- if .Values.catalogError.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,3 +24,4 @@ spec:
                 name: {{ .Values.catalogError.secretName }}
       imagePullSecrets:
         - name: default-secret
+{{- end }}

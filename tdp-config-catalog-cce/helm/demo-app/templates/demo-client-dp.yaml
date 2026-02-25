@@ -1,3 +1,4 @@
+{{- if .Values.demoClient.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,3 +24,4 @@ spec:
                 name: {{ .Values.demoClient.secretName }}
       imagePullSecrets:
         - name: default-secret
+{{- end }}
