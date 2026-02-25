@@ -152,10 +152,15 @@ data "local_file" "cce_credentials" {
 }
 
 locals {
-  credentials_csv = csvdecode(data.local_file.cce_credentials.content)
+  # Eliminar BOM si existe
+  clean_csv = replace(
+    data.local_file.cce_credentials.content,
+    "\ufeff",
+    ""
+  )
 
-  # Primera fila del CSV
-  credentials = local.credentials_csv[0]
+  credentials_csv = csvdecode(local.clean_csv)
+  credentials     = local.credentials_csv[0]
 
   HW_USER_ID = local.credentials["User ID"]
   HW_AK      = local.credentials["Access Key ID"]
