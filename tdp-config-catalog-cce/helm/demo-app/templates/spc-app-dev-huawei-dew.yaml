@@ -79,9 +79,5 @@ spec:
           key: HUAWEI_END_POINT
         - objectName: HUAWEI_BUCKET_NAME
           key: HUAWEI_BUCKET_NAME
-        - objectName: CATALOG_ERROR_PROFILE
-          key: CATALOG_ERROR_PROFILE
         - objectName: FILE_NAME
           key: FILE_NAME
-
-

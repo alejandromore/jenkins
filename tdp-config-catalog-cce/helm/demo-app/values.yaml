@@ -9,7 +9,7 @@ configServer:
     tag: "1.2.4" #usando AK y SK
     pullPolicy: Always
   secretName: ms-app-config-server-keyvault-secrets
-  enabled: true
+  enabled: false
 
 catalogError:
   replicaCount: 1

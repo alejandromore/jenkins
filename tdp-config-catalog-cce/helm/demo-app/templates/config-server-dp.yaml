@@ -19,9 +19,6 @@ spec:
           imagePullPolicy: {{ .Values.configServer.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.configServer.port }}
-          #envFrom:
-          #  - secretRef:
-          #      name: {{ .Values.configServer.secretName }}
           env:
           - name: GIT_URI
             valueFrom:
