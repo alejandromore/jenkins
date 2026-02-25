@@ -90,7 +90,9 @@ resource "huaweicloud_identity_role" "csms_read_policy" {
         Effect = "Allow"
         Action = [
           "csms:secret:list",
-          "csms:secret:get"
+          "csms:secret:get",
+          "csms:secretVersion:list",
+          "csms:secretVersion:get"
         ]
         Resource = ["*"]
       }
