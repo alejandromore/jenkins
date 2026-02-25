@@ -163,7 +163,7 @@ locals {
 }
 
 locals {
-  secrets_file = yamldecode(file("secrets/secrets-enc.yaml"))
+  secrets_file = yamldecode(file("secrets/secrets-dec.yaml"))
   dew_secret_payload = merge( 
     local.secrets_file.stringData,
     {
