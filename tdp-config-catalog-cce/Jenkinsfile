@@ -283,8 +283,8 @@ pipeline {
                         --wait \
                         --timeout ${TIMEOUT_SECONDS}s \
                         --set elb.id=${elb_public_id} \
-                        --set access_key=${HW_AK} \
-                        --set secret_key=${HW_SK}
+                        --set secretsStoreCreds.access_key=${HW_AK} \
+                        --set secretsStoreCreds.secret_key=${HW_SK}
 
                         '''
                     }
