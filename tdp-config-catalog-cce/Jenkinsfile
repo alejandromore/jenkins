@@ -183,7 +183,7 @@ pipeline {
                 expression { params.RUN_TERRAFORM_SECRETS_STORE }
             }
             steps {
-                dir(env.TF_DIR_BASE) {
+                dir(env.TF_DIR_ST) {
 
                     withCredentials([
                         file(credentialsId: 'sops-gpg-key', variable: 'GPG_KEY_FILE')
