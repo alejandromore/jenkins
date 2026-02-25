@@ -18,10 +18,11 @@ catalogError:
     registry: swr.la-south-2.myhuaweicloud.com
     organization: cce-jenkins-integration-organization
     repository: catalog-error-hw
-    tag: "1.0"
+    #tag: "1.0" #usando agency
+    tag: "1.1" #usando AK y SK
     pullPolicy: Always
-  secretName: ms-app-config-server-keyvault-secrets
-  enabled: false
+  secretName: ms-app-catalog-error-keyvault-secrets
+  enabled: true
 
 demoClient:
   replicaCount: 1
@@ -34,6 +35,9 @@ demoClient:
   secretName: ms-app-config-server-keyvault-secrets
   port: 80
   targetPort: 8081
+  enabled: false
+
+podTest:
   enabled: false
 
 # Se inyecta dinámicamente desde Jenkins

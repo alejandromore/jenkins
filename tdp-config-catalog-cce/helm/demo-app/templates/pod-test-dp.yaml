@@ -1,3 +1,4 @@
+{{- if .Values.podTest.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,6 +18,12 @@ spec:
       - name: pod-test
         image: ubuntu:latest
         command: ["/bin/bash", "-c", "sleep infinity"]
+
+        envFrom:
+          - secretRef:
+              #name: ms-app-config-server-keyvault-secrets
+              name: ms-app-catalog-error-keyvault-secrets
+
         # Monta el volumen
         volumeMounts:
         - name: secrets-store-inline
@@ -32,3 +39,4 @@ spec:
           fsType: ext4
           volumeAttributes:
             secretProviderClass: "app-dev-huawei-dew"
+{{- end }}

@@ -36,14 +36,14 @@ spec:
             objectAlias: HUAWEI_CLOUD_SK
           - path: HUAWEI_CLOUD_SECRET_NAME
             objectAlias: HUAWEI_CLOUD_SECRET_NAME
+          - path: SCHEDULE_TIME
+            objectAlias: SCHEDULE_TIME
+          - path: CATALOG_ERROR_PROFILE
+            objectAlias: CATALOG_ERROR_PROFILE
           - path: HUAWEI_END_POINT
             objectAlias: HUAWEI_END_POINT
           - path: HUAWEI_BUCKET_NAME
             objectAlias: HUAWEI_BUCKET_NAME
-          - path: HUAWEI_BUCKET_NAME
-            objectAlias: HUAWEI_BUCKET_NAME
-          - path: SCHEDULE_TIME
-            objectAlias: SCHEDULE_TIME
           - path: FILE_NAME
             objectAlias: FILE_NAME 
 
@@ -75,6 +75,22 @@ spec:
           key: HUAWEI_CLOUD_SK
         - objectName: HUAWEI_CLOUD_SECRET_NAME
           key: HUAWEI_CLOUD_SECRET_NAME
+
+    - secretName: ms-app-catalog-error-keyvault-secrets
+      type: Opaque
+      data:
+        - objectName: HUAWEI_CLOUD_REGION
+          key: HUAWEI_CLOUD_REGION
+        - objectName: HUAWEI_CLOUD_PROJECT_ID
+          key: HUAWEI_CLOUD_PROJECT_ID
+        - objectName: HUAWEI_CLOUD_AK
+          key: HUAWEI_CLOUD_AK
+        - objectName: HUAWEI_CLOUD_SK
+          key: HUAWEI_CLOUD_SK
+        - objectName: SCHEDULE_TIME
+          key: SCHEDULE_TIME
+        - objectName: CATALOG_ERROR_PROFILE
+          key: CATALOG_ERROR_PROFILE
         - objectName: HUAWEI_END_POINT
           key: HUAWEI_END_POINT
         - objectName: HUAWEI_BUCKET_NAME
