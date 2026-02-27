@@ -23,11 +23,11 @@ credentials:
               description: Huawei Cloud Secret Key
 
           - file:
-              id: cce-jenkins-kubeconfig
+              id: cce-app-kubeconfig
               scope: GLOBAL
               fileName: kubeconfig
               secretBytes: ""
-              description: CCE Kubeconfig file for Jenkins
+              description: CCE Kubeconfig file for App
 
           - file:
               id: cce-app-kubeconfig
@@ -42,3 +42,4 @@ credentials:
               username: ""
               password: ""
               description: SWR Login Jenkins
+
