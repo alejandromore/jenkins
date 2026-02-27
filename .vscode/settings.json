@@ -1,3 +1,4 @@
 {
-    "ansible.python.interpreterPath": "c:\\Programs\\Python39\\python.exe"
+    "ansible.python.interpreterPath": "c:\\Programs\\Python39\\python.exe",
+    "yaml.validate": false
 }

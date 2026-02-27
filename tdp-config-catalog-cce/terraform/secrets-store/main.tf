@@ -92,7 +92,7 @@ resource "huaweicloud_identity_role" "csms_read_policy" {
           "csms:secret:list",
           "csms:secret:get",
           "csms:secretVersion:list",
-          "csms:secretVersion:get",
+          "csms:secretVersion:get"
         ]
         Resource = ["*"]
       }
