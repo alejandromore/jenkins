@@ -9,7 +9,7 @@ configServer:
     tag: "1.2.4" #usando AK y SK
     pullPolicy: Always
   secretName: ms-app-config-server-keyvault-secrets
-  enabled: false
+  enabled: true
 
 catalogError:
   replicaCount: 1
@@ -22,7 +22,7 @@ catalogError:
     tag: "1.1" #usando AK y SK
     pullPolicy: Always
   secretName: ms-app-catalog-error-keyvault-secrets
-  enabled: false
+  enabled: true
 
 demoClient:
   replicaCount: 1
@@ -35,10 +35,10 @@ demoClient:
   secretName: ms-app-config-server-keyvault-secrets
   port: 80
   targetPort: 8081
-  enabled: false
+  enabled: true
 
 podTest:
-  enabled: true
+  enabled: false
 
 # Se inyecta dinámicamente desde Jenkins
 secretsStoreCreds:
