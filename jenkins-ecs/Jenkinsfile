@@ -94,16 +94,13 @@ pipeline {
                             export HUAWEICLOUD_SECRET_KEY=${HWC_SECRET_KEY}
                             export HUAWEICLOUD_REGION=la-south-2
 
-                            SECRET=\$(hcloud csms secret-version get \
-                                --secret-name=basic-project-private-key \
-                                --query=secret_text \
-                                --output=text)
-
-                            pem_file=\$(mktemp)
-                            echo "\$SECRET" > \$pem_file
-                            chmod 600 \$pem_file
-
-                            echo "PEM_FILE=\$pem_file" > key.env
+                            VID=\$(hcloud csms ShowSecretStage --secret_name=basic-project-private-key --stage=SYSCURRENT --cli-query=version_id --cli-output=tsv)
+                            SEC=\$(hcloud csms ShowSecretVersion --secret_name=basic-project-private-key --version_id=\$VID --cli-query=version.secret_string --cli-output=tsv)
+                            
+                            PEM_PATH=\$(mktemp)
+                            printf "%b" "\$SEC" > "\$PEM_PATH"
+                            chmod 600 "\$PEM_PATH"
+                            echo "PEM_FILE=\$PEM_PATH" > key.env
                         """
                     }
                 }
