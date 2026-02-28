@@ -30,7 +30,6 @@ spec:
             - name: secrets-store-inline
               mountPath: "/mnt/secrets-store"
               readOnly: true
-
       volumes:
       # Define el volumen del SPC
       - name: secrets-store-inline

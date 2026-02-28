@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-start-script
+  labels:
+    app: config-server
+data:
+  start.sh: |
+    #!/bin/sh
+    set -e
+
+    SECRETS_PATH="/app/config-secrets"
+
+    echo "========================================="
+    echo " Inicializando contenedor..."
+    echo " Leyendo secretos desde: $SECRETS_PATH"
+    echo "========================================="
+
+    if [ ! -d "$SECRETS_PATH" ]; then
+      echo "ERROR: No existe el directorio $SECRETS_PATH"
+      exit 1
+    fi
+
+    if [ -z "$(ls -A $SECRETS_PATH)" ]; then
+      echo "ADVERTENCIA: El directorio de secretos está vacío"
+    fi
+
+    # Exportar cada archivo como variable de entorno
+    for file in "$SECRETS_PATH"/*; do
+      if [ -f "$file" ]; then
+        key=$(basename "$file")
+
+        # Limpiar saltos de línea y espacios finales
+        value=$(cat "$file" | tr -d '\r' | sed 's/[[:space:]]*$//')
+
+        export "$key=$value"
+
+        echo "✔ Variable cargada: $key"
+      fi
+    done
+
+    echo "========================================="
+    echo " Secretos cargados correctamente"
+    echo " Iniciando aplicación..."
+    echo "========================================="
+
+    exec "$@"
