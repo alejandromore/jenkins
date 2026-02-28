@@ -27,4 +27,5 @@ vpc_subnet_public_cidr            = "10.2.32.0/19"
 vpc_subnet_public_gateway_ip      = "10.2.32.1"
 
 ecs_public_name                   = "ecs-jenkins"
-key_pair_name                     = "basic-project-key"
+#key_pair_name                     = "basic-project-key"
+private_key_name                  = "basic-project-private-key"
