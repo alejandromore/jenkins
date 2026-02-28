@@ -94,16 +94,16 @@ pipeline {
                             export HUAWEICLOUD_SECRET_KEY=${HWC_SECRET_KEY}
                             export HUAWEICLOUD_REGION=la-south-2
 
-                            # Obtener PEM file desde CSMS
-                            SECRET=$(huaweicloud csms secret-version get \
-                            --secret-name basic-project-private-key \
-                            --query secret_text \
-                            --output text)
+                            SECRET=\$(huaweicloud csms secret-version get \
+                                --secret-name basic-project-private-key \
+                                --query secret_text \
+                                --output text)
 
-                            pem_file=$(mktemp)
-                            echo "$SECRET" > $pem_file
-                            chmod 600 $pem_file
-                            echo "PEM_FILE=$pem_file" > key.env
+                            pem_file=\$(mktemp)
+                            echo "\$SECRET" > \$pem_file
+                            chmod 600 \$pem_file
+
+                            echo "PEM_FILE=\$pem_file" > key.env
                         """
                     }
                 }
