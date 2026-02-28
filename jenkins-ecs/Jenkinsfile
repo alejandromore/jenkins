@@ -83,7 +83,7 @@ pipeline {
 
                     withCredentials([
                         string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
-                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY')
                     ]) {
 
                         sh """
