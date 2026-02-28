@@ -60,49 +60,11 @@ pipeline {
                         varsFile: 'local.tfvars',
                         action: params.ACTION,
                         outputs: [
-                            'ecs_public_ip'
+                            'ecs_public_ip',
+                            'private_key_content'
                         ] 
                     )
 
-                }
-            }
-        }
-
-        stage('Get Private Key') {
-
-            when {
-                allOf {
-                    expression { params.ACTION == 'deploy' }
-                    expression { params.RUN_ANSIBLE }
-                }
-            }
-
-            steps {
-                // Ejecutar el playbook de instalacion
-                dir(env.ANS_DIR) {
-
-                    withCredentials([
-                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
-                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY')
-                    ]) {
-
-                        sh """
-                            set -e
-                            
-                            # Configurar HCLOUD
-                            export HUAWEICLOUD_ACCESS_KEY=${HWC_ACCESS_KEY}
-                            export HUAWEICLOUD_SECRET_KEY=${HWC_SECRET_KEY}
-                            export HUAWEICLOUD_REGION=la-south-2
-
-                            VID=\$(hcloud csms ShowSecretStage --secret_name=basic-project-private-key --stage=SYSCURRENT --cli-query=version_id --cli-output=tsv)
-                            SEC=\$(hcloud csms ShowSecretVersion --secret_name=basic-project-private-key --version_id=\$VID --cli-query=version.secret_string --cli-output=tsv)
-                            
-                            PEM_PATH=\$(mktemp)
-                            printf "%b" "\$SEC" > "\$PEM_PATH"
-                            chmod 600 "\$PEM_PATH"
-                            echo "PEM_FILE=\$PEM_PATH" > key.env
-                        """
-                    }
                 }
             }
         }
@@ -126,17 +88,18 @@ pipeline {
                         string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
                         usernamePassword(credentialsId: 'swr-jenkins', usernameVariable: 'SWR_USER', passwordVariable: 'SWR_PASS')
                     ]) {
+                        env.ecs_private_key_path  = "${WORKSPACE}/ecs_private_key.txt"
 
                         sh """
                             set -e
-                            source key.env
+                            chmod 600 ${env.ecs_private_key_path}
                             
                             # Deshabilitar host key checking
                             export ANSIBLE_HOST_KEY_CHECKING=False
 
                             # Ejecutar playbook con todas las credenciales
                             ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \\
-                                --private-key "$pem_file" \\
+                                --private-key ${env.ecs_private_key_path} \\
                                 --extra-vars "ansible_host=${env.TARGET_IP} \\
                                             app_dir=/opt/jenkins \\
                                             swr_registry=swr.la-south-2.myhuaweicloud.com \\
