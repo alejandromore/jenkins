@@ -68,6 +68,48 @@ pipeline {
             }
         }
 
+        stage('Get Private Key') {
+
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE }
+                }
+            }
+
+            steps {
+                // Ejecutar el playbook de instalacion
+                dir(env.ANS_DIR) {
+
+                    withCredentials([
+                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
+                    ]) {
+
+                        sh """
+                            set -e
+                            
+                            # Configurar HCLOUD
+                            export HUAWEICLOUD_ACCESS_KEY=${HWC_ACCESS_KEY}
+                            export HUAWEICLOUD_SECRET_KEY=${HWC_SECRET_KEY}
+                            export HUAWEICLOUD_REGION=la-south-2
+
+                            # Obtener PEM file desde CSMS
+                            SECRET=$(huaweicloud csms secret-version get \
+                            --secret-name basic-project-private-key \
+                            --query secret_text \
+                            --output text)
+
+                            pem_file=$(mktemp)
+                            echo "$SECRET" > $pem_file
+                            chmod 600 $pem_file
+                            echo "PEM_FILE=$pem_file" > key.env
+                        """
+                    }
+                }
+            }
+        }
+
         stage('Deploy App with Ansible') {
 
             when {
@@ -78,21 +120,6 @@ pipeline {
             }
 
             steps {
-                // Obtener la clave privada
-                script {
-                    def key = sh(
-                        script: """
-                        hcloud CSMS ShowSecretVersion \
-                        --secret_name ${PRIVATE_KEY_NAME} \
-                        --version_id latest \
-                        | jq -r '.secret_text'
-                        """,
-                        returnStdout: true
-                    ).trim()
-
-                    writeFile file: 'id_rsa', text: key
-                    sh 'chmod 600 id_rsa'
-                }
                 // Ejecutar el playbook de instalacion
                 dir(env.ANS_DIR) {
 
@@ -105,10 +132,8 @@ pipeline {
 
                         sh """
                             set -e
-
-                            # Cargar PEM file
-                            chmod 400 "${env.pem_file}"
-
+                            source key.env
+                            
                             # Deshabilitar host key checking
                             export ANSIBLE_HOST_KEY_CHECKING=False
 
@@ -126,8 +151,8 @@ pipeline {
                                             hwc_secret_key=${HWC_SECRET_KEY} \\
                                             swr_username=${SWR_USER} \\
                                             swr_password=${SWR_PASS} \\
-                                            jenkins_admin_id=${JENKINS_ADMIN_ID} \\
-                                            jenkins_admin_password=${JENKINS_ADMIN_PASSWORD}"
+                                            jenkins_admin_id=${env.JENKINS_ADMIN_ID} \\
+                                            jenkins_admin_password=${env.JENKINS_ADMIN_PASSWORD}"
                         """
                     }
                 }
@@ -156,8 +181,8 @@ pipeline {
         failure {
             echo "Error en el pipeline"
         }
-        //always {
-        //    deleteDir()
-        //}
+        always {
+            deleteDir()
+        }
     }
 }
