@@ -84,8 +84,13 @@ variable "ecs_public_name" {
   default = ""
 }
 
-variable "private_key_name" {
+variable "key_pair_name" {
   description = "Nombre del key pair para el ECS"
+  type        = string
+}
+
+variable "private_key_name" {
+  description = "Nombre de la llave privada para el ECS"
   type        = string
 }
 
