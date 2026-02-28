@@ -111,7 +111,7 @@ pipeline {
                                             github_token=${GITHUB_TOKEN} \\
                                             hwc_access_key=${HWC_ACCESS_KEY} \\
                                             hwc_secret_key=${HWC_SECRET_KEY} \\
-                                            swr_username=${SWR_USER} \\
+                                            swr_user=${SWR_USER} \\
                                             swr_password=${SWR_PASS} \\
                                             jenkins_admin_id=${env.JENKINS_ADMIN_ID} \\
                                             jenkins_admin_password=${env.JENKINS_ADMIN_PASSWORD}"
