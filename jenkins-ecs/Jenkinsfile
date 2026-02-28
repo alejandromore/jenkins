@@ -95,9 +95,9 @@ pipeline {
                             export HUAWEICLOUD_REGION=la-south-2
 
                             SECRET=\$(hcloud csms secret-version get \
-                                --secret-name basic-project-private-key \
-                                --query secret_text \
-                                --output text)
+                                --secret-name=basic-project-private-key \
+                                --query=secret_text \
+                                --output=text)
 
                             pem_file=\$(mktemp)
                             echo "\$SECRET" > \$pem_file
