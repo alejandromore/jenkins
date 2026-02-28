@@ -156,7 +156,7 @@
     - name: Login to SWR registry
       shell: |
         echo "{{ swr_password }}" | docker login \
-          -u "{{ swr_username }}" \
+          -u "{{ swr_user }}" \
           --password-stdin \
           {{ swr_registry }}
       args:
