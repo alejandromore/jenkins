@@ -29,13 +29,6 @@ credentials:
               secretBytes: ""
               description: CCE Kubeconfig file for App
 
-          - file:
-              id: cce-app-kubeconfig
-              scope: GLOBAL
-              fileName: kubeconfig
-              secretBytes: ""
-              description: CCE Kubeconfig file for App
-
           - usernamePassword:
               id: swr-jenkins
               scope: GLOBAL
@@ -43,3 +36,10 @@ credentials:
               password: ""
               description: SWR Login Jenkins
 
+          - file:
+              id: sops-gpg-key
+              scope: GLOBAL
+              fileName: sops-gpg-key
+              secretBytes: ""
+              description: Key for SOPS
+              

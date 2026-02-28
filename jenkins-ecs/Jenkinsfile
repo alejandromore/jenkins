@@ -18,6 +18,11 @@ pipeline {
             defaultValue: false,
             description: 'Construir infraestructura con Terraform, asociar el agency manualmente'
         )
+        string(
+            name: 'TARGET_IP', 
+            defaultValue: '101.44.3.15', 
+            description: 'Hostname or IP address of the target server'
+        )
         booleanParam(
             name: 'RUN_ANSIBLE',
             defaultValue: false,
@@ -73,13 +78,22 @@ pipeline {
             }
 
             steps {
-                // Leer outputs generados previamente
+                // Obtener la clave privada
                 script {
-                    env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
-                    echo "ECS Public IP: ${env.ecs_public_ip}"
-                    env.pem_file = "${WORKSPACE}/jenkins-ecs/terraform/keys/pk-ecs-jenkins.pem"
-                }
+                    def key = sh(
+                        script: """
+                        hcloud CSMS ShowSecretVersion \
+                        --secret_name ${PRIVATE_KEY_NAME} \
+                        --version_id latest \
+                        | jq -r '.secret_text'
+                        """,
+                        returnStdout: true
+                    ).trim()
 
+                    writeFile file: 'id_rsa', text: key
+                    sh 'chmod 600 id_rsa'
+                }
+                // Ejecutar el playbook de instalacion
                 dir(env.ANS_DIR) {
 
                     withCredentials([
@@ -101,7 +115,7 @@ pipeline {
                             # Ejecutar playbook con todas las credenciales
                             ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \\
                                 --private-key "$pem_file" \\
-                                --extra-vars "ansible_host=${env.ecs_public_ip} \\
+                                --extra-vars "ansible_host=${env.TARGET_IP} \\
                                             app_dir=/opt/jenkins \\
                                             swr_registry=swr.la-south-2.myhuaweicloud.com \\
                                             image_name=cce-basic-app/jenkins-hwc:2.0 \\
