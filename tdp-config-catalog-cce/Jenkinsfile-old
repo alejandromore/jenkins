@@ -34,6 +34,21 @@ pipeline {
             description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
         )
         string(
+            name: '==== Node Identity ==== Activar manualmente en el CCE Pod Access to Metadata',
+            defaultValue: '',
+            description: ''
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM_NODE_IDENTITY',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform Node Identity'
+        )
+        booleanParam(
+            name: 'RUN_HELM_NODE_IDENTITY',
+            defaultValue: false,
+            description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
+        )
+        string(
             name: '==== Workload Identity ====',
             defaultValue: '',
             description: ''
@@ -59,9 +74,11 @@ pipeline {
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
         TF_DIR_BASE = 'tdp-config-catalog-cce/terraform/base'
+        TF_DIR_NI   = 'tdp-config-catalog-cce/terraform/node-identity'
         TF_DIR_WK   = 'tdp-config-catalog-cce/terraform/workload-identity'
         TF_DIR_ST   = 'tdp-config-catalog-cce/terraform/secrets-store'
         HELM_DIR_ST = 'tdp-config-catalog-cce/helm/demo-app'
+        HELM_DIR_NI = 'tdp-config-catalog-cce/helm/busybox/node-identity'
         HELM_DIR_WK = 'tdp-config-catalog-cce/helm/busybox/workload-identity'
         REGION      = 'la-south-2'
     }
@@ -92,6 +109,25 @@ pipeline {
                             'elb_public_id',
                             'kubeconfig'
                         ]
+                    )
+                }
+            }
+        }
+
+        // -----------------------------
+        // Terraform: infraestructura Node Identity
+        // -----------------------------
+        stage('Terraform Deploy Node Identity') {
+            when {
+                expression { params.RUN_TERRAFORM_NODE_IDENTITY }
+            }
+            steps {
+                script {
+                    terraformDeploy(
+                        dir: env.TF_DIR_NI,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: []
                     )
                 }
             }
@@ -249,6 +285,66 @@ pipeline {
                         --set elb.id=${elb_public_id} \
                         --set secretsStoreCreds.access_key=${HW_AK} \
                         --set secretsStoreCreds.secret_key=${HW_SK}
+
+                        '''
+                    }
+                }
+            }
+        }
+
+        // -----------------------------
+        // Helm desplegar las aplicaciones para Node Identity
+        // -----------------------------
+        stage('Deploy Demo App con Node Identity') {
+
+            when {
+                expression { params.RUN_HELM_NODE_IDENTITY }
+            }
+
+            environment {
+                NAMESPACE = "node-identity"
+                RELEASE_NAME = "node-identity"
+                TIMEOUT_SECONDS = "300"
+            }
+
+            steps {
+                script {
+                    // Lectura de archivos generados en stages previos
+                    env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
+                }
+
+                dir(env.HELM_DIR_NI) {
+
+                    withCredentials([
+                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                        //file(credentialsId: 'sops-gpg-key', variable: 'GPG_KEY_FILE')
+                    ]) {
+
+                        sh '''
+                        set -eo pipefail
+
+                        export KUBECONFIG=$KUBECONFIG
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Validando acceso al cluster CCE..."
+                        echo "=========================================="
+
+                        kubectl get nodes
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Desplegando Helm Release: ${RELEASE_NAME}"
+                        echo "Namespace: ${NAMESPACE}"
+                        echo "Chart Dir: node-identity"
+                        echo "=========================================="
+
+                        helm upgrade --install ${RELEASE_NAME} . \
+                        -n ${NAMESPACE} \
+                        --create-namespace \
+                        --wait \
+                        --timeout ${TIMEOUT_SECONDS}s
 
                         '''
                     }
