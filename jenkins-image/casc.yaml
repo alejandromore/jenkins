@@ -32,8 +32,8 @@ credentials:
           - usernamePassword:
               id: swr-jenkins
               scope: GLOBAL
-              username: ""
-              password: ""
+              username: ${SWR_USER}
+              password: ${SWR_PASSWORD}
               description: SWR Login Jenkins
 
           - file:
