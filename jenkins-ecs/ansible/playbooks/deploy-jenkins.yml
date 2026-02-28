@@ -148,7 +148,7 @@
           JENKINS_ADMIN_PASSWORD={{ jenkins_admin_password }}
           SWR_USER={{ swr_user }}
           SWR_PASSWORD={{ swr_password }}
-      no_log: true
+      no_log: false
 
     # -----------------------------
     # Jenkins deploy
