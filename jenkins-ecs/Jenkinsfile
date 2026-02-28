@@ -16,7 +16,7 @@ pipeline {
         booleanParam(
             name: 'RUN_TERRAFORM',
             defaultValue: false,
-            description: 'Construir infraestructura con Terraform, asociar el agency manualmente'
+            description: 'Construir infraestructura con Terraform'
         )
         string(
             name: 'TARGET_IP', 
@@ -126,8 +126,8 @@ pipeline {
                                             hwc_secret_key=${HWC_SECRET_KEY} \\
                                             swr_username=${SWR_USER} \\
                                             swr_password=${SWR_PASS} \\
-                                            jenkins_admin_id=alejandro \\
-                                            jenkins_admin_password=ingE2004#"
+                                            jenkins_admin_id=${JENKINS_ADMIN_ID} \\
+                                            jenkins_admin_password=${JENKINS_ADMIN_PASSWORD}"
                         """
                     }
                 }

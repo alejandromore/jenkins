@@ -9,6 +9,13 @@ tags                             = {
     costcenter  = "it-001"
 }
 
+cloud_init_config = <<-EOF
+  #cloud-config
+  timezone: America/Lima
+  runcmd:
+    - [ timedatectl, set-timezone, America/Lima ]
+EOF
+
 security_group_public_name        = "sg-jenkins-public"
 
 vpc_name                          = "vpc-jenkins"
@@ -20,3 +27,4 @@ vpc_subnet_public_cidr            = "10.2.32.0/19"
 vpc_subnet_public_gateway_ip      = "10.2.32.1"
 
 ecs_public_name                   = "ecs-jenkins"
+key_pair_name                     = "basic-project-key"
