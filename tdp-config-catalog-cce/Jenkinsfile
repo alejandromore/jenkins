@@ -253,12 +253,12 @@ pipeline {
                         echo ""
                         echo "=========================================="
                         echo "Iniciando Health Check público..."
-                        echo "ELB IP: ${env.elb_public_ip}"
+                        echo "ELB IP: ${elb_public_ip}"
                         echo "=========================================="
 
                         for i in \$(seq 1 20); do
                         echo "Intento \$i..."
-                        if curl -sf http://${env.elb_public_ip}/index.html; then
+                        if curl -sf http://${elb_public_ip}/index.html; then
                             echo ""
                             echo "Aplicación disponible y funcionando correctamente."
                             exit 0
