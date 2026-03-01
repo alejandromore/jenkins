@@ -83,7 +83,6 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
 ############################################
 # Identity Group and Role Assignments
 ############################################
-/*
 # Groups: group_name_obs and group_name_dew
 resource "huaweicloud_identity_group" "obs_group" {
   name        = var.group_name_obs
@@ -113,7 +112,7 @@ resource "huaweicloud_identity_role" "obs_read_policy" {
     ]
   })
 }
-
+/*
 resource "huaweicloud_identity_group_role_assignment" "obs_group_assignment" {
   group_id = huaweicloud_identity_group.obs_group.id
   role_id  = huaweicloud_identity_role.obs_read_policy.id
@@ -123,7 +122,7 @@ resource "huaweicloud_identity_group_role_assignment" "obs_group_assignment" {
     create_before_destroy = true
   }
 }
-
+*/
 resource "huaweicloud_identity_group" "dew_group" {
   name        = var.group_name_dew
   description = "IAM group for CCE Workload Identity - Dew"
@@ -151,7 +150,7 @@ resource "huaweicloud_identity_role" "dew_read_policy" {
     ]
   })
 }
-
+/*
 resource "huaweicloud_identity_group_role_assignment" "dew_group_assignment" {
   group_id = huaweicloud_identity_group.dew_group.id
   role_id  = huaweicloud_identity_role.dew_read_policy.id
