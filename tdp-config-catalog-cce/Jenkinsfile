@@ -109,6 +109,8 @@ pipeline {
                         sh '''
                         set -eo pipefail
 
+                        mkdir -p secrets
+
                         export GNUPGHOME=$(mktemp -d)
 
                         gpg --batch --import "$GPG_KEY_FILE"
@@ -120,21 +122,23 @@ pipeline {
                         ls -l secrets
                         '''
                     }
-                    withCredentials([
-                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
-                    ]) {
 
-                        // Obtener JWKS usando el kubeconfig inyectado
-                        env.JWKS = sh(
-                            script: '''
-                                export KUBECONFIG=$KUBECONFIG
-                                kubectl get --raw /openid/v1/jwks | jq -c .
-                            ''',
-                            returnStdout: true
-                        ).trim()
+                    script {
+
+                        withCredentials([
+                            file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                        ]) {
+
+                            env.JWKS = sh(
+                                script: '''
+                                    export KUBECONFIG=$KUBECONFIG
+                                    kubectl get --raw /openid/v1/jwks | jq -c .
+                                ''',
+                                returnStdout: true
+                            ).trim()
+                        }
                     }
 
-                    // Exportar variables para Terraform (forma correcta en Jenkins)
                     withEnv([
                         "TF_VAR_oidc_jwks=${env.JWKS}",
                         "TF_VAR_namespace=workload-identity",
