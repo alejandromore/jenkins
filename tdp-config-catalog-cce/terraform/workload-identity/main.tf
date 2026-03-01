@@ -117,6 +117,11 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
     {
       local = [
         {
+          user: {
+            name = "cce-workload-user"
+          }
+        },
+        {
           group = {
             name = huaweicloud_identity_group.obs_group.name
           }
@@ -133,6 +138,11 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
     },
     {
       local = [
+        {
+          user: {
+            name = "cce-workload-user"
+          }
+        },
         {
           group = {
             name = huaweicloud_identity_group.dew_group.name
