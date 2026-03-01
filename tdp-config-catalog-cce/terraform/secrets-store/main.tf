@@ -188,6 +188,10 @@ locals {
   )
 }
 
+output "dew_secret_payload_debug" {
+  value = local.dew_secret_payload
+}
+
 module "dew_secret" {
   source = "../../../terraform-modules/dew"
 
