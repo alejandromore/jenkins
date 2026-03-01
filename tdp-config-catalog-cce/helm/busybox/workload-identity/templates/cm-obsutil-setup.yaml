@@ -41,19 +41,6 @@ data:
         }
       }")
 
-
-curl -i --location --request POST 'https://iam.la-south-2.myhuaweicloud.com/v3.0/OS-AUTH/id-token/tokens' \
-  -H "X-Idp-Id: cce-workload-oidc" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"auth\": {
-      \"id_token\": {\"id\": \"${OIDC_TOKEN}\"},
-      \"scope\": {
-        \"project\": {\"name\": \"la-south-2\"}
-      }
-    }
-  }"
-
     echo "$IAM_RESPONSE"
 
     IAM_TOKEN=$(echo "$IAM_RESPONSE" | awk '/X-Subject-Token/ {print $2}' | tr -d '\r')
