@@ -196,7 +196,7 @@ pipeline {
                 script {
                     // Lectura de archivos generados en stages previos
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
-                    env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
+                    //env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
                 }
                 // Leer archivo de credentiales CSV
                 dir(env.TF_DIR_ST) {
