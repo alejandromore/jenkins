@@ -128,7 +128,7 @@ pipeline {
                             dir: env.TF_DIR_WK,
                             varsFile: 'local.tfvars',
                             action: params.ACTION,
-                            outputs: []
+                            outputs: ['idp_id']
                         )
                     }
                 }
@@ -288,6 +288,7 @@ pipeline {
                     // Lectura de archivos generados en stages previos
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
+                    env.idp_id = readFile("${WORKSPACE}/idp_id.txt").trim()
                     env.JWKS = sh(script: "kubectl get --raw /openid/v1/jwks | jq -c .", returnStdout: true).trim()
                 }
 
@@ -320,8 +321,8 @@ pipeline {
                         -n ${NAMESPACE} \
                         --create-namespace \
                         --wait \
-                        --timeout ${TIMEOUT_SECONDS}s
-
+                        --timeout ${TIMEOUT_SECONDS}s \
+                        --set idp_id=${idp_id} 
 
                         echo ""
                         echo "=========================================="

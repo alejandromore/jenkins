@@ -31,7 +31,7 @@ data:
     IAM_RESPONSE=$(curl -s -D - \
       -X POST https://iam.la-south-2.myhuaweicloud.com/v3.0/OS-AUTH/id-token/tokens \
       -H "Content-Type: application/json" \
-      -H "X-Idp-Id: cce-workload-oidc" \
+      -H "X-Idp-Id: ${IDP_ID}" \
       -d "{
         \"auth\": {
           \"id_token\": {\"id\": \"${OIDC_TOKEN}\"},
