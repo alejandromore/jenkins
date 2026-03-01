@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-base
+data:
+  setup-base.sh: |
+    #!/bin/bash
+    set -e
+    export DEBIAN_FRONTEND=noninteractive
+    echo "Instalando dependencias necesarias..."
+
+    apt-get update -qq
+    apt-get install -y -qq \
+        curl \
+        jq \
+        tar \
+        ca-certificates
+    
+    echo "Setup finalizado."
