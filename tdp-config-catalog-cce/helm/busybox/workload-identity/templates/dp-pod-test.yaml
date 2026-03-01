@@ -14,23 +14,25 @@ spec:
     spec:
       serviceAccountName: sa-obs-workload-identity
 
-      initContainers:
-      - name: setup-base
-        image: ubuntu:22.04
-        command: ["/bin/bash", "/scripts/setup-base.sh"]
-        volumeMounts:
-        - name: setup-script
-          mountPath: /scripts
-
       containers:
       - name: pod-test
         image: ubuntu:22.04
-        command: ["sleep", "infinity"]
+
+        command:
+        - /bin/bash
+        - -c
+        - |
+          /scripts/setup-base.sh
+          echo "Contenedor listo..."
+          sleep infinity
 
         volumeMounts:
         - name: oidc-token
           mountPath: /var/run/secrets/tokens
           readOnly: true
+
+        - name: setup-script
+          mountPath: /scripts
 
       volumes:
       - name: oidc-token
