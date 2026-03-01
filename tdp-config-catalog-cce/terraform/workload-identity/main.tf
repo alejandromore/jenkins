@@ -37,7 +37,7 @@ data "huaweicloud_compute_flavors" "myflavor" {
 resource "huaweicloud_cce_node_pool" "nodepool" {
   cluster_id         = data.huaweicloud_csms_secret_version.cluster_id.secret_text
   name               = "cce-nodepool-public"
-  initial_node_count = 2
+  initial_node_count = 1
   subnet_id          = data.huaweicloud_csms_secret_version.subnet_id.secret_text
   flavor_id          = data.huaweicloud_compute_flavors.myflavor.flavors[0].id
   availability_zone  = data.huaweicloud_availability_zones.myaz.names[0]

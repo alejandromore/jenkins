@@ -18,8 +18,9 @@ services:
       - /usr/local/bin/sops:/usr/local/bin/sops:ro
 
     environment:
-      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false -Duser.timezone=America/Lima"
       CASC_JENKINS_CONFIG: /var/jenkins_home/casc.yaml
+      TZ: America/Lima
 
     restart: unless-stopped
 
