@@ -83,16 +83,39 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
 ############################################
 # Identity Group and Role Assignments
 ############################################
+# Groups: group_name_obs and group_name_dew
 resource "huaweicloud_identity_group" "obs_group" {
   name        = var.group_name_obs
   description = "IAM group for CCE Workload Identity - OBS"
 }
 
-resource "huaweicloud_identity_group_role_assignment" "obs_assignment" {
-  group_id   = huaweicloud_identity_group.obs_group.id
-  role_id    = "8eb36151949e434e857a3446e58cf107" # OBS Administrator
-  #enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-  project_id = var.project_id
+# Crear rol con permisos de lectura a OBS
+resource "huaweicloud_identity_role" "obs_read_policy" {
+  name        = "obs-read-policy"
+  description = "Allow list and download access to all OBS buckets"
+  type        = "XA"
+
+  policy = jsonencode({
+    Version = "1.1"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "obs:bucket:ListAllMybuckets",
+          "obs:bucket:HeadBucket",
+          "obs:bucket:ListBucket",
+          "obs:bucket:GetBucketLocation",
+          "obs:object:GetObject"
+        ]
+        Resource = ["*"]
+      }
+    ]
+  })
+}
+
+resource "huaweicloud_identity_group_role_assignment" "obs_group_assignment" {
+  group_id = huaweicloud_identity_group.obs_group.id
+  role_id  = huaweicloud_identity_role.obs_read_policy.id
 }
 
 resource "huaweicloud_identity_group" "dew_group" {
@@ -100,11 +123,32 @@ resource "huaweicloud_identity_group" "dew_group" {
   description = "IAM group for CCE Workload Identity - Dew"
 }
 
-resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
-  group_id   = huaweicloud_identity_group.dew_group.id
-  role_id    = "0536f2ae1ea5465ca498c7f98ad58510" # CSMS Administrator
-  #enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-  project_id = var.project_id
+# Crear rol con permisos de lectura a CSMS (KMS)
+resource "huaweicloud_identity_role" "dew_read_policy" {
+  name        = "dew-read-policy"
+  description = "Allow read access to CSMS secrets for CCE"
+  type        = "XA"
+
+  policy = jsonencode({
+    Version = "1.1"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "csms:secret:list",
+          "csms:secret:get",
+          "csms:secretVersion:list",
+          "csms:secretVersion:get"
+        ]
+        Resource = ["*"]
+      }
+    ]
+  })
+}
+
+resource "huaweicloud_identity_group_role_assignment" "dew_group_assignment" {
+  group_id = huaweicloud_identity_group.dew_group.id
+  role_id  = huaweicloud_identity_role.dew_read_policy.id
 }
 
 ############################################

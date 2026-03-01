@@ -41,17 +41,28 @@ data:
         }
       }")
 
-    echo "$IAM_RESPONSE"
+    echo "IAM RESPONSE: $IAM_RESPONSE"
 
     IAM_TOKEN=$(echo "$IAM_RESPONSE" | awk '/X-Subject-Token/ {print $2}' | tr -d '\r')
 
     echo "IAM TOKEN: $IAM_TOKEN"
 
     echo "Obtener credenciales temporales STS..."
-    STS_RESPONSE=$(curl -s -X POST https://iam.la-south-2.myhuaweicloud.com/v3.0/OS-CREDENTIAL/securitytokens \
+    STS_RESPONSE=$(curl -s -X POST \
+      https://iam.la-south-2.myhuaweicloud.com/v3.0/OS-CREDENTIAL/securitytokens \
+      -H "Content-Type: application/json" \
       -H "X-Auth-Token: ${IAM_TOKEN}" \
-      -H "Content-Type: application/json")
-    echo "STS RESPONSE: $STS_RESPONSE".
+      -d '{
+            "auth": {
+              "identity": {
+                "methods": ["token"],
+                "token": {
+                  "id": "'"${IAM_TOKEN}"'"
+                }
+              }
+            }
+          }')
+    echo "STS RESPONSE: $STS_RESPONSE"
 
     AK=$(echo "$STS_RESPONSE" | jq -r '.credential.access')
     SK=$(echo "$STS_RESPONSE" | jq -r '.credential.secret')
