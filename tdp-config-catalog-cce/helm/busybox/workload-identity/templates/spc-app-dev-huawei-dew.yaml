@@ -1,0 +1,85 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: app-dev-huawei-dew
+spec:
+  provider: dew
+  parameters:
+    objects: |
+      - objectName: "secret-app1-dev"
+        objectType: "csms"
+        objectVersion: "latest"
+        jmesPath:
+          - path: PORT
+            objectAlias: PORT
+          - path: PASSWORD
+            objectAlias: PASSWORD
+          - path: URL
+            objectAlias: URL
+          - path: USUARIO
+            objectAlias: USUARIO
+          - path: GIT_URI
+            objectAlias: GIT_URI
+          - path: GIT_USERNAME
+            objectAlias: GIT_USERNAME
+          - path: GIT_TOKEN
+            objectAlias: GIT_TOKEN
+          - path: HUAWEI_CLOUD_REGION
+            objectAlias: HUAWEI_CLOUD_REGION
+          - path: HUAWEI_CLOUD_PROJECT_ID
+            objectAlias: HUAWEI_CLOUD_PROJECT_ID
+          - path: HUAWEI_CLOUD_SECRET_NAME
+            objectAlias: HUAWEI_CLOUD_SECRET_NAME
+          - path: SCHEDULE_TIME
+            objectAlias: SCHEDULE_TIME
+          - path: CATALOG_ERROR_PROFILE
+            objectAlias: CATALOG_ERROR_PROFILE
+          - path: HUAWEI_END_POINT
+            objectAlias: HUAWEI_END_POINT
+          - path: HUAWEI_BUCKET_NAME
+            objectAlias: HUAWEI_BUCKET_NAME
+          - path: FILE_NAME
+            objectAlias: FILE_NAME 
+
+  secretObjects:
+    - secretName: ms-app-config-server-keyvault-secrets
+      type: Opaque
+      data:
+        - objectName: PORT
+          key: PORT
+        - objectName: PASSWORD
+          key: PASSWORD
+        - objectName: URL
+          key: URL
+        - objectName: USUARIO
+          key: USUARIO
+        - objectName: GIT_URI
+          key: GIT_URI
+        - objectName: GIT_USERNAME
+          key: GIT_USERNAME
+        - objectName: GIT_TOKEN
+          key: GIT_TOKEN
+        - objectName: HUAWEI_CLOUD_REGION
+          key: HUAWEI_CLOUD_REGION
+        - objectName: HUAWEI_CLOUD_PROJECT_ID
+          key: HUAWEI_CLOUD_PROJECT_ID
+        - objectName: HUAWEI_CLOUD_SECRET_NAME
+          key: HUAWEI_CLOUD_SECRET_NAME
+
+    - secretName: ms-app-catalog-error-keyvault-secrets
+      type: Opaque
+      data:
+        - objectName: HUAWEI_CLOUD_REGION
+          key: HUAWEI_CLOUD_REGION
+        - objectName: HUAWEI_CLOUD_PROJECT_ID
+          key: HUAWEI_CLOUD_PROJECT_ID
+        - objectName: SCHEDULE_TIME
+          key: SCHEDULE_TIME
+        - objectName: CATALOG_ERROR_PROFILE
+          key: CATALOG_ERROR_PROFILE
+        - objectName: HUAWEI_END_POINT
+          key: HUAWEI_END_POINT
+        - objectName: HUAWEI_BUCKET_NAME
+          key: HUAWEI_BUCKET_NAME
+        - objectName: FILE_NAME
+          key: FILE_NAME
