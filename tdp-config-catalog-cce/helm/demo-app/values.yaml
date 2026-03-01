@@ -22,7 +22,7 @@ catalogError:
     tag: "1.1" #usando AK y SK
     pullPolicy: Always
   secretName: ms-app-catalog-error-keyvault-secrets
-  enabled: false
+  enabled: true
 
 demoClient:
   replicaCount: 1
@@ -35,7 +35,7 @@ demoClient:
   secretName: ms-app-config-server-keyvault-secrets
   port: 80
   targetPort: 8081
-  enabled: false
+  enabled: true
 
 podTest:
   enabled: false
