@@ -37,8 +37,13 @@ variable "client_id" {
   type        = string
 }
 
-variable "group_name" {
-  description = "Name of the IAM group for the workload"
+variable "group_name_obs" {
+  description = "Name of the IAM group for the OBS workload"
+  type        = string
+}
+
+variable "group_name_dew" {
+  description = "Name of the IAM group for the Dew workload"
   type        = string
 }
 
