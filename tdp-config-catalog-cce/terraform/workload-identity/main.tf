@@ -83,6 +83,7 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
 ############################################
 # Identity Group and Role Assignments
 ############################################
+/*
 # Groups: group_name_obs and group_name_dew
 resource "huaweicloud_identity_group" "obs_group" {
   name        = var.group_name_obs
@@ -160,7 +161,7 @@ resource "huaweicloud_identity_group_role_assignment" "dew_group_assignment" {
     create_before_destroy = true
   }
 }
-
+*/
 ############################################
 # Identity Provider Mapping
 ############################################
