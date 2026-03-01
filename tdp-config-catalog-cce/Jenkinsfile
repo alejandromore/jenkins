@@ -48,11 +48,6 @@ pipeline {
             defaultValue: false,
             description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
         )
-        booleanParam(
-            name: 'CLEAN_WORKSPACE',
-            defaultValue: false,
-            description: 'Limpiar workspace'
-        )
     }
 
     environment {
@@ -125,7 +120,8 @@ pipeline {
                     withEnv([
                         "TF_VAR_oidc_jwks=${env.JWKS}",
                         "TF_VAR_namespace=workload-identity",
-                        "TF_VAR_service_account_name=sa-workload-identity"
+                        "TF_VAR_obs_service_account_name=sa-obs-workload-identity",
+                        "TF_VAR_dew_service_account_name=sa-dew-workload-identity"
                     ]) {
 
                         terraformDeploy(

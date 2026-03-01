@@ -12,59 +12,31 @@ spec:
       labels:
         app: pod-test
     spec:
-      # ServiceAccount mapeado en IAM
-      serviceAccountName: sa-workload-identity
+      serviceAccountName: sa-obs-workload-identity
 
       containers:
       - name: pod-test
-        image: ubuntu:latest
-        command: ["/bin/bash", "-c", "sleep infinity"]
+        image: ubuntu:22.04
+        command: ["/bin/bash", "/scripts/setup-obs.sh"]
 
         volumeMounts:
-        # Token OIDC proyectado
         - name: oidc-token
           mountPath: /var/run/secrets/tokens
           readOnly: true
-        # Secretos del DEW
-        - name: secrets-store-inline
-          mountPath: /mnt/secrets-store
-          readOnly: true
 
-        env:
-        - name: PORT
-          valueFrom:
-            secretKeyRef:
-              name: app-secret-from-csms
-              key: PORT
-        - name: PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: app-secret-from-csms
-              key: PASSWORD
-        - name: URL
-          valueFrom:
-            secretKeyRef:
-              name: app-secret-from-csms
-              key: URL
-        - name: USUARIO
-          valueFrom:
-            secretKeyRef:
-              name: app-secret-from-csms
-              key: USUARIO
+        - name: setup-script
+          mountPath: /scripts
 
       volumes:
-      # Token OIDC proyectado para Workload Identity
       - name: oidc-token
         projected:
           sources:
           - serviceAccountToken:
               path: oidc-token
               expirationSeconds: 7200
-              audience: huawei-cce   # ← Debe coincidir EXACTAMENTE con client_id del Identity Provider
+              audience: huawei-cce
 
-      - name: secrets-store-inline
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: "app-dev-huawei-dew"
+      - name: setup-script
+        configMap:
+          name: cm-obsutil-setup
+          defaultMode: 0755

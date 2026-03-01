@@ -13,7 +13,7 @@ spec:
         app: pod-obs-test
     spec:
       # ServiceAccount mapeado en IAM
-      serviceAccountName: sa-workload-identity
+      serviceAccountName: sa-obs-workload-identity
 
       containers:
       - name: pod-obs-test

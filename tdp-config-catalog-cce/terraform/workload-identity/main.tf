@@ -83,19 +83,24 @@ resource "huaweicloud_identity_provider" "cce_oidc" {
 ############################################
 # Identity Group and Role Assignments
 ############################################
-resource "huaweicloud_identity_group" "workload_group" {
-  name        = var.group_name
-  description = "IAM group for CCE Workload Identity"
+resource "huaweicloud_identity_group" "obs_group" {
+  name        = var.group_name_obs
+  description = "IAM group for CCE Workload Identity - OBS"
 }
 
 resource "huaweicloud_identity_group_role_assignment" "obs_assignment" {
-  group_id   = huaweicloud_identity_group.workload_group.id
+  group_id   = huaweicloud_identity_group.obs_group.id
   role_id    = "8eb36151949e434e857a3446e58cf107" # OBS Administrator
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
+resource "huaweicloud_identity_group" "dew_group" {
+  name        = var.group_name_dew
+  description = "IAM group for CCE Workload Identity - Dew"
+}
+
 resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
-  group_id   = huaweicloud_identity_group.workload_group.id
+  group_id   = huaweicloud_identity_group.dew_group.id
   role_id    = "0536f2ae1ea5465ca498c7f98ad58510" # CSMS Administrator
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
@@ -103,7 +108,7 @@ resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
 ############################################
 # Identity Provider Mapping
 ############################################
-resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
+resource "huaweicloud_identity_provider_mapping" "obs_workload_mapping" {
   provider_id = huaweicloud_identity_provider.cce_oidc.id
 
   mapping_rules = jsonencode([
@@ -111,7 +116,7 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
       local = [
         {
           group = {
-            name = huaweicloud_identity_group.workload_group.name
+            name = huaweicloud_identity_group.obs_group.name
           }
         }
       ]
@@ -119,7 +124,31 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
         {
           type = "UserName"
           any_one_of = [
-            "system:serviceaccount:${var.namespace}:${var.service_account_name}"
+            "system:serviceaccount:${var.namespace}:${var.obs_service_account_name}"
+          ]
+        }
+      ]
+    }
+  ])
+}
+
+resource "huaweicloud_identity_provider_mapping" "dew_workload_mapping" {
+  provider_id = huaweicloud_identity_provider.cce_oidc.id
+
+  mapping_rules = jsonencode([
+    {
+      local = [
+        {
+          group = {
+            name = huaweicloud_identity_group.dew_group.name
+          }
+        }
+      ]
+      remote = [
+        {
+          type = "UserName"
+          any_one_of = [
+            "system:serviceaccount:${var.namespace}:${var.dew_service_account_name}"
           ]
         }
       ]

@@ -56,7 +56,13 @@ variable "namespace" {
   default     = "default"
 }
 
-variable "service_account_name" {
+variable "obs_service_account_name" {
+  description = "Name of the service account"
+  type        = string
+  default     = ""
+}
+
+variable "dew_service_account_name" {
   description = "Name of the service account"
   type        = string
   default     = ""
