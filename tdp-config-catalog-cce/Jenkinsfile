@@ -100,7 +100,7 @@ pipeline {
                 expression { params.RUN_TERRAFORM_WORKLOAD_IDENTITY }
             }
             steps {
-                dir(env.TF_DIR_ST) {
+                dir(env.TF_DIR_WK) {
 
                     withCredentials([
                         file(credentialsId: 'sops-gpg-key', variable: 'GPG_KEY_FILE')
@@ -120,9 +120,6 @@ pipeline {
                         ls -l secrets
                         '''
                     }
-                }
-                script {
-
                     withCredentials([
                         file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
                     ]) {
