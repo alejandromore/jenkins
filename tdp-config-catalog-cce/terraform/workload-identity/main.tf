@@ -122,7 +122,7 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
       ]
       remote = [
         {
-          type = "UserName"
+          type = "sub"
           any_one_of = [
             "system:serviceaccount:${var.namespace}:${var.obs_service_account_name}"
           ]
@@ -139,7 +139,7 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
       ]
       remote = [
         {
-          type = "UserName"
+          type = "sub"
           any_one_of = [
             "system:serviceaccount:${var.namespace}:${var.dew_service_account_name}"
           ]
