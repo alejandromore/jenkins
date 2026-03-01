@@ -181,9 +181,7 @@ locals {
       PASSWORD = "P@ssw0rdSecure123!"
       PORT     = "5432"
       HUAWEI_CLOUD_AK = local.HW_AK
-      #HUAWEI_CLOUD_AK = huaweicloud_identity_access_key.cce_user_key.id
       HUAWEI_CLOUD_SK = local.HW_SK
-      #HUAWEI_CLOUD_SK = huaweicloud_identity_access_key.cce_user_key.secret
     }
   )
 }
