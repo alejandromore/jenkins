@@ -122,38 +122,39 @@ pipeline {
                         ls -l secrets
                         '''
                     }
+                }
 
-                    script {
+                script {
 
-                        withCredentials([
-                            file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
-                        ]) {
-
-                            env.JWKS = sh(
-                                script: '''
-                                    export KUBECONFIG=$KUBECONFIG
-                                    kubectl get --raw /openid/v1/jwks | jq -c .
-                                ''',
-                                returnStdout: true
-                            ).trim()
-                        }
-                    }
-
-                    withEnv([
-                        "TF_VAR_oidc_jwks=${env.JWKS}",
-                        "TF_VAR_namespace=workload-identity",
-                        "TF_VAR_obs_service_account_name=sa-obs-workload-identity",
-                        "TF_VAR_dew_service_account_name=sa-dew-workload-identity"
+                    withCredentials([
+                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
                     ]) {
 
-                        terraformDeploy(
-                            dir: env.TF_DIR_WK,
-                            varsFile: 'local.tfvars',
-                            action: params.ACTION,
-                            outputs: ['idp_id']
-                        )
+                        env.JWKS = sh(
+                            script: '''
+                                export KUBECONFIG=$KUBECONFIG
+                                kubectl get --raw /openid/v1/jwks | jq -c .
+                            ''',
+                            returnStdout: true
+                        ).trim()
                     }
                 }
+
+                withEnv([
+                    "TF_VAR_oidc_jwks=${env.JWKS}",
+                    "TF_VAR_namespace=workload-identity",
+                    "TF_VAR_obs_service_account_name=sa-obs-workload-identity",
+                    "TF_VAR_dew_service_account_name=sa-dew-workload-identity"
+                ]) {
+
+                    terraformDeploy(
+                        dir: env.TF_DIR_WK,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: ['idp_id']
+                    )
+                }
+                
             }
         }
 
