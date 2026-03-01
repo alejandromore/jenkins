@@ -41,8 +41,6 @@ data:
         }
       }")
 
-    echo "IAM RESPONSE: $IAM_RESPONSE"
-
     IAM_TOKEN=$(echo "$IAM_RESPONSE" | awk '/X-Subject-Token/ {print $2}' | tr -d '\r')
 
     echo "IAM TOKEN: $IAM_TOKEN"
@@ -75,7 +73,7 @@ data:
       -t "$SECURITY_TOKEN" \
       -e obs.la-south-2.myhuaweicloud.com
 
-    # echo "Verificando acceso a OBS..."
-    # obsutil ls
+    echo "Verificando acceso a OBS..."
+    obsutil ls
     
     echo "Setup finalizado."
