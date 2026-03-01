@@ -91,8 +91,8 @@ resource "huaweicloud_identity_group" "obs_group" {
 resource "huaweicloud_identity_group_role_assignment" "obs_assignment" {
   group_id   = huaweicloud_identity_group.obs_group.id
   role_id    = "8eb36151949e434e857a3446e58cf107" # OBS Administrator
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-  #project_id = var.project_id
+  #enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  project_id = var.project_id
 }
 
 resource "huaweicloud_identity_group" "dew_group" {
@@ -103,8 +103,8 @@ resource "huaweicloud_identity_group" "dew_group" {
 resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
   group_id   = huaweicloud_identity_group.dew_group.id
   role_id    = "0536f2ae1ea5465ca498c7f98ad58510" # CSMS Administrator
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-  #project_id = var.project_id
+  #enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  project_id = var.project_id
 }
 
 ############################################
