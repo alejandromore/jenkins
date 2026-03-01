@@ -116,7 +116,8 @@ resource "huaweicloud_identity_role" "obs_read_policy" {
 resource "huaweicloud_identity_group_role_assignment" "obs_group_assignment" {
   group_id = huaweicloud_identity_group.obs_group.id
   role_id  = huaweicloud_identity_role.obs_read_policy.id
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  project_id = var.project_id
+  #enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 resource "huaweicloud_identity_group" "dew_group" {
@@ -150,7 +151,8 @@ resource "huaweicloud_identity_role" "dew_read_policy" {
 resource "huaweicloud_identity_group_role_assignment" "dew_group_assignment" {
   group_id = huaweicloud_identity_group.dew_group.id
   role_id  = huaweicloud_identity_role.dew_read_policy.id
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  project_id = var.project_id
+  #enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
 ############################################
