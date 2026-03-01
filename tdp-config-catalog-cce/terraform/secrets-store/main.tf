@@ -148,6 +148,7 @@ locals {
   }
 }
 */
+/*
 //Utiliza el AK y SK del usuario Terraform, no del usuario IAM para DEW
 data "local_file" "cce_credentials" {
   filename = "${path.module}/credentials-cce-programmatic-user.csv"
@@ -168,7 +169,7 @@ locals {
   HW_AK      = local.credentials["Access Key ID"]
   HW_SK      = local.credentials["Secret Access Key"]
 }
-
+*/
 locals {
   secrets_file = yamldecode(file("${path.module}/secrets/secrets-dec.yaml"))
   dew_secret_payload = merge( 
@@ -178,8 +179,10 @@ locals {
       USUARIO  = "alejandro"
       PASSWORD = "P@ssw0rdSecure123!"
       PORT     = "5432"
-      HUAWEI_CLOUD_AK = local.HW_AK
-      HUAWEI_CLOUD_SK = local.HW_SK
+      #HUAWEI_CLOUD_AK = local.HW_AK
+      HUAWEI_CLOUD_AK = huaweicloud_identity_access_key.cce_user_key.id
+      #HUAWEI_CLOUD_SK = local.HW_SK
+      HUAWEI_CLOUD_SK = huaweicloud_identity_access_key.cce_user_key.secret
     }
   )
 }
