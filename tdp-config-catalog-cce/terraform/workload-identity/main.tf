@@ -206,3 +206,44 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
     }
   ])
 }
+
+#######################################
+# DEW - Secret
+#######################################
+/*
+locals {
+  dew_secret_payload = {
+    URL      = "wwww.google.com"
+    USUARIO  = "alejandro"
+    PASSWORD = "P@ssw0rdSecure123!"
+    PORT     = "5432"
+  }
+}
+*/
+
+locals {
+  secrets_file = yamldecode(file("${path.module}/secrets/secrets-dec.yaml"))
+  dew_secret_payload = merge( 
+    local.secrets_file.stringData,
+    {
+      URL      = "wwww.google.com"
+      USUARIO  = "alejandro"
+      PASSWORD = "P@ssw0rdSecure123!"
+      PORT     = "5432"
+    }
+  )
+}
+
+output "dew_secret_payload_debug" {
+  value = local.dew_secret_payload
+}
+
+module "dew_secret" {
+  source = "../../../terraform-modules/dew"
+
+  secret_name           = var.dew_secret_name
+  secret_description    = var.dew_secret_description
+  secret_payload        = local.dew_secret_payload
+
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+}

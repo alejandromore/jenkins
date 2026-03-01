@@ -3,7 +3,7 @@ kind: SecretProviderClass
 metadata:
   name: app-dev-huawei-dew
 spec:
-  provider: dew
+  provider: cce
   parameters:
     objects: |
       - objectName: "secret-app1-dev"

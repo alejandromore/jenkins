@@ -12,6 +12,9 @@ tags                             = {
 
 key_pair_name  = "basic-project-key"
 
+dew_secret_name                   = "secret-app1-dev"
+dew_secret_description            = "App Dev Secrets"
+
 client_id      = "huawei-cce"
 group_name_obs = "cce-obs-group"
 group_name_dew = "cce-dew-group"

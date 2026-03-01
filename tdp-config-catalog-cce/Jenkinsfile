@@ -100,6 +100,25 @@ pipeline {
                 expression { params.RUN_TERRAFORM_WORKLOAD_IDENTITY }
             }
             steps {
+                dir(env.TF_DIR_ST) {
+
+                    withCredentials([
+                        file(credentialsId: 'sops-gpg-key', variable: 'GPG_KEY_FILE')
+                    ]) {
+
+                        sh '''
+                        set -eo pipefail
+
+                        export GNUPGHOME=$(mktemp -d)
+
+                        gpg --batch --import "$GPG_KEY_FILE"
+
+                        echo "Desencriptando..."
+                        sops -d secrets/secrets-enc.yaml > secrets/secrets-dec.yaml
+
+                        '''
+                    }
+                }
                 script {
 
                     withCredentials([
