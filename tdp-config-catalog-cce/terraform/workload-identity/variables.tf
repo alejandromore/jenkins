@@ -4,6 +4,12 @@ variable "region" {
   default = ""
 }
 
+variable "project_id" {
+  description = "ID del proyecto"
+  type        = string
+  default = ""
+}
+
 variable "access_key" {
   description = "Nombre del Grupo de Securidad"
   type        = string
