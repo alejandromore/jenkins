@@ -24,6 +24,8 @@ spec:
         - |
           /scripts/setup-base.sh
           echo "Contenedor listo..."
+          echo "Ejecutando prueba OBS Workload Identity..."
+          python3 /app/obs-test.py
           sleep infinity
 
         volumeMounts:
@@ -33,6 +35,9 @@ spec:
 
         - name: setup-script
           mountPath: /scripts
+
+        - name: obs-script
+          mountPath: /app
 
       volumes:
       - name: oidc-token
@@ -46,4 +51,9 @@ spec:
       - name: setup-script
         configMap:
           name: cm-base
+          defaultMode: 0755
+
+      - name: obs-script
+        configMap:
+          name: cm-python-obs
           defaultMode: 0755
