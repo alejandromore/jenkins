@@ -122,7 +122,8 @@ resource "huaweicloud_identity_role" "obs_read_policy" {
           "obs:bucket:ListAllMybuckets",
           "obs:bucket:HeadBucket",
           "obs:bucket:ListBucket",
-          "obs:bucket:GetBucketLocation"
+          "obs:bucket:GetBucketLocation",
+          "obs:object:GetObject"
         ]
         Resource = ["*"]
       }
