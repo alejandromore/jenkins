@@ -51,3 +51,4 @@ vendor/
 *.swp
 *.swo
 tdp-jenkins-ecs/terraform/set-env.ps1
+tdp-jenkins-ecs/terraform/tfplan

@@ -37,27 +37,46 @@ security_group_name = "sg-tdp-jenkins-public"
 # ============================================================================
 # VARIABLES PARA EL ECS
 # ============================================================================
-/*
+instance_name = "ecs-tdp-jenkins"
+
 instance_flavor_cpu_core_count = 4
 instance_flavor_memory_size    = 8
-instance_image_os_type      = "Ubuntu 24.04 server 64bit"
+
+instance_image_os_type      = "Ubuntu"
 instance_image_architecture = "x86"
-instance_name = "ecs-tdp-jenkins"
+
+keypair_name = "basic-project-key"
 
 instance_disks_configuration = [
   {
     is_system_disk = true
     type           = "SSD"
-    size           = 200
+    size           = 50
   },
   {
     is_system_disk = false
-    name           = "data-disk-tdp-jenkins-0"
+    name           = "data-disk-demo-0"
     type           = "SSD"
     size           = 100
   }
 ]
 
-key_pair_name                     = "basic-project-key"
-private_key_name                  = "basic-project-private-key"
-*/
+# ============================================================================
+# VARIABLES PARA EL ECS - EIP
+# ============================================================================
+eip_name = "eip-ecs-tdp-jenkins"
+
+eip_publicip_configuration = [
+  {
+    type       = "5_bgp"
+    ip_version = "4"
+  }
+]
+
+eip_bandwidth_configuration = [
+  {
+    share_type = "PER"
+    name       = "eip-bw-ecs-tdp-jenkins"
+    size       = 5
+  }
+]

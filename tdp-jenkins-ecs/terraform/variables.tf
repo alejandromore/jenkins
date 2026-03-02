@@ -69,3 +69,61 @@ variable "security_group_name" {
   description = "Security group name"
   type        = string
 }
+
+# ============================================================================
+# VARIABLES PARA EL ECS
+# ============================================================================
+variable "instance_name" {
+  type = string
+}
+
+variable "instance_flavor_cpu_core_count" {
+  type = number
+}
+
+variable "instance_flavor_memory_size" {
+  type = number
+}
+
+variable "instance_image_os_type" {
+  type = string
+}
+
+variable "instance_image_architecture" {
+  type = string
+}
+
+variable "keypair_name" {
+  type = string
+}
+
+variable "instance_disks_configuration" {
+  type = list(object({
+    is_system_disk = bool
+    name           = optional(string)
+    type           = string
+    size           = number
+  }))
+}
+
+# ============================================================================
+# VARIABLES PARA EL ECS - EIP
+# ============================================================================
+variable "eip_name" {
+  type = string
+}
+
+variable "eip_publicip_configuration" {
+  type = list(object({
+    type       = string
+    ip_version = string
+  }))
+}
+
+variable "eip_bandwidth_configuration" {
+  type = list(object({
+    share_type = string
+    name       = string
+    size       = number
+  }))
+}
