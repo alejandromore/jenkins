@@ -50,3 +50,4 @@ vendor/
 .idea/
 *.swp
 *.swo
+tdp-jenkins-ecs/terraform/set-env.ps1
