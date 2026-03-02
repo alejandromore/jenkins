@@ -282,6 +282,8 @@ module "eip_elb_public" {
 }
 
 resource "huaweicloud_lb_loadbalancer" "elb_public" {
+  depends_on = [time_sleep.after_eip_detach]
+
   name               = "elb-public"
   vip_subnet_id      = module.subnet_public.ipv4_subnet_id
   security_group_ids = [module.sg_public.security_group_id]
