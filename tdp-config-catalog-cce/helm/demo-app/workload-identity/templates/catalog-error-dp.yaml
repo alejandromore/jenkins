@@ -1,0 +1,46 @@
+{{- if .Values.catalogError.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-error
+spec:
+  replicas: {{ .Values.configServer.replicaCount }}
+  selector:
+    matchLabels:
+      app: catalog-error
+  template:
+    metadata:
+      labels:
+        app: catalog-error
+    spec:
+      serviceAccountName: sa-app-dev-dew
+      containers:
+        - name: catalog-error
+          image: "{{ .Values.catalogError.image.registry }}/{{ .Values.catalogError.image.organization }}/{{ .Values.catalogError.image.repository }}:{{ .Values.catalogError.image.tag }}"
+          imagePullPolicy: {{ .Values.catalogError.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.catalogError.port }}
+
+          envFrom:
+            - secretRef:
+                name: {{ .Values.catalogError.secretName }}
+
+          # Monta el volumen
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+
+      volumes:
+      # Define el volumen del SPC
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          fsType: ext4
+          volumeAttributes:
+            secretProviderClass: "app-dev-huawei-dew"
+
+      imagePullSecrets:
+        - name: default-secret
+{{- end }}

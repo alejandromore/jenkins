@@ -1,0 +1,14 @@
+{{- if .Values.catalogError.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-error
+spec:
+  selector:
+    app: catalog-error
+  ports:
+    - protocol: TCP
+      port: {{ .Values.catalogError.port }}
+      targetPort: {{ .Values.catalogError.port }}
+  type: ClusterIP
+{{- end }}

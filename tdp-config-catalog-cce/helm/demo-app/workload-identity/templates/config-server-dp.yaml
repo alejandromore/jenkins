@@ -1,0 +1,46 @@
+{{- if .Values.configServer.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server
+spec:
+  replicas: {{ .Values.configServer.replicaCount }}
+  selector:
+    matchLabels:
+      app: config-server
+  template:
+    metadata:
+      labels:
+        app: config-server
+    spec:
+      serviceAccountName: sa-app-dev-dew
+      containers:
+        - name: config-server
+          image: "{{ .Values.configServer.image.registry }}/{{ .Values.configServer.image.organization }}/{{ .Values.configServer.image.repository }}:{{ .Values.configServer.image.tag }}"
+          imagePullPolicy: {{ .Values.configServer.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.configServer.port }}
+
+          envFrom:
+            - secretRef:
+                name: {{ .Values.configServer.secretName }}
+
+          # Monta el volumen
+          volumeMounts:
+            - name: secrets-store-inline
+              mountPath: "/mnt/secrets-store"
+              readOnly: true
+      volumes:
+      # Define el volumen del SPC
+      - name: secrets-store-inline
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          fsType: ext4
+          volumeAttributes:
+            secretProviderClass: "app-dev-huawei-dew"
+            
+      imagePullSecrets:
+        - name: default-secret
+{{- end }}
+

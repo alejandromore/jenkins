@@ -1,0 +1,41 @@
+configServer:
+  replicaCount: 1
+  port: 8888
+  image:
+    registry: swr.la-south-2.myhuaweicloud.com
+    organization: cce-jenkins-integration-organization
+    repository: config-server-hw
+    #tag: "1.2.3" #usando agency
+    tag: "1.2.4" #usando AK y SK
+    pullPolicy: Always
+  secretName: ms-app-config-server-keyvault-secrets
+  enabled: true
+
+catalogError:
+  replicaCount: 1
+  port: 50051
+  image:
+    registry: swr.la-south-2.myhuaweicloud.com
+    organization: cce-jenkins-integration-organization
+    repository: catalog-error-hw
+    #tag: "1.0" #usando agency
+    tag: "1.1" #usando AK y SK
+    pullPolicy: Always
+  secretName: ms-app-catalog-error-keyvault-secrets
+  enabled: false
+
+demoClient:
+  replicaCount: 1
+  image:
+    registry: swr.la-south-2.myhuaweicloud.com
+    organization: cce-jenkins-integration-organization
+    repository: demo-client
+    tag: "1.0"
+    pullPolicy: Always
+  secretName: ms-app-config-server-keyvault-secrets
+  port: 80
+  targetPort: 8081
+  enabled: false
+
+elb:
+  id: ""                

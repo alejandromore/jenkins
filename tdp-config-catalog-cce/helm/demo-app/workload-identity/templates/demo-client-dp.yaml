@@ -1,0 +1,27 @@
+{{- if .Values.demoClient.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-client
+spec:
+  replicas: {{ .Values.demoClient.replicaCount }}
+  selector:
+    matchLabels:
+      app: demo-client
+  template:
+    metadata:
+      labels:
+        app: demo-client
+    spec:
+      containers:
+        - name: demo-client
+          image: "{{ .Values.demoClient.image.registry }}/{{ .Values.demoClient.image.organization }}/{{ .Values.demoClient.image.repository }}:{{ .Values.demoClient.image.tag }}"
+          imagePullPolicy: {{ .Values.demoClient.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.demoClient.port }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.demoClient.secretName }}
+      imagePullSecrets:
+        - name: default-secret
+{{- end }}
