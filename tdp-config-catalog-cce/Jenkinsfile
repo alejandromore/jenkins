@@ -345,6 +345,7 @@ pipeline {
                         --create-namespace \
                         --wait \
                         --timeout ${TIMEOUT_SECONDS}s \
+                        --set elb.id=${elb_public_id} \
                         --set idp_id=${idp_id} 
 
                         echo ""
