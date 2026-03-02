@@ -8,4 +8,4 @@ terraform plan -var-file="local.tfvars" -out=tfplan
 
 terraform apply tfplan
 
-terraform destroy
+terraform destroy -var-file="local.tfvars" -auto-approve

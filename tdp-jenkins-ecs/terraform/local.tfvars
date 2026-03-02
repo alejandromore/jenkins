@@ -1,6 +1,7 @@
 # ============================================================================
 # VARIABLES GENERALES
 # ============================================================================
+region                           = "la-south-2"
 environment                      = "local"
 enterprise_project_name          = "enterprise-app"
 tags                             = {
@@ -25,7 +26,7 @@ vpc_cidr = "10.3.0.0/16"
 
 subnets_configuration = [
   {
-    name = "vpc-subnet-jenkins-public"
+    name = "vpc-subnet-tdp-jenkins"
     cidr = "10.3.32.0/19"
     dns_list = ["100.125.1.250", "100.125.21.250"]
   }

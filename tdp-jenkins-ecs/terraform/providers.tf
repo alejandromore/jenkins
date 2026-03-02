@@ -9,5 +9,4 @@ terraform {
 
 provider "huaweicloud" {
   region     = var.region
-  #Credenciales de las variables de entorno
 }
