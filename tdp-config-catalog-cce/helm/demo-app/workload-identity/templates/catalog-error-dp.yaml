@@ -13,7 +13,7 @@ spec:
       labels:
         app: catalog-error
     spec:
-      serviceAccountName: sa-app-dev-dew
+      serviceAccountName: sa-obs-workload-identity
       containers:
         - name: catalog-error
           image: "{{ .Values.catalogError.image.registry }}/{{ .Values.catalogError.image.organization }}/{{ .Values.catalogError.image.repository }}:{{ .Values.catalogError.image.tag }}"
@@ -31,6 +31,10 @@ spec:
               mountPath: "/mnt/secrets-store"
               readOnly: true
 
+            - name: oidc-token
+              mountPath: /var/run/secrets/tokens
+              readOnly: true
+
       volumes:
       # Define el volumen del SPC
       - name: secrets-store-inline
@@ -40,6 +44,14 @@ spec:
           fsType: ext4
           volumeAttributes:
             secretProviderClass: "app-dev-huawei-dew"
+
+      - name: oidc-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              path: oidc-token
+              expirationSeconds: 7200
+              audience: huawei-cce
 
       imagePullSecrets:
         - name: default-secret

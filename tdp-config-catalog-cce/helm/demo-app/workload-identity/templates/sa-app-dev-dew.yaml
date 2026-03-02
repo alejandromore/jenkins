@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: sa-app-dev-dew
-  annotations:
-    cce.io/dew-resource: '["secret-app1-dev"]'

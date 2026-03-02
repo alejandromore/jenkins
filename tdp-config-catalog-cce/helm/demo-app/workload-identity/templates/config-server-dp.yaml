@@ -13,7 +13,7 @@ spec:
       labels:
         app: config-server
     spec:
-      serviceAccountName: sa-app-dev-dew
+      serviceAccountName: sa-dew-workload-identity
       containers:
         - name: config-server
           image: "{{ .Values.configServer.image.registry }}/{{ .Values.configServer.image.organization }}/{{ .Values.configServer.image.repository }}:{{ .Values.configServer.image.tag }}"
@@ -30,6 +30,10 @@ spec:
             - name: secrets-store-inline
               mountPath: "/mnt/secrets-store"
               readOnly: true
+
+            - name: oidc-token
+              mountPath: /var/run/secrets/tokens
+              readOnly: true
       volumes:
       # Define el volumen del SPC
       - name: secrets-store-inline
@@ -40,6 +44,14 @@ spec:
           volumeAttributes:
             secretProviderClass: "app-dev-huawei-dew"
             
+      - name: oidc-token
+        projected:
+          sources:
+          - serviceAccountToken:
+              path: oidc-token
+              expirationSeconds: 7200
+              audience: huawei-cce
+
       imagePullSecrets:
         - name: default-secret
 {{- end }}
