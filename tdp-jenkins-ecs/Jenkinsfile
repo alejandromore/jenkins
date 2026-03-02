@@ -1,0 +1,150 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent any
+
+    options {
+        disableConcurrentBuilds()
+    }
+
+    parameters {
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
+        booleanParam(
+            name: 'RUN_TERRAFORM',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform'
+        )
+        string(
+            name: 'TARGET_IP', 
+            defaultValue: '101.44.3.15', 
+            description: 'Hostname or IP address of the target server'
+        )
+        booleanParam(
+            name: 'RUN_ANSIBLE',
+            defaultValue: false,
+            description: 'Instalar Docker e imagen Jenkins'
+        )
+    }
+
+    environment {
+        TF_IN_AUTOMATION = "true"
+        TF_CLI_ARGS = "-no-color"
+
+        TF_VAR_access_key = credentials('hwc-access-key')
+        TF_VAR_secret_key = credentials('hwc-secret-key')
+        TF_DIR   = 'jenkins-ecs/terraform'
+        ANS_DIR  = 'jenkins-ecs/ansible'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Deploy') {
+            when {
+                expression { params.RUN_TERRAFORM }
+            }
+            steps {
+                script {
+
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: [
+                            'ecs_public_ip',
+                            'private_key_content'
+                        ] 
+                    )
+
+                }
+            }
+        }
+
+        stage('Deploy App with Ansible') {
+
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                    expression { params.RUN_ANSIBLE }
+                }
+            }
+
+            steps {
+                // Ejecutar el playbook de instalacion
+                dir(env.ANS_DIR) {
+
+                    withCredentials([
+                        usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN'),
+                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
+                        usernamePassword(credentialsId: 'swr-jenkins', usernameVariable: 'SWR_USER', passwordVariable: 'SWR_PASS')
+                    ]) {
+                        script {
+                            env.ecs_private_key_path = "${env.WORKSPACE}/private_key_content.txt"
+                        }
+
+                        sh """
+                            set -e
+                            chmod 600 ${env.ecs_private_key_path}
+                            
+                            # Deshabilitar host key checking
+                            export ANSIBLE_HOST_KEY_CHECKING=False
+
+                            # Ejecutar playbook con todas las credenciales
+                            ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \\
+                                --private-key ${env.ecs_private_key_path} \\
+                                --extra-vars "ansible_host=${env.TARGET_IP} \\
+                                            app_dir=/opt/jenkins \\
+                                            swr_registry=swr.la-south-2.myhuaweicloud.com \\
+                                            image_name=cce-basic-app/jenkins-hwc:2.0 \\
+                                            region=la-south-2 \\
+                                            github_user=${GITHUB_USER} \\
+                                            github_token=${GITHUB_TOKEN} \\
+                                            hwc_access_key=${HWC_ACCESS_KEY} \\
+                                            hwc_secret_key=${HWC_SECRET_KEY} \\
+                                            swr_user=${SWR_USER} \\
+                                            swr_password=${SWR_PASS} \\
+                                            jenkins_admin_id=${env.JENKINS_ADMIN_ID} \\
+                                            jenkins_admin_password=${env.JENKINS_ADMIN_PASSWORD}"
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Destroy') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'destroy' }
+                    expression { params.RUN_TERRAFORM }
+                }
+            }
+            steps {
+                dir(env.TF_DIR) {
+                    sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline ejecutado correctamente (${params.ACTION})"
+        }
+        failure {
+            echo "Error en el pipeline"
+        }
+        //always {
+        //    deleteDir()
+        //}
+    }
+}
