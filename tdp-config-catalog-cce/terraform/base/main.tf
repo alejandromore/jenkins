@@ -282,8 +282,6 @@ module "eip_elb_public" {
 }
 
 resource "huaweicloud_lb_loadbalancer" "elb_public" {
-  depends_on = [time_sleep.after_eip_detach]
-
   name               = "elb-public"
   vip_subnet_id      = module.subnet_public.ipv4_subnet_id
   security_group_ids = [module.sg_public.security_group_id]
@@ -291,11 +289,13 @@ resource "huaweicloud_lb_loadbalancer" "elb_public" {
 }
 
 resource "time_sleep" "after_eip_detach" {
-  depends_on = [huaweicloud_vpc_eip_associate.eip_1]
+  depends_on = [huaweicloud_lb_loadbalancer.elb_public]
   destroy_duration = "45s"
 }
 
 resource "huaweicloud_vpc_eip_associate" "eip_1" {
+  depends_on = [time_sleep.after_eip_detach]
+  
   public_ip = module.eip_elb_public.address
   port_id   = huaweicloud_lb_loadbalancer.elb_public.vip_port_id
 }
