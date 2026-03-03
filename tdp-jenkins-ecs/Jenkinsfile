@@ -48,15 +48,22 @@ pipeline {
                 expression { params.RUN_TERRAFORM }
             }
             steps {
-                script {
+                withCredentials([
+                    string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
+                    string(credentialsId: 'hwc-access-key', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    script {
 
-                    terraformDeploy(
-                        dir: env.TF_DIR,
-                        varsFile: 'local.tfvars',
-                        action: params.ACTION,
-                        outputs: [] 
-                    )
+                        terraformDeploy(
+                            dir: env.TF_DIR,
+                            varsFile: 'local.tfvars',
+                            action: params.ACTION,
+                            outputs: [] 
+                        )
 
+                    }
                 }
             }
         }
