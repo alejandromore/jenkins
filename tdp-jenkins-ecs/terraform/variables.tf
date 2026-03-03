@@ -70,6 +70,25 @@ variable "security_group_name" {
   type        = string
 }
 
+variable "security_group_description" {
+  description = "Security group description"
+  type        = string
+}
+
+variable "security_group_rules_configuration" {
+  description = "List of security group rules"
+  type = list(object({
+    description      = optional(string)
+    direction        = optional(string)
+    ethertype        = optional(string)
+    protocol         = string
+    ports            = optional(string)
+    remote_ip_prefix = optional(string)
+    action           = optional(string)
+    priority         = optional(number)
+  }))
+}
+
 # ============================================================================
 # VARIABLES PARA EL ECS
 # ============================================================================

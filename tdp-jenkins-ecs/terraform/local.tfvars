@@ -33,6 +33,20 @@ subnets_configuration = [
 ]
 
 security_group_name = "sg-tdp-jenkins-public"
+security_group_description = "Created by terraform module"
+
+security_group_rules_configuration = [
+  {
+    description      = "SSH access"
+    direction        = "ingress"
+    ethertype        = "IPv6"
+    protocol         = "tcp"
+    ports            = "22"
+    remote_ip_prefix = "::/0"
+    action           = "deny"
+    priority         = 1
+  }
+]
 
 # ============================================================================
 # VARIABLES PARA EL ECS

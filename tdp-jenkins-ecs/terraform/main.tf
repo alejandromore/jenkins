@@ -11,13 +11,15 @@ data "huaweicloud_availability_zones" "myaz" {}
 module "vpc_service" {
   source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-vpc"
 
-  availability_zone     = data.huaweicloud_availability_zones.myaz.names[0]
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-
-  vpc_name              = var.vpc_name
-  vpc_cidr              = var.vpc_cidr
-  subnets_configuration = var.subnets_configuration
-  security_group_name   = var.security_group_name
+  availability_zone                  = data.huaweicloud_availability_zones.myaz.names[0]
+  enterprise_project_id              = data.huaweicloud_enterprise_project.ep.id
+             
+  vpc_name                           = var.vpc_name
+  vpc_cidr                           = var.vpc_cidr
+  subnets_configuration              = var.subnets_configuration
+  security_group_name                = var.security_group_name
+  security_group_description         = var.security_group_description
+  security_group_rules_configuration = var.security_group_rules_configuration
 }
 
 #######################################
