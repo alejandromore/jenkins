@@ -114,8 +114,8 @@ pipeline {
         failure {
             echo "Error en el pipeline"
         }
-        always {
-            deleteDir()
-        }
+        //always {
+        //    deleteDir()
+        //}
     }
 }
