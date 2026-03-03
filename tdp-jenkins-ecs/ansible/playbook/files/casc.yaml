@@ -2,6 +2,10 @@ jenkins:
   systemMessage: "Jenkins Docker Simple Setup"
   numExecutors: 0
 
+  location:
+    url: "http://${ANSIBLE_HOST}:8080/"
+    adminAddress: "admin@localhost"
+
   securityRealm:
     local:
       allowsSignup: false
@@ -27,12 +31,8 @@ jenkins:
             retentionStrategy:
               idleMinutes: 5
             dockerTemplateBase:
-              image: "maven:3.9.6-eclipse-temurin-17"
-              tty: true
+              image: "jenkins/inbound-agent:latest-jdk17"
             remoteFs: "/home/jenkins"
-            connector:
-              attach:
-                user: "root"
 
 credentials:
   system:
