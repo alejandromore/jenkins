@@ -28,9 +28,6 @@ pipeline {
     environment {
         TF_IN_AUTOMATION = "true"
         TF_CLI_ARGS = "-no-color"
-
-        TF_VAR_access_key = credentials('hwc-access-key')
-        TF_VAR_secret_key = credentials('hwc-secret-key')
         TF_DIR   = 'tdp-jenkins-ecs/terraform'
         ANS_DIR  = 'tdp-jenkins-ecs/ansible'
     }
@@ -49,8 +46,8 @@ pipeline {
             }
             steps {
                 withCredentials([
-                    string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
-                    string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
+                    string(credentialsId: 'hwc-access-key', variable: 'HW_ACCESS_KEY'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
                     string(credentialsId: 'hwc-access-key', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'hwc-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
