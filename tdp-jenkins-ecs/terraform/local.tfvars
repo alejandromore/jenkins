@@ -37,12 +37,12 @@ security_group_description = "Created by terraform module"
 
 security_group_rules_configuration = [
   {
-    description      = "SSH access"
+    description      = "Internet → ECS (22 SSH)"
     direction        = "ingress"
-    ethertype        = "IPv6"
+    ethertype        = "IPv4"
     protocol         = "tcp"
     ports            = "22"
-    remote_ip_prefix = "::/0"
+    remote_ip_prefix = "0.0.0.0/0"
     action           = "allow"
     priority         = 1
   }
