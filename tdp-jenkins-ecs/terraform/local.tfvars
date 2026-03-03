@@ -45,7 +45,26 @@ security_group_rules_configuration = [
     remote_ip_prefix = "0.0.0.0/0"
     action           = "allow"
     priority         = 1
-  }
+  },
+  {
+    description      = "Internet → ECS (8080)"
+    direction        = "ingress"
+    ethertype        = "IPv4"
+    protocol         = "tcp"
+    ports            = "8080"
+    remote_ip_prefix = "0.0.0.0/0"
+    action           = "allow"
+    priority         = 1
+  },
+  {
+    description      = "ECS → Internet (All)"
+    direction        = "egress"
+    ethertype        = "IPv4"
+    protocol         = "all"
+    remote_ip_prefix = "0.0.0.0/0"
+    action           = "allow"
+    priority         = 1
+  },
 ]
 
 # ============================================================================
