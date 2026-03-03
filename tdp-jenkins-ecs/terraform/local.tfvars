@@ -55,13 +55,7 @@ security_group_rules_configuration = [
     remote_ip_prefix = "0.0.0.0/0"
     action           = "allow"
     priority         = 1
-  },
-  {
-    description = "ECS → Internet (All traffic)"
-    direction   = "egress"
-    ethertype   = "IPv4"
-    priority    = 1
-  },
+  }
 ]
 
 # ============================================================================

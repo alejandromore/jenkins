@@ -22,6 +22,15 @@ module "vpc_service" {
   security_group_rules_configuration = var.security_group_rules_configuration
 }
 
+resource "huaweicloud_networking_secgroup_rule" "ecs_egress_internet" {
+  security_group_id = module.vpc_service.security_group_id
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "0"
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "ECS → Internet (All traffic)"
+}
+
 #######################################
 # ECS Module
 #######################################
