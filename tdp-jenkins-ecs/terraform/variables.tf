@@ -108,6 +108,11 @@ variable "keypair_name" {
   type = string
 }
 
+variable "private_key_name" {
+  description = "Nombre de la llave privada para el ECS"
+  type        = string
+}
+
 variable "instance_disks_configuration" {
   type = list(object({
     is_system_disk = bool
