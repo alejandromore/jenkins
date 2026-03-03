@@ -83,8 +83,10 @@ pipeline {
                 dir(env.ANS_DIR) {
 
                     withCredentials([
-                        string(credentialsId: 'hwc-access-key', variable: 'HW_ACCESS_KEY'),
-                        string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
+                        usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN'),
+                        usernamePassword(credentialsId: 'swr-jenkins', usernameVariable: 'SWR_USER', passwordVariable: 'SWR_PASS'),
+                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY')
                     ]) {
 
                         sh """
@@ -99,8 +101,13 @@ pipeline {
                                 --private-key ${env.ecs_private_key} \\
                                 -e "@group_vars/all.yml" \
                                 --extra-vars "ansible_host=${env.ecs_public_ip} \\
-                                            hw_access_key=${HW_ACCESS_KEY} \\
-                                            hw_secret_key=${HW_SECRET_KEY} "
+                                            github_user=${GITHUB_USER} \\
+                                            github_token=${GITHUB_TOKEN} \\
+                                            swr_user=${SWR_USER} \\
+                                            swr_password=${SWR_PASS} \\
+                                            hwc_access_key=${HWC_ACCESS_KEY} \\
+                                            hwc_secret_key=${HWC_SECRET_KEY}"
+
                         """
                     }
                 }

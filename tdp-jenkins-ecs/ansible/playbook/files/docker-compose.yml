@@ -11,6 +11,7 @@ services:
 
     env_file:
       - jenkins.env
+      - secrets.env
 
     volumes:
       - jenkins_home:/var/jenkins_home

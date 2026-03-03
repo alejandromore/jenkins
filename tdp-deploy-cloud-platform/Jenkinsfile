@@ -1,0 +1,102 @@
+@Library('shared-lib') _
+
+pipeline {
+    agent { label 'docker-agent' }
+
+    parameters {
+
+        choice(
+            name: 'TEAM',
+            choices: ['Huawei-Alejandro'],
+            description: 'Huawei Cloud Account'
+        )
+
+        string(
+            name: 'VPC_CIDR',
+            defaultValue: '10.4.0.0/16',
+            description: 'VPC CIDR block'
+        )
+
+        string(
+            name: 'VPC_SUBNET_CIDR',
+            defaultValue: '10.4.0.0/19',
+            description: 'Subnet CIDR block'
+        )
+
+        choice(
+            name: 'VM_SIZE',
+            choices: [
+                'c7n.xlarge.2',
+                'c7n.large.2',
+                'c6.large.2'
+            ],
+            description: 'ECS flavor for worker nodes'
+        )
+
+        string(
+            name: 'NUM_NODES',
+            defaultValue: '2',
+            description: 'Number of worker nodes'
+        )
+
+        string(
+            name: 'MAX_PODS',
+            defaultValue: '90',
+            description: 'Maximum Pods per node'
+        )
+
+        choice(
+            name: 'AZ_LOCATION',
+            choices: ['AZ1', 'AZ2'],
+            description: 'Availability Zone'
+        )
+    }
+
+    stages {
+
+        stage('Print Parameters') {
+            steps {
+                sh '''
+                echo "===== Deployment Configuration ====="
+                echo "Team: ${TEAM}"
+                echo "VPC CIDR: ${VNET_CIDR}"
+                echo "Subnet CIDR: ${SNET_CIDR}"
+                echo "VM Size: ${VM_SIZE}"
+                echo "Number of Nodes: ${NUM_NODES}"
+                echo "Max Pods: ${MAX_PODS}"
+                echo "AZ: ${AZ_LOCATION}"
+                '''
+            }
+        }
+
+        stage('Validate Network') {
+            steps {
+                sh '''
+                echo "Validating CIDR format..."
+                '''
+            }
+        }
+
+        stage('Deploy Infrastructure (Simulated)') {
+            steps {
+                sh '''
+                echo "Deploying Huawei Cloud infrastructure..."
+                echo "Creating VPC..."
+                echo "Creating Subnet..."
+                echo "Provisioning CCE Cluster..."
+                echo "Adding ${NUM_NODES} worker nodes of type ${VM_SIZE} in ${AZ_LOCATION}..."
+                '''
+                sleep 10
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment completed successfully 🚀"
+        }
+        failure {
+            echo "Deployment failed ❌"
+        }
+    }
+}
