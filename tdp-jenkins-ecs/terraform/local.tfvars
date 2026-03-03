@@ -43,7 +43,7 @@ security_group_rules_configuration = [
     protocol         = "tcp"
     ports            = "22"
     remote_ip_prefix = "::/0"
-    action           = "deny"
+    action           = "allow"
     priority         = 1
   }
 ]
