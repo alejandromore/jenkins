@@ -18,11 +18,6 @@ pipeline {
             defaultValue: false,
             description: 'Construir infraestructura con Terraform'
         )
-        string(
-            name: 'TARGET_IP', 
-            defaultValue: '101.44.3.15', 
-            description: 'Hostname or IP address of the target server'
-        )
         booleanParam(
             name: 'RUN_ANSIBLE',
             defaultValue: false,
@@ -36,8 +31,8 @@ pipeline {
 
         TF_VAR_access_key = credentials('hwc-access-key')
         TF_VAR_secret_key = credentials('hwc-secret-key')
-        TF_DIR   = 'jenkins-ecs/terraform'
-        ANS_DIR  = 'jenkins-ecs/ansible'
+        TF_DIR   = 'tdp-jenkins-ecs/terraform'
+        ANS_DIR  = 'tdp-jenkins-ecs/ansible'
     }
 
     stages {
@@ -59,10 +54,7 @@ pipeline {
                         dir: env.TF_DIR,
                         varsFile: 'local.tfvars',
                         action: params.ACTION,
-                        outputs: [
-                            'ecs_public_ip',
-                            'private_key_content'
-                        ] 
+                        outputs: [] 
                     )
 
                 }

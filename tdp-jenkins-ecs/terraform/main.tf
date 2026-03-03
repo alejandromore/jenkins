@@ -26,18 +26,18 @@ module "vpc_service" {
 module "ecs_service" {
   source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-ecs"
 
-  availability_zone              = data.huaweicloud_availability_zones.myaz.names[0]
-  enterprise_project_id          = data.huaweicloud_enterprise_project.ep.id
-  instance_name                  = var.instance_name
-  instance_flavor_cpu_core_count = var.instance_flavor_cpu_core_count
-  instance_flavor_memory_size    = var.instance_flavor_memory_size
-  instance_image_os_type         = var.instance_image_os_type
-  instance_image_architecture    = var.instance_image_architecture
-  instance_key_pair              = var.keypair_name
+  availability_zone                   = data.huaweicloud_availability_zones.myaz.names[0]
+  enterprise_project_id               = data.huaweicloud_enterprise_project.ep.id
+  instance_name                       = var.instance_name
+  instance_flavor_cpu_core_count      = var.instance_flavor_cpu_core_count
+  instance_flavor_memory_size         = var.instance_flavor_memory_size
+  instance_image_os_type              = var.instance_image_os_type
+  instance_image_architecture         = var.instance_image_architecture
+  instance_key_pair                   = var.keypair_name
+     
+  instance_security_group_ids         = [module.vpc_service.security_group_id]
 
-  instance_security_group_ids    = [module.vpc_service.security_group_id]
-
-  instance_networks_configuration = [
+  instance_networks_configuration     = [
     {
       uuid = try(module.vpc_service.subnet_ids[0], "")
     }
@@ -57,4 +57,11 @@ module "eip_publicip" {
   eip_publicip_configuration  = var.eip_publicip_configuration
   eip_bandwidth_configuration = var.eip_bandwidth_configuration
   eip_name                    = var.eip_name
+
+  eip_associates_configuration = [
+    {
+      associate_instance_type = "PORT"
+      associate_instance_id   = try(module.ecs_service.instance_networks[0].port, "")
+    }
+  ]
 }
