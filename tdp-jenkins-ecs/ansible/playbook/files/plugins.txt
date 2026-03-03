@@ -1,0 +1,7 @@
+configuration-as-code
+docker-plugin
+docker-workflow
+workflow-aggregator
+blueocean
+git
+credentials

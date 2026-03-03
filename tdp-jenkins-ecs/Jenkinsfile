@@ -57,7 +57,7 @@ pipeline {
                             dir: env.TF_DIR,
                             varsFile: 'local.tfvars',
                             action: params.ACTION,
-                            outputs: [] 
+                            outputs: ['ecs_public_ip', 'ecs_private_key'] 
                         )
 
                     }
@@ -79,38 +79,27 @@ pipeline {
                 dir(env.ANS_DIR) {
 
                     withCredentials([
-                        usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN'),
-                        string(credentialsId: 'hwc-access-key', variable: 'HWC_ACCESS_KEY'),
-                        string(credentialsId: 'hwc-secret-key', variable: 'HWC_SECRET_KEY'),
-                        usernamePassword(credentialsId: 'swr-jenkins', usernameVariable: 'SWR_USER', passwordVariable: 'SWR_PASS')
+                        string(credentialsId: 'hwc-access-key', variable: 'HW_ACCESS_KEY'),
+                        string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
                     ]) {
                         script {
-                            env.ecs_private_key_path = "${env.WORKSPACE}/private_key_content.txt"
+                            env.ecs_public_ip = "${env.WORKSPACE}/ecs_public_ip.txt"
+                            env.ecs_private_key = "${env.WORKSPACE}/ecs_private_key.txt"
                         }
 
                         sh """
                             set -e
-                            chmod 600 ${env.ecs_private_key_path}
+                            chmod 600 ${env.ecs_private_key}
                             
                             # Deshabilitar host key checking
                             export ANSIBLE_HOST_KEY_CHECKING=False
 
                             # Ejecutar playbook con todas las credenciales
-                            ansible-playbook -i inventory/hosts playbooks/deploy-jenkins.yml \\
-                                --private-key ${env.ecs_private_key_path} \\
-                                --extra-vars "ansible_host=${env.TARGET_IP} \\
-                                            app_dir=/opt/jenkins \\
-                                            swr_registry=swr.la-south-2.myhuaweicloud.com \\
-                                            image_name=cce-basic-app/jenkins-hwc:2.0 \\
-                                            region=la-south-2 \\
-                                            github_user=${GITHUB_USER} \\
-                                            github_token=${GITHUB_TOKEN} \\
-                                            hwc_access_key=${HWC_ACCESS_KEY} \\
-                                            hwc_secret_key=${HWC_SECRET_KEY} \\
-                                            swr_user=${SWR_USER} \\
-                                            swr_password=${SWR_PASS} \\
-                                            jenkins_admin_id=${env.JENKINS_ADMIN_ID} \\
-                                            jenkins_admin_password=${env.JENKINS_ADMIN_PASSWORD}"
+                            ansible-playbook -i inventory/hosts playbook/deploy.yml \\
+                                --private-key ${env.ecs_private_key} \\
+                                --extra-vars "ansible_host=${env.ecs_public_ip} \\
+                                            hw_access_key=${HW_ACCESS_KEY} \\
+                                            hw_secret_key=${HW_SECRET_KEY} "
                         """
                     }
                 }

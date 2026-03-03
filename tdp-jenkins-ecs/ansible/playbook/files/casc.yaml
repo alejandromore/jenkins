@@ -1,0 +1,46 @@
+jenkins:
+  systemMessage: "Jenkins Docker Simple Setup"
+  numExecutors: 0
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: ${JENKINS_ADMIN_ID}
+          password: ${JENKINS_ADMIN_PASSWORD}
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+clouds:
+  - docker:
+      name: "docker"
+      dockerApi:
+        dockerHost:
+          uri: "unix:///var/run/docker.sock"
+      templates:
+        - labelString: "docker-agent"
+          name: "docker-agent"
+          dockerTemplateBase:
+            image: "maven:3.9.6-eclipse-temurin-17"
+            tty: true
+          remoteFs: "/home/jenkins"
+          connector:
+            attach:
+              user: "root"
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              id: hw-access-key
+              scope: GLOBAL
+              secret: ${HW_ACCESS_KEY}
+              description: Huawei Cloud Access Key
+          - string:
+              id: hw-secret-key
+              scope: GLOBAL
+              secret: ${HW_SECRET_KEY}
+              description: Huawei Cloud Secret Key
