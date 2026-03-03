@@ -21,3 +21,12 @@ services:
 
 volumes:
   jenkins_home:
+
+services:
+  jenkins:
+    networks:
+      - jenkinsnet
+
+networks:
+  jenkinsnet:
+    driver: bridge
