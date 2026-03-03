@@ -24,9 +24,8 @@ module "vpc_service" {
 # ECS Module
 #######################################
 data "huaweicloud_images_images" "ubuntu_latest" {
-  name_regex  = var.instance_image_os_type
+  name_regex  = "Ubuntu 22.04"
   visibility  = "public"
-  most_recent = true
 }
 
 module "ecs_service" {
@@ -37,8 +36,6 @@ module "ecs_service" {
   instance_name                       = var.instance_name
   instance_flavor_cpu_core_count      = var.instance_flavor_cpu_core_count
   instance_flavor_memory_size         = var.instance_flavor_memory_size
-  #instance_image_os_type              = var.instance_image_os_type
-  #instance_image_architecture         = var.instance_image_architecture
   instance_image_id                   = data.huaweicloud_images_images.ubuntu_latest.images[0].id
   instance_key_pair                   = var.keypair_name
      

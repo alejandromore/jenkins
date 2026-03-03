@@ -85,14 +85,6 @@ variable "instance_flavor_memory_size" {
   type = number
 }
 
-variable "instance_image_os_type" {
-  type = string
-}
-
-variable "instance_image_architecture" {
-  type = string
-}
-
 variable "keypair_name" {
   type = string
 }

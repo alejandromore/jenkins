@@ -42,9 +42,6 @@ instance_name = "ecs-tdp-jenkins"
 instance_flavor_cpu_core_count = 4
 instance_flavor_memory_size    = 8
 
-instance_image_os_type      = "Ubuntu"
-instance_image_architecture = "x86"
-
 keypair_name = "basic-project-key"
 
 instance_disks_configuration = [
