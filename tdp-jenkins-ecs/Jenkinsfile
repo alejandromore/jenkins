@@ -95,7 +95,7 @@ pipeline {
                             export ANSIBLE_HOST_KEY_CHECKING=False
 
                             # Ejecutar playbook con todas las credenciales
-                            ansible-playbook -i inventory/hosts playbook/deploy.yml \\
+                            ansible-playbook -i inventory/hosts playbook/deploy.yml -vvv\\
                                 --private-key ${env.ecs_private_key} \\
                                 --extra-vars "ansible_host=${env.ecs_public_ip} \\
                                             hw_access_key=${HW_ACCESS_KEY} \\

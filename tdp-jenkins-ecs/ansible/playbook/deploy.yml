@@ -2,6 +2,61 @@
   become: true
 
   tasks:
+    # -----------------------------
+    # Sistema base
+    # -----------------------------
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - software-properties-common
+          - rsync
+        state: present
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository for Ubuntu 24.04 (Noble Numbat)
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu noble stable"
+        state: present
+
+    - name: Update apt cache after adding Docker repo
+      apt:
+        update_cache: yes
+
+    - name: Install Docker packages
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Install Python dependencies for Ansible docker modules
+      apt:
+        name:
+          - python3-pip
+          - python3-docker  # Paquete oficial de Ubuntu para docker SDK
+        state: present
+
+    - name: Ensure docker python sdk is available
+      pip:
+        name: docker
+        executable: pip3
+        extra_args: --break-system-packages
 
     - name: Install Docker
       apt:
@@ -10,6 +65,10 @@
           - docker-compose-plugin
         state: present
         update_cache: yes
+
+    # -----------------------------
+    # Jenkins
+    # -----------------------------
 
     - name: Create Jenkins directory
       file:
