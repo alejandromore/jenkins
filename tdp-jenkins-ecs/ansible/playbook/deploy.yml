@@ -2,6 +2,14 @@
   become: true
 
   tasks:
+
+    # -----------------------------
+    # Esperar que cloud-init termine
+    # -----------------------------
+    - name: Wait for cloud-init to finish
+      command: cloud-init status --wait
+      changed_when: false
+
     # -----------------------------
     # Sistema base
     # -----------------------------
@@ -17,25 +25,42 @@
           - curl
           - gnupg
           - lsb-release
-          - software-properties-common
-          - rsync
         state: present
 
+    # -----------------------------
+    # Limpiar instalaciones previas de Docker
+    # -----------------------------
+    - name: Remove old Docker packages if exist
+      apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - containerd.io
+          - runc
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    # -----------------------------
+    # Docker Official Repo
+    # -----------------------------
     - name: Add Docker GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
-    - name: Add Docker repository for Ubuntu 24.04 (Noble Numbat)
+    - name: Add Docker repository (dynamic codename)
       apt_repository:
-        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu noble stable"
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
         state: present
 
-    - name: Update apt cache after adding Docker repo
+    - name: Update apt cache after Docker repo
       apt:
         update_cache: yes
 
-    - name: Install Docker packages
+    - name: Install Docker Engine
       apt:
         name:
           - docker-ce
@@ -45,35 +70,20 @@
           - docker-compose-plugin
         state: present
 
-    - name: Install Python dependencies for Ansible docker modules
-      apt:
-        name:
-          - python3-pip
-          - python3-docker  # Paquete oficial de Ubuntu para docker SDK
-        state: present
-
-    - name: Ensure docker python sdk is available
-      pip:
+    - name: Enable and start Docker
+      systemd:
         name: docker
-        executable: pip3
-        extra_args: --break-system-packages
-
-    - name: Install Docker
-      apt:
-        name:
-          - docker.io
-          - docker-compose-plugin
-        state: present
-        update_cache: yes
+        enabled: yes
+        state: started
 
     # -----------------------------
-    # Jenkins
+    # Jenkins Setup
     # -----------------------------
-
     - name: Create Jenkins directory
       file:
         path: /opt/jenkins
         state: directory
+        mode: '0755'
 
     - name: Copy docker compose
       copy:
