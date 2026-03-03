@@ -76,7 +76,7 @@ pipeline {
 
             steps {
                 script {
-                    env.ecs_public_ip = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
                     env.ecs_private_key = "${WORKSPACE}/ecs_private_key.txt"
                 }
                 // Ejecutar el playbook de instalacion
