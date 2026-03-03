@@ -17,15 +17,13 @@ services:
       - ./casc.yaml:/var/jenkins_home/casc.yaml
       - /var/run/docker.sock:/var/run/docker.sock
 
+    networks:
+      - jenkinsnet
+
     user: root
 
 volumes:
   jenkins_home:
-
-services:
-  jenkins:
-    networks:
-      - jenkinsnet
 
 networks:
   jenkinsnet:
