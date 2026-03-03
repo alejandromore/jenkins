@@ -116,20 +116,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Terraform Destroy') {
-            when {
-                allOf {
-                    expression { params.ACTION == 'destroy' }
-                    expression { params.RUN_TERRAFORM }
-                }
-            }
-            steps {
-                dir(env.TF_DIR) {
-                    sh 'terraform destroy -auto-approve -var-file="local.tfvars"'
-                }
-            }
-        }
     }
 
     post {
@@ -139,8 +125,8 @@ pipeline {
         failure {
             echo "Error en el pipeline"
         }
-        //always {
-        //    deleteDir()
-        //}
+        always {
+            deleteDir()
+        }
     }
 }
