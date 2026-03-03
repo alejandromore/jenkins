@@ -35,7 +35,7 @@ resource "huaweicloud_networking_secgroup_rule" "ecs_egress_internet" {
 # ECS Module
 #######################################
 data "huaweicloud_images_images" "ubuntu_latest" {
-  name_regex  = "Ubuntu 22.04"
+  name_regex  = "Ubuntu 24.04"
   visibility  = "public"
 }
 
