@@ -83,7 +83,7 @@ pipeline {
                         string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
                     ]) {
                         script {
-                            env.ecs_public_ip = "${env.WORKSPACE}/ecs_public_ip.txt"
+                            env.ecs_public_ip = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                             env.ecs_private_key = "${env.WORKSPACE}/ecs_private_key.txt"
                         }
 
