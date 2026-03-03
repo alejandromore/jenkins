@@ -85,21 +85,50 @@
         state: directory
         mode: '0755'
 
+    # Copiar Dockerfile
+    - name: Copy Dockerfile
+      copy:
+        src: files/Dockerfile
+        dest: /opt/jenkins/Dockerfile
+
+    # Copiar plugins.txt
+    - name: Copy plugins list
+      copy:
+        src: files/plugins.txt
+        dest: /opt/jenkins/plugins.txt
+
+    # Copiar docker-compose
     - name: Copy docker compose
       copy:
         src: files/docker-compose.yml
         dest: /opt/jenkins/docker-compose.yml
 
+    # Copiar JCasC
     - name: Copy JCasC config
       copy:
         src: files/casc.yaml
         dest: /opt/jenkins/casc.yaml
 
+    # Copiar variables de entorno
     - name: Template env file
       template:
         src: templates/jenkins.env.j2
         dest: /opt/jenkins/jenkins.env
 
+    # Apagar stack anterior si existe
+    - name: Stop previous Jenkins stack if exists
+      shell: docker compose down -v
+      args:
+        chdir: /opt/jenkins
+      ignore_errors: yes
+
+    # Construir nueva imagen
+    - name: Build Jenkins image
+      shell: docker compose build --no-cache
+      args:
+        chdir: /opt/jenkins
+
+    # Levantar Jenkins
     - name: Start Jenkins
       shell: docker compose up -d
       args:

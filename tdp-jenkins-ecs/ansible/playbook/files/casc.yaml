@@ -22,6 +22,10 @@ clouds:
       templates:
         - labelString: "docker-agent"
           name: "docker-agent"
+          mode: EXCLUSIVE
+          pullStrategy: PULL_ALWAYS
+          retentionStrategy:
+            idleMinutes: 5
           dockerTemplateBase:
             image: "maven:3.9.6-eclipse-temurin-17"
             tty: true
