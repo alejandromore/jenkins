@@ -19,7 +19,7 @@ module "vpc_service" {
   subnets_configuration = var.subnets_configuration
   security_group_name   = var.security_group_name
 }
-
+/*
 #######################################
 # ECS Module
 #######################################
@@ -65,3 +65,4 @@ module "eip_publicip" {
     }
   ]
 }
+*/
