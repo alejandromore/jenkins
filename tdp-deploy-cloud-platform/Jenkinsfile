@@ -80,6 +80,9 @@ pipeline {
 
                     envsubst < terraform.tfvars.tpl > local.tfvars
                     envsubst < backend.tf.tpl > backend.tf
+
+                    cat local.tfvars
+                    cat backend.tf
                     '''
                 }
             }
