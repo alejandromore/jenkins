@@ -22,8 +22,20 @@ pipeline {
         )
 
         string(
-            name: 'VPC_SUBNET_CIDR',
+            name: 'VPC_SUBNET_PUBLIC_CIDR',
             defaultValue: '10.4.0.0/19',
+            description: 'Subnet CIDR block'
+        )
+
+        string(
+            name: 'VPC_SUBNET_CCE_CIDR',
+            defaultValue: '10.4.32.0/19',
+            description: 'Subnet CIDR block'
+        )
+
+        string(
+            name: 'VPC_SUBNET_CCE_ENI_CIDR',
+            defaultValue: '10.4.64.0/19',
             description: 'Subnet CIDR block'
         )
 
@@ -75,10 +87,12 @@ pipeline {
                 dir(env.TF_DIR) {
                     sh '''
                     export VPC_CIDR=${VPC_CIDR}
-                    export VPC_SUBNET_CIDR=${VPC_SUBNET_CIDR}
+                    export VPC_SUBNET_PUBLIC_CIDR=${VPC_SUBNET_PUBLIC_CIDR}
+                    export VPC_SUBNET_CCE_CIDR=${VPC_SUBNET_CCE_CIDR}
+                    export VPC_SUBNET_CCE_ENI_CIDR=${VPC_SUBNET_CCE_ENI_CIDR}
                     export TEAM=${TEAM}
 
-                    envsubst < terraform.tfvars.tpl > local.tfvars
+                    envsubst < local.tfvars.tpl > local.tfvars
                     envsubst < backend.tf.tpl > backend.tf
                     '''
                 }
