@@ -53,8 +53,8 @@ pipeline {
     }
 
     environment {
-        TF_VAR_access_key = credentials('hwc-access-key')
-        TF_VAR_secret_key = credentials('hwc-secret-key')
+        //TF_VAR_access_key = credentials('hwc-access-key')
+        //TF_VAR_secret_key = credentials('hwc-secret-key')
         TF_DIR_BASE = 'tdp-config-catalog-cce/terraform/base'
         TF_DIR_WK   = 'tdp-config-catalog-cce/terraform/workload-identity'
         TF_DIR_ST   = 'tdp-config-catalog-cce/terraform/secrets-store'
