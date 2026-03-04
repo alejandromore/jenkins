@@ -76,7 +76,7 @@ pipeline {
         // -----------------------------
         stage('Terraform Deploy Base') {
             when {
-                expression { params.RUN_TERRAFORM }
+                expression { params.RUN_TERRAFORM_BASE }
             }
             steps {
                 withCredentials([
