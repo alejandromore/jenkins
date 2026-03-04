@@ -71,15 +71,17 @@ pipeline {
                     expression { params.ACTION == 'deploy' }
                 }
             }
-            steps {
-                sh '''
-                export VPC_CIDR=${VPC_CIDR}
-                export SUBNET_CIDR=${SUBNET_CIDR}
-                export TEAM=${TEAM}
+            dir(env.TF_DIR) {
+                steps {
+                    sh '''
+                    export VPC_CIDR=${VPC_CIDR}
+                    export SUBNET_CIDR=${SUBNET_CIDR}
+                    export TEAM=${TEAM}
 
-                envsubst < terraform.tfvars.tpl > local.tfvars
-                envsubst < backend.tf.tpl > backend.tf
-                '''
+                    envsubst < terraform.tfvars.tpl > local.tfvars
+                    envsubst < backend.tf.tpl > backend.tf
+                    '''
+                }
             }
         }
 
