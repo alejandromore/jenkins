@@ -21,17 +21,17 @@ EOF
 # ============================================================================
 # VARIABLES PARA LA VPC
 # ============================================================================
-vpc_name = "vpc-tdp-jenkins"
+vpc_name = "vpc-${TEAM}"
 vpc_cidr = "${VPC_CIDR}"
 
 subnets_configuration = [
   {
-    name = "vpc-subnet-tdp-jenkins"
+    name = "vpc-subnet-${TEAM}"
     cidr = "${SUBNET_CIDR}"
     dns_list = ["100.125.1.250", "100.125.21.250"]
   }
 ]
 
-security_group_name = "sg-tdp-jenkins-public"
+security_group_name = "sg-${TEAM}-public"
 security_group_description = "Created by terraform module"
 
