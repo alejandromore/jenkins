@@ -13,34 +13,37 @@ jenkins:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
 
-  clouds:
-    - docker:
-        name: "docker"
-        dockerApi:
-          dockerHost:
-            uri: "unix:///var/run/docker.sock"
-        registryCredentialsId: "swr-jenkins"
+clouds:
+  - docker:
+      name: "docker"
 
-        templates:
-          - labelString: "docker-agent-huawei"
-            name: "docker-agent-huawei"
-            mode: EXCLUSIVE
-            pullStrategy: PULL_ALWAYS
+      dockerApi:
+        dockerHost:
+          uri: "unix:///var/run/docker.sock"
 
-            retentionStrategy:
-              idleMinutes: 5
+      templates:
+        - labelString: "docker-agent-huawei"
+          name: "docker-agent-huawei"
+          mode: EXCLUSIVE
+          pullStrategy: PULL_ALWAYS
 
-            remoteFs: "/home/jenkins"
+          retentionStrategy:
+            idleMinutes: 5
 
-            connector:
-              attach:
-                user: "jenkins"
+          remoteFs: "/home/jenkins"
 
-            dockerTemplateBase:
-              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-huawei:1.0"
-              tty: true
-              mounts:
-                - "/opt/jenkins/workspaces:/home/jenkins/workspace"
+          connector:
+            attach:
+              user: "jenkins"
+
+          dockerTemplateBase:
+            image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-huawei:1.0"
+            registry:
+              url: "https://swr.la-south-2.myhuaweicloud.com"
+              credentialsId: "swr-jenkins"
+            tty: true
+            mounts:
+              - "/opt/jenkins/workspaces:/home/jenkins/workspace"
 
 unclassified:
   location:
