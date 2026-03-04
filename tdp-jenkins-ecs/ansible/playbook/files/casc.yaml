@@ -39,9 +39,7 @@ jenkins:
             dockerTemplateBase:
               image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-huawei:1.0"
 
-              registry:
-                url: "https://swr.la-south-2.myhuaweicloud.com"
-                credentialsId: "swr-jenkins"
+              pullCredentialsId: "swr-jenkins"
 
               tty: true
 
