@@ -74,20 +74,29 @@ pipeline {
         // -----------------------------
         stage('Terraform Deploy Base') {
             when {
-                expression { params.RUN_TERRAFORM_BASE }
+                expression { params.RUN_TERRAFORM }
             }
             steps {
-                script {
-                    terraformDeploy(
-                        dir: env.TF_DIR_BASE,
-                        varsFile: 'local.tfvars',
-                        action: params.ACTION,
-                        outputs: [
-                            'elb_public_ip', 
-                            'elb_public_id',
-                            'kubeconfig'
-                        ]
-                    )
+                withCredentials([
+                    string(credentialsId: 'hwc-access-key', variable: 'HW_ACCESS_KEY'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
+                    string(credentialsId: 'hwc-access-key', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    script {
+
+                        terraformDeploy(
+                            dir: env.TF_DIR_BASE,
+                            varsFile: 'local.tfvars',
+                            action: params.ACTION,
+                            outputs: [
+                                'elb_public_ip', 
+                                'elb_public_id',
+                                'kubeconfig'
+                            ]
+                        )
+
+                    }
                 }
             }
         }
@@ -140,19 +149,29 @@ pipeline {
                     }
                 }
 
-                withEnv([
-                    "TF_VAR_oidc_jwks=${env.JWKS}",
-                    "TF_VAR_namespace=workload-identity",
-                    "TF_VAR_obs_service_account_name=sa-obs-workload-identity",
-                    "TF_VAR_dew_service_account_name=sa-dew-workload-identity"
+                withCredentials([
+                    string(credentialsId: 'hwc-access-key', variable: 'HW_ACCESS_KEY'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
+                    string(credentialsId: 'hwc-access-key', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
                 ]) {
 
-                    terraformDeploy(
-                        dir: env.TF_DIR_WK,
-                        varsFile: 'local.tfvars',
-                        action: params.ACTION,
-                        outputs: ['idp_id']
-                    )
+                    withEnv([
+                        "TF_VAR_oidc_jwks=${env.JWKS}",
+                        "TF_VAR_namespace=workload-identity",
+                        "TF_VAR_obs_service_account_name=sa-obs-workload-identity",
+                        "TF_VAR_dew_service_account_name=sa-dew-workload-identity"
+                    ]) {
+
+                        terraformDeploy(
+                            dir: env.TF_DIR_WK,
+                            varsFile: 'local.tfvars',
+                            action: params.ACTION,
+                            outputs: ['idp_id']
+                        )
+
+                    }
+
                 }
                 
             }
@@ -185,14 +204,25 @@ pipeline {
                         '''
                     }
                 }
-                script {
-                    terraformDeploy(
-                        dir: env.TF_DIR_ST,
-                        varsFile: 'local.tfvars',
-                        action: params.ACTION,
-                        outputs: []
-                    )
+
+                withCredentials([
+                    string(credentialsId: 'hwc-access-key', variable: 'HW_ACCESS_KEY'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
+                    string(credentialsId: 'hwc-access-key', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    script {
+
+                        terraformDeploy(
+                            dir: env.TF_DIR_ST,
+                            varsFile: 'local.tfvars',
+                            action: params.ACTION,
+                            outputs: []
+                        )
+
+                    }
                 }
+
             }
         }
 
