@@ -1,7 +1,9 @@
 @Library('shared-lib') _
 
 pipeline {
-    agent any
+    agent {
+        label 'docker-agent'
+    }
 
     options {
         disableConcurrentBuilds()
