@@ -39,9 +39,7 @@ jenkins:
               image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-huawei:1.0"
               tty: true
               mounts:
-                - type: bind
-                  source: /opt/jenkins/workspaces
-                  target: /home/jenkins/workspace
+                - "/opt/jenkins/workspaces:/home/jenkins/workspace"
 
 unclassified:
   location:
