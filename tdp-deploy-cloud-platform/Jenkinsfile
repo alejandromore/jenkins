@@ -4,7 +4,11 @@ pipeline {
     agent { label 'docker-agent' }
 
     parameters {
-
+        choice(
+            name: 'ACTION',
+            choices: ['deploy', 'destroy'],
+            description: 'Acción sobre el ambiente'
+        )
         choice(
             name: 'TEAM',
             choices: ['Huawei-Alejandro'],
@@ -52,43 +56,47 @@ pipeline {
         )
     }
 
+    environment {
+        TF_IN_AUTOMATION = "true"
+        TF_CLI_ARGS = "-no-color"
+
+        TF_DIR   = 'tdp-deploy-cloud-platform/terraform'
+    }
+
     stages {
 
-        stage('Print Parameters') {
+        stage('Generate tfvars') {
+            when {
+                allOf {
+                    expression { params.ACTION == 'deploy' }
+                }
+            }
             steps {
                 sh '''
-                echo "===== Deployment Configuration ====="
-                echo "Team: ${TEAM}"
-                echo "VPC CIDR: ${VNET_CIDR}"
-                echo "Subnet CIDR: ${SNET_CIDR}"
-                echo "VM Size: ${VM_SIZE}"
-                echo "Number of Nodes: ${NUM_NODES}"
-                echo "Max Pods: ${MAX_PODS}"
-                echo "AZ: ${AZ_LOCATION}"
+                export VPC_CIDR=${VPC_CIDR}
+                export SUBNET_CIDR=${SUBNET_CIDR}
+
+                envsubst < terraform.tfvars.tpl > local.tfvars
                 '''
             }
         }
 
-        stage('Validate Network') {
+
+        stage('Terraform Deploy') {
             steps {
-                sh '''
-                echo "Validating CIDR format..."
-                '''
+                script {
+
+                    terraformDeploy(
+                        dir: env.TF_DIR,
+                        varsFile: 'local.tfvars',
+                        action: params.ACTION,
+                        outputs: [] 
+                    )
+
+                }
             }
         }
 
-        stage('Deploy Infrastructure (Simulated)') {
-            steps {
-                sh '''
-                echo "Deploying Huawei Cloud infrastructure..."
-                echo "Creating VPC..."
-                echo "Creating Subnet..."
-                echo "Provisioning CCE Cluster..."
-                echo "Adding ${NUM_NODES} worker nodes of type ${VM_SIZE} in ${AZ_LOCATION}..."
-                '''
-                sleep 10
-            }
-        }
     }
 
     post {
