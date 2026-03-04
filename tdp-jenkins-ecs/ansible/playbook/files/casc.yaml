@@ -2,16 +2,8 @@ jenkins:
   systemMessage: "Jenkins Docker Setup with SWR"
   numExecutors: 0
 
-  securityRealm:
-    local:
-      allowsSignup: true
-      users:
-        - id: ${JENKINS_ADMIN_ID}
-          password: ${JENKINS_ADMIN_PASSWORD}
-
-  authorizationStrategy:
-    loggedInUsersCanDoAnything:
-      allowAnonymousRead: true
+  securityRealm: none
+  authorizationStrategy: unsecured
 
   clouds:
     - docker:
