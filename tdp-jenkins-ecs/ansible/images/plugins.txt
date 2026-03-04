@@ -1,7 +1,41 @@
-configuration-as-code
+# Pipeline
+workflow-aggregator
+pipeline-model-definition
+pipeline-stage-view
+pipeline-utility-steps
+ansicolor
+timestamper
+
+# Containers
 docker-plugin
 docker-workflow
-workflow-aggregator
-blueocean
-git
+kubernetes
+
+# Credentials
 credentials
+credentials-binding
+ssh-agent
+
+# Git
+git
+github
+gitlab-plugin
+
+# DevOps
+ansible
+job-dsl
+
+# Notifications
+mailer
+
+# Config
+configuration-as-code
+
+# UI
+blueocean
+
+# Files
+file-parameters
+
+# Utils
+ws-cleanup
