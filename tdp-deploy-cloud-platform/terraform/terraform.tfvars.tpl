@@ -27,7 +27,7 @@ vpc_cidr = "${VPC_CIDR}"
 subnets_configuration = [
   {
     name = "vpc-subnet-${TEAM}"
-    cidr = "${SUBNET_CIDR}"
+    cidr = "${VPC_SUBNET_CIDR}"
     dns_list = ["100.125.1.250", "100.125.21.250"]
   }
 ]
