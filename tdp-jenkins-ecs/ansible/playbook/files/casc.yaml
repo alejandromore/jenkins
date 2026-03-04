@@ -38,13 +38,10 @@ jenkins:
 
             dockerTemplateBase:
               image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-huawei:1.0"
-
               pullCredentialsId: "swr-jenkins"
-
               tty: true
-
               mounts:
-                - "/opt/jenkins/workspaces:/home/jenkins/workspace"
+                - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
 
 unclassified:
   location:
