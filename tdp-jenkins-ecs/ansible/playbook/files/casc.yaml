@@ -19,10 +19,11 @@ jenkins:
         dockerApi:
           dockerHost:
             uri: "unix:///var/run/docker.sock"
+          registryCredentialsId: "swr-jenkins"
 
         templates:
-          - labelString: "docker-agent"
-            name: "docker-agent"
+          - labelString: "docker-agent-huawei"
+            name: "docker-agent-huawei"
             mode: EXCLUSIVE
             pullStrategy: PULL_ALWAYS
 
