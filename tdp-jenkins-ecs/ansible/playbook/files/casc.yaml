@@ -19,7 +19,7 @@ jenkins:
         dockerApi:
           dockerHost:
             uri: "unix:///var/run/docker.sock"
-          registryCredentialsId: "swr-jenkins"
+        registryCredentialsId: "swr-jenkins"
 
         templates:
           - labelString: "docker-agent-huawei"
