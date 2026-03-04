@@ -20,15 +20,15 @@ dns_list                          = ["100.125.1.250", "100.125.21.250"]
 
 vpc_subnet_public_name            = "vpc-subnet-public"
 vpc_subnet_public_cidr            = "${VPC_SUBNET_PUBLIC_CIDR}"
-vpc_subnet_public_gateway_ip      = "10.1.0.1"
+vpc_subnet_public_gateway_ip      = "10.4.0.1"
 
 vpc_subnet_cce_name               = "vpc-subnet-cce"
 vpc_subnet_cce_cidr               = "${VPC_SUBNET_CCE_CIDR}"
-vpc_subnet_cce_gateway_ip         = "10.1.32.1"
+vpc_subnet_cce_gateway_ip         = "10.4.32.1"
 
 vpc_subnet_cce_eni_name           = "vpc-subnet-cce-eni"
 vpc_subnet_cce_eni_cidr           = "${VPC_SUBNET_CCE_ENI_CIDR}"
-vpc_subnet_cce_eni_gateway_ip     = "10.1.64.1"
+vpc_subnet_cce_eni_gateway_ip     = "10.4.64.1"
 
 cce_network_cidr                  = "172.16.0.0/16"
 eip_cce_name                      = "eip-${TEAM}-server"
