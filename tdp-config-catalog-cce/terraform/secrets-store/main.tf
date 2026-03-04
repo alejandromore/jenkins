@@ -140,17 +140,6 @@ resource "huaweicloud_identity_user_role_assignment" "cce_user_obs_role" {
 #######################################
 # DEW - Secret
 #######################################
-/*
-locals {
-  dew_secret_payload = {
-    URL      = "wwww.google.com"
-    USUARIO  = "alejandro"
-    PASSWORD = "P@ssw0rdSecure123!"
-    PORT     = "5432"
-  }
-}
-*/
-
 //Utiliza el AK y SK del usuario Terraform, no del usuario IAM para DEW
 data "local_file" "cce_credentials" {
   filename = "${path.module}/credentials-cce-programmatic-user.csv"
@@ -185,10 +174,6 @@ locals {
       HUAWEI_CLOUD_SK = local.HW_SK
     }
   )
-}
-
-output "dew_secret_payload_debug" {
-  value = local.dew_secret_payload
 }
 
 module "dew_secret" {

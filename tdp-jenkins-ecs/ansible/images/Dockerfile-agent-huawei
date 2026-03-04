@@ -74,4 +74,7 @@ RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform
 # Clean
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean
 
+# Make bash the default shell
+RUN ln -sf /bin/bash /bin/sh
+
 USER jenkins

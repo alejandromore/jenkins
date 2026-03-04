@@ -226,16 +226,6 @@ resource "huaweicloud_identity_provider_mapping" "workload_mapping" {
 #######################################
 # DEW - Secret
 #######################################
-/*
-locals {
-  dew_secret_payload = {
-    URL      = "wwww.google.com"
-    USUARIO  = "alejandro"
-    PASSWORD = "P@ssw0rdSecure123!"
-    PORT     = "5432"
-  }
-}
-*/
 
 locals {
   secrets_file = yamldecode(file("${path.module}/secrets/secrets-dec.yaml"))
@@ -248,10 +238,6 @@ locals {
       PORT     = "5432"
     }
   )
-}
-
-output "dew_secret_payload_debug" {
-  value = local.dew_secret_payload
 }
 
 module "dew_secret" {
