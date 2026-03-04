@@ -102,7 +102,12 @@ pipeline {
 
         stage('Terraform Deploy') {
             steps {
-                script {
+                withCredentials([
+                    string(credentialsId: 'hwc-access-key', variable: 'HW_ACCESS_KEY'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
+                    string(credentialsId: 'hwc-access-key', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
 
                     terraformDeploy(
                         dir: env.TF_DIR,
