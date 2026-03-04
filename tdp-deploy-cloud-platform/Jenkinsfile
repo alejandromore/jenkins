@@ -71,8 +71,8 @@ pipeline {
                     expression { params.ACTION == 'deploy' }
                 }
             }
-            dir(env.TF_DIR) {
-                steps {
+            steps {
+                dir(env.TF_DIR) {
                     sh '''
                     export VPC_CIDR=${VPC_CIDR}
                     export SUBNET_CIDR=${SUBNET_CIDR}
