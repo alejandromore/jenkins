@@ -1,6 +1,9 @@
 - hosts: jenkins
   become: true
 
+  vars:
+    swr_registry: swr.la-south-2.myhuaweicloud.com
+
   tasks:
 
     # -----------------------------
@@ -28,7 +31,7 @@
         state: present
 
     # -----------------------------
-    # Limpiar instalaciones previas de Docker
+    # Docker Installation
     # -----------------------------
     - name: Remove old Docker packages if exist
       apt:
@@ -43,15 +46,12 @@
         purge: yes
       ignore_errors: yes
 
-    # -----------------------------
-    # Docker Official Repo
-    # -----------------------------
     - name: Add Docker GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
-    - name: Add Docker repository (dynamic codename)
+    - name: Add Docker repository
       apt_repository:
         repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
         state: present
@@ -85,7 +85,6 @@
         state: directory
         mode: '0755'
 
-    # Crear directorio persistente de workspaces
     - name: Create persistent workspace directory
       file:
         path: /opt/jenkins/workspaces
@@ -94,50 +93,51 @@
         group: 1000
         mode: '0755'
 
-    # Copiar Dockerfile
-    - name: Copy Dockerfile
-      copy:
-        src: files/Dockerfile
-        dest: /opt/jenkins/Dockerfile
-
-    # Copiar plugins.txt
-    - name: Copy plugins list
-      copy:
-        src: files/plugins.txt
-        dest: /opt/jenkins/plugins.txt
-
-    # Copiar docker-compose
     - name: Copy docker compose
       copy:
         src: files/docker-compose.yml
         dest: /opt/jenkins/docker-compose.yml
 
-    # Copiar JCasC
     - name: Copy JCasC config
       copy:
         src: files/casc.yaml
         dest: /opt/jenkins/casc.yaml
 
-    # Copiar variables de entorno
-    - name: Template env file
+    - name: Template jenkins env
       template:
         src: templates/jenkins.env.j2
         dest: /opt/jenkins/jenkins.env
 
-    # Apagar stack anterior si existe
+    - name: Template secrets env
+      template:
+        src: templates/secrets.env.j2
+        dest: /opt/jenkins/secrets.env
+        mode: '0600'
+
+    # -----------------------------
+    # LOGIN A SWR
+    # -----------------------------
+    - name: Login to SWR
+      shell: |
+        docker login {{ swr_registry }} \
+        -u {{ swr_user }} \
+        -p {{ swr_password }}
+      no_log: true
+
+    # -----------------------------
+    # Deploy Jenkins
+    # -----------------------------
     - name: Stop previous Jenkins stack if exists
       shell: docker compose down -v
       args:
         chdir: /opt/jenkins
       ignore_errors: yes
 
-    # Construir nueva imagen
-    - name: Build Jenkins image
-      shell: docker compose build --no-cache
+    - name: Pull latest Jenkins image
+      shell: docker compose pull
       args:
         chdir: /opt/jenkins
 
-    # Levantar Jenkins
     - name: Start Jenkins
       shell: docker compose up -d
       args:

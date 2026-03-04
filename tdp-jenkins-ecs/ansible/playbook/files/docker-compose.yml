@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   jenkins:
-    build: .
+    image: swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-controller:1.0
     container_name: jenkins
     restart: unless-stopped
 
@@ -17,6 +15,7 @@ services:
       - jenkins_home:/var/jenkins_home
       - ./casc.yaml:/var/jenkins_home/casc.yaml
       - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/jenkins/workspaces:/opt/jenkins/workspaces
 
     networks:
       - jenkinsnet

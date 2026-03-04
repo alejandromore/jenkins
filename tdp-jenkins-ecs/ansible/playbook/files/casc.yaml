@@ -4,7 +4,7 @@ jenkins:
 
   securityRealm:
     local:
-      allowsSignup: false
+      allowsSignup: true
       users:
         - id: ${JENKINS_ADMIN_ID}
           password: ${JENKINS_ADMIN_PASSWORD}
@@ -36,7 +36,7 @@ jenkins:
                 user: "jenkins"
 
             dockerTemplateBase:
-              image: "swr.la-south-2.myhuaweicloud.com/devops/agent-huawei:1.0"
+              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-huawei:1.0"
               tty: true
               mounts:
                 - type: bind
