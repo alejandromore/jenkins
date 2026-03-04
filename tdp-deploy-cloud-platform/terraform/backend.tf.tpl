@@ -2,7 +2,7 @@ terraform {
   backend "s3" {
     region                      = "us-east-1"
     bucket                      = "obs-alejandro-terraform-tfstate"
-    key                         = "tdp-jenkins-ecs.tfstate"
+    key                         = "tdp-${TEAM}.tfstate"
     endpoints                   = {
         s3 = "https://obs.la-south-2.myhuaweicloud.com"
     }

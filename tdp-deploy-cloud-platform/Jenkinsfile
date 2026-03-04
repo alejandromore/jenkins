@@ -65,7 +65,7 @@ pipeline {
 
     stages {
 
-        stage('Generate tfvars') {
+        stage('Generate terraform files') {
             when {
                 allOf {
                     expression { params.ACTION == 'deploy' }
@@ -78,6 +78,7 @@ pipeline {
                 export TEAM=${TEAM}
 
                 envsubst < terraform.tfvars.tpl > local.tfvars
+                envsubst < backend.tf.tpl > backend.tf
                 '''
             }
         }
