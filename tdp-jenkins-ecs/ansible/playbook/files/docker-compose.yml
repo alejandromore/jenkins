@@ -12,7 +12,7 @@ services:
       - secrets.env
 
     volumes:
-      - jenkins_home:/var/jenkins_home
+      - /data/jenkins_home:/var/jenkins_home
       - ./casc.yaml:/var/jenkins_home/casc.yaml
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/jenkins/workspaces:/opt/jenkins/workspaces

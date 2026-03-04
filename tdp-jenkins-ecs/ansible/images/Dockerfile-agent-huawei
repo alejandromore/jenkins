@@ -63,6 +63,14 @@ RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
     -O /usr/local/bin/yq && \
     chmod +x /usr/local/bin/yq
 
+# terraform
+ARG TERRAFORM_VERSION=1.7.5
+
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    mv terraform /usr/local/bin/ && \
+    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+
 # Clean
 RUN rm -rf /var/lib/apt/lists/* && apt-get clean
 
