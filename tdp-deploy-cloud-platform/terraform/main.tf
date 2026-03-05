@@ -1,9 +1,13 @@
-# Enterprise Project
-data "huaweicloud_enterprise_project" "ep" {
-  name = var.enterprise_project_name
-}
-
 data "huaweicloud_availability_zones" "myaz" {}
+
+#######################################
+# Enterprise Project
+#######################################
+resource "huaweicloud_enterprise_project" "ep" {
+  name        = var.enterprise_project_name
+  description = var.enterprise_project_description
+  tags        = var.tags
+}
 
 #######################################
 # VPC Module
