@@ -16,7 +16,7 @@ module "vpc" {
   source            = "../../terraform-modules/vpc"
   name              = var.vpc_name
   cidr              = var.vpc_cidr
-  project_id        = data.huaweicloud_enterprise_project.ep.id
+  project_id        = huaweicloud_enterprise_project.ep.id
   tags              = var.tags
   region            = var.region
 }
@@ -63,19 +63,19 @@ module "subnet_cce_eni" {
 module "sg_public" {
   source                = "../../terraform-modules/security_group"
   sg_name               = var.security_group_public
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  enterprise_project_id = huaweicloud_enterprise_project.ep.id
 }
 
 module "sg_cce_eni" {
   source                = "../../terraform-modules/security_group"
   sg_name               = var.security_group_cce_eni
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  enterprise_project_id = huaweicloud_enterprise_project.ep.id
 }
 
 module "sg_cce" {
   source                = "../../terraform-modules/security_group"
   sg_name               = var.security_group_cce
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  enterprise_project_id = huaweicloud_enterprise_project.ep.id
 }
 
 
@@ -281,7 +281,7 @@ module "eip_elb_public" {
   source                = "../../terraform-modules/eip"
   eip_name              = "eip-elb-public"
   bandwidth_name        = "mieip-bandwidth"
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  enterprise_project_id = huaweicloud_enterprise_project.ep.id
   tags                  = var.tags
 }
 
@@ -314,7 +314,7 @@ module "nat_gateway" {
   subnet_id             = module.subnet_cce.subnet_id
   spec                  = var.ng_spec
   description           = var.ng_description
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  enterprise_project_id = huaweicloud_enterprise_project.ep.id
 
   tags                  = var.tags
 }
@@ -323,7 +323,7 @@ module "eip_nat_gateway" {
   source                = "../../terraform-modules/eip"
   eip_name              = "eip-nat-gateway"
   bandwidth_name        = "mieip-bandwidth"
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  enterprise_project_id = huaweicloud_enterprise_project.ep.id
   tags                  = var.tags
 }
 
@@ -349,7 +349,7 @@ module "eip_cce_cluster" {
   source                = "../../terraform-modules/eip"
   eip_name              = var.eip_cce_name
   bandwidth_name        = "mieip-bandwidth"
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  enterprise_project_id = huaweicloud_enterprise_project.ep.id
   tags                  = var.tags
 }
 
@@ -366,7 +366,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     enable_distribute_management = false
     eni_subnet_cidr              = null
     eni_subnet_id                = module.subnet_cce_eni.ipv4_subnet_id
-    enterprise_project_id        = data.huaweicloud_enterprise_project.ep.id
+    enterprise_project_id        = huaweicloud_enterprise_project.ep.id
     flavor_id                    = var.cce_cluster_flavor
     highway_subnet_id            = null
     ipv6_enable                  = false
