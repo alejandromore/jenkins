@@ -6,7 +6,6 @@ data "huaweicloud_availability_zones" "myaz" {}
 resource "huaweicloud_enterprise_project" "ep" {
   name        = var.enterprise_project_name
   description = var.enterprise_project_description
-  tags        = var.tags
 }
 
 #######################################
