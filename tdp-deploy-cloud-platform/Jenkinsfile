@@ -11,7 +11,7 @@ pipeline {
         )
         choice(
             name: 'TEAM',
-            choices: ['app1-dev'],
+            choices: ['app1-dev', 'app1-prod', 'app2-dev', 'app2-prod'],
             description: 'Huawei Cloud Account'
         )
 

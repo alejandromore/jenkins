@@ -1,5 +1,4 @@
 region     = "la-south-2"
-project_id = "0371a9a7f90b493fadebbf130f6fcd2c"
 
 environment                      = "local"
 enterprise_project_name          = "enterprise-app"

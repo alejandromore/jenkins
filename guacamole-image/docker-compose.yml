@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+
+  guacamole:
+    build: .
+    container_name: guacamole
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - ./data:/config
