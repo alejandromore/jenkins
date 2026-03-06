@@ -303,12 +303,12 @@ module "nat_gateway" {
 #######################################
 # CCE
 #######################################
-data "huaweicloud_vpc_subnet" "subnet_cce_eni" {
-  id = element(module.vpc_service.subnet_ids, 2)
-}
-
 data "huaweicloud_vpc_subnet" "subnet_cce" {
   id = element(module.vpc_service.subnet_ids, 1)
+}
+
+data "huaweicloud_vpc_subnet" "subnet_cce_eni" {
+  id = element(module.vpc_service.subnet_ids, 2)
 }
 
 module "eip_cce_publicip" {
@@ -342,13 +342,48 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     name                         = var.cce_cluster_name
     region                       = var.region
     security_group_id            = huaweicloud_networking_secgroup.sg_cce.id
-    service_network_cidr         = data.huaweicloud_vpc_subnet.subnet_cce.cidr
+    service_network_cidr         = var.cce_network_cidr
     subnet_id                    = data.huaweicloud_vpc_subnet.subnet_cce.id
     support_istio                = true
     tags                         = var.tags
     timezone                     = "America/Lima"
     vpc_id                       = module.vpc_service.vpc_id
     eip                          = module.eip_cce_publicip.eip_ipv4_address
+
+    masters {
+        availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+    }
+}
+
+
+resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
+    alias                        = var.cce_cluster_name
+    authentication_mode          = var.cce_authentication_mode 
+    charging_mode                = var.cce_charging_mode
+    cluster_type                 = var.cce_cluster_type
+    cluster_version              = var.cce_k8s_version
+    container_network_cidr       = null
+    container_network_type       = var.cce_network_type
+    custom_san                   = []
+    description                  = null
+    enable_distribute_management = false
+    eni_subnet_cidr              = null
+    eni_subnet_id                = module.subnet_cce_eni.ipv4_subnet_id
+    enterprise_project_id        = data.huaweicloud_enterprise_project.ep.id
+    flavor_id                    = var.cce_cluster_flavor
+    highway_subnet_id            = null
+    ipv6_enable                  = false
+    kube_proxy_mode              = "iptables"
+    name                         = var.cce_cluster_name
+    region                       = var.region
+    security_group_id            = module.sg_cce.security_group_id
+    service_network_cidr         = var.cce_network_cidr
+    subnet_id                    = module.subnet_cce.subnet_id
+    support_istio                = true
+    tags                         = var.tags
+    timezone                     = "America/Lima"
+    vpc_id                       = module.vpc.vpc_id
+    eip                          = module.eip_cce_cluster.address
 
     masters {
         availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
