@@ -50,7 +50,6 @@ variable "subnets_configuration" {
   type = list(object({
     name     = string
     cidr     = string
-    dns_list = list(string)
   }))
 }
 

@@ -1,0 +1,51 @@
+FROM jenkins/inbound-agent:latest-jdk21
+
+LABEL container.registry="acrgenesis" \
+      image.name="agent-terraform" \
+      version="1.0" \
+      author="hfarroc" \
+      commit-id="4149a50" \
+      build.date="2026-03-03 18:00:00"
+
+USER root
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+ARG SOPS_VERSION=3.11.0
+
+# Base packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        locales curl git wget jq unzip iptables procps xz-utils \
+        ca-certificates gnupg lsb-release software-properties-common rsync ansible \
+        gettext-base && \
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    locale-gen en_US.UTF-8
+
+# sops
+RUN wget https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64 \
+    -O /usr/local/bin/sops && \
+    chmod +x /usr/local/bin/sops
+
+# yq
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+    -O /usr/local/bin/yq && \
+    chmod +x /usr/local/bin/yq
+
+# terraform
+ARG TERRAFORM_VERSION=1.7.5
+
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip && \
+    mv terraform /usr/local/bin/ && \
+    rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+
+# Clean
+RUN rm -rf /var/lib/apt/lists/* && apt-get clean
+
+# Make bash the default shell
+RUN ln -sf /bin/bash /bin/sh
+
+USER jenkins

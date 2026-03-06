@@ -20,17 +20,14 @@ subnets_configuration = [
   {
     name = "vpc-subnet-public"
     cidr = "10.0.1.0/24"
-    dns_list = var.dns_list
   },
   {
     name = "vpc-subnet-cce"
     cidr = "10.0.2.0/24"
-    dns_list = var.dns_list
   },
   {
     name = "vpc-subnet-cce-eni"
     cidr = "10.0.3.0/24"
-    dns_list = var.dns_list
   }
 ]
 
