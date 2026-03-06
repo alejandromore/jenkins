@@ -53,6 +53,13 @@ credentials:
               description: GitHub credentials
 
           - usernamePassword:
+              id: telefonica-bitbucket
+              scope: GLOBAL
+              username: ""
+              password: ""
+              description: Telefonica Bit Bucket Credentials
+
+          - usernamePassword:
               id: swr-jenkins
               scope: GLOBAL
               username: ${SWR_USER}

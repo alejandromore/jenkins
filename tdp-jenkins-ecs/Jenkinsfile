@@ -23,6 +23,16 @@ pipeline {
             defaultValue: false,
             description: 'Instalar Docker e imagen Jenkins'
         )
+        string(
+            name: 'ECS_PUBLIC_IP',
+            defaultValue: '101.44.3.15',
+            description: 'IP pública del ECS donde se desplegará Jenkins'
+        )
+
+        base64File(
+            name: 'ECS_PRIVATE_KEY',
+            description: 'Subir archivo de clave privada SSH'
+        )
     }
 
     environment {
@@ -76,8 +86,14 @@ pipeline {
 
             steps {
                 script {
-                    env.ecs_public_ip = readFile("${WORKSPACE}/ecs_public_ip.txt").trim()
-                    env.ecs_private_key = "${WORKSPACE}/ecs_private_key.txt"
+
+                    env.ecs_public_ip = params.ECS_PUBLIC_IP
+                    env.ecs_private_key = "${WORKSPACE}/ecs_private_key.pem"
+
+                    writeFile(
+                        file: env.ecs_private_key,
+                        text: new String(params.ECS_PRIVATE_KEY.decodeBase64())
+                    )
                 }
                 // Ejecutar el playbook de instalacion
                 dir(env.ANS_DIR) {

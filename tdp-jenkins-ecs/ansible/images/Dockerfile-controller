@@ -4,7 +4,25 @@ USER root
 
 # Instalar plugins
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-
 RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+
+# Crear carpeta para jars adicionales
+RUN mkdir -p /usr/share/jenkins/ref/lib
+
+# Descargar dependencias necesarias para la shared library
+RUN curl -L -o /usr/share/jenkins/ref/lib/commons-dbcp2.jar \
+    https://repo1.maven.org/maven2/org/apache/commons/commons-dbcp2/2.11.0/commons-dbcp2-2.11.0.jar
+
+RUN curl -L -o /usr/share/jenkins/ref/lib/commons-pool2.jar \
+    https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.12.0/commons-pool2-2.12.0.jar
+
+RUN curl -L -o /usr/share/jenkins/ref/lib/postgresql.jar \
+    https://repo1.maven.org/maven2/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar
+
+RUN curl -L -o /usr/share/jenkins/ref/lib/snakeyaml.jar \
+    https://repo1.maven.org/maven2/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar
+
+RUN curl -L -o /usr/share/jenkins/ref/lib/jsoup.jar \
+    https://repo1.maven.org/maven2/org/jsoup/jsoup/1.17.2/jsoup-1.17.2.jar
 
 USER jenkins

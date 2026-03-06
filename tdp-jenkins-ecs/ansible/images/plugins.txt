@@ -5,6 +5,7 @@ pipeline-stage-view
 pipeline-utility-steps
 ansicolor
 timestamper
+uno-choice
 
 # Containers
 docker-plugin
