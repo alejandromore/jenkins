@@ -179,7 +179,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_worker_access"
   remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
   description       = "Permitir comunicacion total entre nodos dentro de su propia subnet"
 }
-
+/*
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
@@ -188,7 +188,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
   remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
   description       = "Permitir confianza total entre todos los miembros de este security group"
 }
-
+*/
 # --- SALIDA A INTERNET (EGRESS) ---
 resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
@@ -254,13 +254,11 @@ module "eip_elb_publicip" {
   eip_publicip_configuration  = var.eip_publicip_configuration
   eip_bandwidth_configuration = var.eip_bandwidth_configuration
   eip_name                    = var.eip_elb_name
+}
 
-  eip_associates_configuration = [
-    {
-      associate_instance_type = "PORT"
-      associate_instance_id   = try(huaweicloud_lb_loadbalancer.elb_public.vip_port_id, "")
-    }
-  ]
+resource "huaweicloud_vpc_eip_associate" "eip_1" { 
+  public_ip = module.eip_elb_publicip.eip_ipv4_address
+  port_id   = huaweicloud_lb_loadbalancer.elb_public.vip_port_id
 }
 
 #######################################
