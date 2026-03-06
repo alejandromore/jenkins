@@ -1,4 +1,3 @@
-/*
 output "elb_public_id" {
   value = huaweicloud_lb_loadbalancer.elb_public.id
 }
@@ -11,4 +10,3 @@ output "kubeconfig" {
   value     = huaweicloud_cce_cluster.cce_cluster_turbo.kube_config_raw
   sensitive = true
 }
-*/

@@ -6,44 +6,81 @@ data "huaweicloud_enterprise_project" "ep" {
 data "huaweicloud_availability_zones" "myaz" {}
 
 #######################################
-# VPC, Subnet and Security Groups
+# VPC Module
 #######################################
-module "vpc_service" {
-  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-vpc"
+module "vpc" {
+  source            = "../../../terraform-modules/vpc"
+  name              = var.vpc_name
+  cidr              = var.vpc_cidr
+  project_id        = data.huaweicloud_enterprise_project.ep.id
+  tags              = var.tags
+  region            = var.region
+}
 
-  availability_zone                  = data.huaweicloud_availability_zones.myaz.names[0]
-  vpc_name                           = var.vpc_name
-  vpc_cidr                           = var.vpc_cidr
-  subnets_configuration              = var.subnets_configuration
+#######################################
+# Subnets
+#######################################
+module "subnet_public" {
+  source            = "../../../terraform-modules/subnet"
+  vpc_id            = module.vpc.vpc_id
+  subnet_name       = var.vpc_subnet_public_name
+  cidr              = var.vpc_subnet_public_cidr
+  gateway_ip        = var.vpc_subnet_public_gateway_ip
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  dns_list          = var.dns_list
+  tags              = var.tags
+}
 
-  enterprise_project_id              = data.huaweicloud_enterprise_project.ep.id
-  vpc_tags                           = var.tags
+module "subnet_cce" {
+  source            = "../../../terraform-modules/subnet"
+  vpc_id            = module.vpc.vpc_id
+  subnet_name       = var.vpc_subnet_cce_name
+  cidr              = var.vpc_subnet_cce_cidr
+  gateway_ip        = var.vpc_subnet_cce_gateway_ip
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  dns_list          = var.dns_list
+  tags              = var.tags
+}
+
+module "subnet_cce_eni" {
+  source            = "../../../terraform-modules/subnet"
+  vpc_id            = module.vpc.vpc_id
+  subnet_name       = var.vpc_subnet_cce_eni_name
+  cidr              = var.vpc_subnet_cce_eni_cidr
+  gateway_ip        = var.vpc_subnet_cce_eni_gateway_ip
+  availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+  dns_list          = var.dns_list
+  tags              = var.tags
 }
 
 #######################################
 # Security Group
 #######################################
-resource "huaweicloud_networking_secgroup" "sg_public" {
-  name               = var.security_group_public
+module "sg_public" {
+  source                = "../../../terraform-modules/security_group"
+  sg_name               = var.security_group_public
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
-resource "huaweicloud_networking_secgroup" "sg_cce_eni" {
-  name               = var.security_group_cce_eni
+module "sg_cce_eni" {
+  source                = "../../../terraform-modules/security_group"
+  sg_name               = var.security_group_cce_eni
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
-resource "huaweicloud_networking_secgroup" "sg_cce" {
-  name               = var.security_group_cce
+module "sg_cce" {
+  source                = "../../../terraform-modules/security_group"
+  sg_name               = var.security_group_cce
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
+
 
 #######################################
 # Security Group Rules - Public
 #######################################
 # Reglas para ELB
 resource "huaweicloud_networking_secgroup_rule" "public_ingress_http" {
-  security_group_id = huaweicloud_networking_secgroup.sg_public.id
+  security_group_id = module.sg_public.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -54,34 +91,66 @@ resource "huaweicloud_networking_secgroup_rule" "public_ingress_http" {
 }
 # ELB necesita comunicarse con ECS para tráfico de aplicación
 resource "huaweicloud_networking_secgroup_rule" "public_egress_to_private" {
-  security_group_id = huaweicloud_networking_secgroup.sg_public.id
+  security_group_id = module.sg_public.security_group_id
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 8081
   port_range_max    = 8081
-  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+  remote_group_id   = module.sg_cce.security_group_id
   description       = "ELB → CCE (8081)"
 }
 
 # ELB necesita puertos efímeros para health checks y sesiones
 resource "huaweicloud_networking_secgroup_rule" "public_egress_ephemeral_health" {
-  security_group_id = huaweicloud_networking_secgroup.sg_public.id
+  security_group_id = module.sg_public.security_group_id
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 32768  # Puertos efímeros típicos de Linux
   port_range_max    = 60999
-  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+  remote_group_id   = module.sg_cce.security_group_id
   description       = "ELB → CCE para health check y sesiones"
+}
+
+#######################################
+# Security Group CCE ENI - Rules 
+#######################################
+resource "huaweicloud_networking_secgroup_rule" "cce_eni_ingress_cidr" {
+  security_group_id = module.sg_cce_eni.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "0"
+  remote_ip_prefix  = var.vpc_cidr
+  description       = "Used by worker nodes to access each other and to access the master node."
+}
+
+resource "huaweicloud_networking_secgroup_rule" "cce_eni_ingress_self" {
+  security_group_id = module.sg_cce_eni.security_group_id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "0"
+  remote_group_id   = module.sg_cce_eni.security_group_id
+  description       = "Traffic from the source IP addresses defined in the security group must be allowed."
+}
+
+resource "huaweicloud_networking_secgroup_rule" "cce_eni_egress_all" {
+  security_group_id = module.sg_cce_eni.security_group_id
+  direction         = "egress"
+  ethertype         = "IPv4"
+  protocol          = "0"
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "Default egress security group rule for CCE ENI"
 }
 
 #######################################
 # Security Group CCE Node - Rules 
 #######################################
+
 # --- ACCESO EXTERNO (ADMINISTRACIÓN) ---
+
 resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -92,8 +161,9 @@ resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
 }
 
 # --- COMUNICACIÓN CON CONTROL PLANE (MASTER) ---
+
 resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -105,7 +175,7 @@ resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_turbo_addon_comm" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -115,7 +185,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_turbo_addon_comm" {
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -126,7 +196,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_node_icmp" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "icmp"
@@ -135,8 +205,9 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_icmp" {
 }
 
 # --- TRÁFICO DE SERVICIOS (NODEPORT Y ELB) ---
+
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_tcp" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -147,7 +218,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_tcp" 
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_udp" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "udp"
@@ -158,7 +229,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_udp" 
 }
 
 resource "huaweicloud_networking_secgroup_rule" "private_ingress_elb_health_8080" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
@@ -169,28 +240,29 @@ resource "huaweicloud_networking_secgroup_rule" "private_ingress_elb_health_8080
 }
 
 # --- CONFIANZA INTERNA (RED DEL CLUSTER) ---
+
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_worker_access" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "0"
-  #remote_ip_prefix  = var.vpc_subnet_cce_cidr
-  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+  remote_ip_prefix  = var.vpc_subnet_cce_cidr
   description       = "Permitir comunicacion total entre nodos dentro de su propia subnet"
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "0"
-  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+  remote_group_id   = module.sg_cce.security_group_id
   description       = "Permitir confianza total entre todos los miembros de este security group"
 }
 
 # --- SALIDA A INTERNET (EGRESS) ---
+
 resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  security_group_id = module.sg_cce.security_group_id
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "0"
@@ -199,71 +271,35 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
 }
 
 #######################################
-# Security Group CCE ENI - Rules 
-#######################################
-resource "huaweicloud_networking_secgroup_rule" "cce_eni_ingress_cidr" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "0"
-  remote_ip_prefix  = var.vpc_cidr
-  description       = "Used by worker nodes to access each other and to access the master node."
-}
-
-resource "huaweicloud_networking_secgroup_rule" "cce_eni_ingress_self" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "0"
-  remote_group_id   = huaweicloud_networking_secgroup.sg_cce_eni.id
-  description       = "Traffic from the source IP addresses defined in the security group must be allowed."
-}
-
-resource "huaweicloud_networking_secgroup_rule" "cce_eni_egress_all" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "0"
-  remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Default egress security group rule for CCE ENI"
-}
-
-#######################################
 # ELB
 #######################################
-data "huaweicloud_vpc_subnet" "subnet_public" {
-  name = "vpc-subnet-public"
+module "eip_elb_public" {
+  source                = "../../../terraform-modules/eip"
+  eip_name              = "eip-elb-public"
+  bandwidth_name        = "mieip-bandwidth"
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  tags                  = var.tags
 }
 
 resource "huaweicloud_lb_loadbalancer" "elb_public" {
   name               = "elb-public"
-  #vip_subnet_id      = module.subnet_public.ipv4_subnet_id
-  vip_subnet_id     = data.huaweicloud_vpc_subnet.subnet_public.ipv4_subnet_id
-
-  security_group_ids = [huaweicloud_networking_secgroup.sg_public.id]
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  vip_subnet_id      = module.subnet_public.ipv4_subnet_id
+  security_group_ids = [module.sg_public.security_group_id]
   tags               = var.tags
 }
 
-module "eip_publicip" {
-  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-eip/modules/eip-publicip"
-
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-
-  eip_publicip_configuration  = var.eip_publicip_configuration
-  eip_bandwidth_configuration = var.eip_bandwidth_configuration
-  eip_name                    = var.eip_name
-
-  eip_associates_configuration = [
-    {
-      associate_instance_type = "PORT"
-      associate_instance_id   = try(huaweicloud_lb_loadbalancer.elb_public.vip_port_id, "")
-    }
-  ]
+resource "time_sleep" "after_eip_detach" {
+  depends_on = [huaweicloud_lb_loadbalancer.elb_public]
+  destroy_duration = "45s"
 }
 
+resource "huaweicloud_vpc_eip_associate" "eip_1" {
+  depends_on = [time_sleep.after_eip_detach]
+  
+  public_ip = module.eip_elb_public.address
+  port_id   = huaweicloud_lb_loadbalancer.elb_public.vip_port_id
+}
 
-/*
 #######################################
 # NAT Gateway
 #######################################
@@ -413,4 +449,3 @@ resource "huaweicloud_csms_secret" "cce_sg_id" {
 
   secret_text = module.sg_cce.security_group_id
 }
-*/

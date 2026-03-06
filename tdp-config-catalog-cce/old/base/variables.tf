@@ -2,7 +2,12 @@ variable "environment" {
   description = "Nombre del ambiente (noprod, prod)"
   type        = string
 }
-
+/*
+variable "project_id" {
+  description = "Project ID"
+  type        = string
+}
+*/
 variable "tags" {
   description = "Tags to assign to the ECS"
   type        = map(string)
@@ -32,26 +37,19 @@ variable "enterprise_project_name" {
   type        = string
 }
 
-# ============================================================================
-# VARIABLES PARA LA VPC
-# ============================================================================
 variable "vpc_name" {
-  description = "Name of the VPC"
+  description = "Nombre de la vpc"
   type        = string
 }
 
 variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
+  description = "cidr de la vpc"
   type        = string
 }
 
-variable "subnets_configuration" {
-  description = "List of subnet configurations"
-  type = list(object({
-    name     = string
-    cidr     = string
-    dns_list = list(string)
-  }))
+variable "dns_list" {
+  description = "dns_list"
+  type        = list(string)
 }
 
 # ============================================================================
@@ -73,25 +71,58 @@ variable "security_group_cce_eni" {
 }
 
 # ============================================================================
-# VARIABLES PARA EL ELB - EIP
+# VARIABLES PARA LA INSTANCIA DE VPC Subnet
 # ============================================================================
-variable "eip_name" {
-  type = string
+
+variable "vpc_subnet_public_name" {
+  description = "Nombre de la subnet publica"
+  type        = string
 }
 
-variable "eip_publicip_configuration" {
-  type = list(object({
-    type       = string
-    ip_version = string
-  }))
+variable "vpc_subnet_public_cidr" {
+  description = "cidr de la subnet publica"
+  type        = string
 }
 
-variable "eip_bandwidth_configuration" {
-  type = list(object({
-    share_type = string
-    name       = string
-    size       = number
-  }))
+variable "vpc_subnet_public_gateway_ip" {
+  description = "gateway_ip de la subnet publica"
+  type        = string
+}
+
+variable "vpc_subnet_cce_eni_name" {
+  description = "Nombre de la subnet CCE ENI"
+  type        = string
+  default = ""
+}
+
+variable "vpc_subnet_cce_eni_cidr" {
+  description = "cidr de la subnet CCE ENI"
+  type        = string
+  default = ""
+}
+
+variable "vpc_subnet_cce_eni_gateway_ip" {
+  description = "gateway_ip de la subnet CCE ENI"
+  type        = string
+  default = ""
+}
+
+variable "vpc_subnet_cce_name" {
+  description = "Nombre de la subnet CCE"
+  type        = string
+  default = ""
+}
+
+variable "vpc_subnet_cce_cidr" {
+  description = "cidr de la subnet CCE"
+  type        = string
+  default = ""
+}
+
+variable "vpc_subnet_cce_gateway_ip" {
+  description = "gateway_ip de la subnet CCE"
+  type        = string
+  default = ""
 }
 
 # ============================================================================

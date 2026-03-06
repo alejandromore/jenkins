@@ -9,57 +9,25 @@ tags                             = {
     costcenter  = "it-001"
 }
 
-# ============================================================================
-# VARIABLES PARA LA VPC
-# ============================================================================
-vpc_name = "vpc-tdp-config-catalog-cce"
-vpc_cidr = "10.1.0.0/16"
-
-subnets_configuration = [
-  {
-    name = "vpc-subnet-public"
-    cidr = "10.1.0.0/19"
-    dns_list = ["100.125.1.250", "100.125.21.250"]
-  },
-  {
-    name = "vpc-subnet-cce"
-    cidr = "10.1.32.0/19"
-    dns_list = ["100.125.1.250", "100.125.21.250"]
-  },
-  {
-    name = "vpc-subnet-cce-eni"
-    cidr = "10.1.64.0/19"
-    dns_list = ["100.125.1.250", "100.125.21.250"]
-  }
-]
-
 security_group_public             = "sg-tdp-config-catalog-cce-public"
 security_group_cce_eni            = "sg-tdp-config-catalog-cce-eni"
 security_group_cce                = "sg-tdp-config-catalog-cce-node"
 
-# ============================================================================
-# VARIABLES PARA EL ELB - EIP
-# ============================================================================
-eip_name = "eip-elb-public"
+vpc_name                          = "vpc-tdp-config-catalog-cce"
+vpc_cidr                          = "10.1.0.0/16"
+dns_list                          = ["100.125.1.250", "100.125.21.250"]
 
-eip_publicip_configuration = [
-  {
-    type       = "5_bgp"
-    ip_version = "4"
-  }
-]
+vpc_subnet_public_name            = "vpc-subnet-public"
+vpc_subnet_public_cidr            = "10.1.0.0/19"
+vpc_subnet_public_gateway_ip      = "10.1.0.1"
 
-eip_bandwidth_configuration = [
-  {
-    share_type = "PER"
-    name       = "eip-bw-ecs-tdp-jenkins"
-    size       = 5
-  }
-]
+vpc_subnet_cce_name               = "vpc-subnet-cce"
+vpc_subnet_cce_cidr               = "10.1.32.0/19"
+vpc_subnet_cce_gateway_ip         = "10.1.32.1"
 
-
-
-
+vpc_subnet_cce_eni_name           = "vpc-subnet-cce-eni"
+vpc_subnet_cce_eni_cidr           = "10.1.64.0/19"
+vpc_subnet_cce_eni_gateway_ip     = "10.1.64.1"
 
 cce_network_cidr                  = "172.16.0.0/16"
 eip_cce_name                      = "eip-cce-config-server"
@@ -81,5 +49,6 @@ ng_description                    = "NAT Gateway"
 
 dew_secret_name                   = "secret-app1-dev"
 dew_secret_description            = "App Dev Secrets"
+
 
 key_alias                         = "alias/infra-secrets-key"
