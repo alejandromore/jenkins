@@ -12,24 +12,25 @@ tags                             = {
 # ============================================================================
 # VARIABLES PARA LA VPC
 # ============================================================================
+dns_list = ["100.125.1.250", "100.125.21.250"]
 vpc_name = "vpc-tdp-config-catalog-cce"
-vpc_cidr = "10.0.0.0/24"
+vpc_cidr = "10.0.0.0/16"
 
 subnets_configuration = [
   {
     name = "vpc-subnet-public"
-    cidr = "10.0.0.0/28"
-    dns_list = ["100.125.1.250", "100.125.21.250"]
+    cidr = "10.0.1.0/24"
+    dns_list = var.dns_list
   },
   {
     name = "vpc-subnet-cce"
-    cidr = "10.0.0.16/28"
-    dns_list = ["100.125.1.250", "100.125.21.250"]
+    cidr = "10.0.2.0/24"
+    dns_list = var.dns_list
   },
   {
     name = "vpc-subnet-cce-eni"
-    cidr = "10.0.0.32/28"
-    dns_list = ["100.125.1.250", "100.125.21.250"]
+    cidr = "10.0.3.0/24"
+    dns_list = var.dns_list
   }
 ]
 

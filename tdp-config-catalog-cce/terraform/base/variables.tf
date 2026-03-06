@@ -54,6 +54,11 @@ variable "subnets_configuration" {
   }))
 }
 
+variable "dns_list" {
+  description = "DNS List"
+  type = list(string)
+}
+
 # ============================================================================
 # SECURITY GROUPS
 # ============================================================================
