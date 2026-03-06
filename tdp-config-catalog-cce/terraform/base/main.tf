@@ -233,7 +233,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_eni_egress_all" {
 # ELB
 #######################################
 data "huaweicloud_vpc_subnet" "subnet_public" {
-  name = "vpc-subnet-public"
+  id = element(module.vpc_service.subnet_ids, 0)
 }
 
 resource "huaweicloud_lb_loadbalancer" "elb_public" {
