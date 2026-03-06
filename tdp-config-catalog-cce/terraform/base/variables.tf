@@ -75,7 +75,15 @@ variable "security_group_cce_eni" {
 # ============================================================================
 # VARIABLES PARA EL ELB - EIP
 # ============================================================================
-variable "eip_name" {
+variable "eip_elb_name" {
+  type = string
+}
+
+variable "eip_ng_name" {
+  type = string
+}
+
+variable "eip_cce_name" {
   type = string
 }
 
@@ -113,12 +121,6 @@ variable "dew_secret_description" {
 # ============================================================================
 # VARIABLES PARA EL CCE
 # ============================================================================
-variable "eip_cce_name" {
-  description = "Nombre de la IP del CCE"
-  type        = string
-  default = ""
-}
-
 variable "cce_cluster_name" {
   type        = string
   description = "Nombre del clúster CCE."

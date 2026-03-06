@@ -11,13 +11,14 @@ data "huaweicloud_availability_zones" "myaz" {}
 module "vpc_service" {
   source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-vpc"
 
-  availability_zone                  = data.huaweicloud_availability_zones.myaz.names[0]
-  vpc_name                           = var.vpc_name
-  vpc_cidr                           = var.vpc_cidr
-  subnets_configuration              = var.subnets_configuration
+  availability_zone        = data.huaweicloud_availability_zones.myaz.names[0]
+  vpc_name                 = var.vpc_name
+  vpc_cidr                 = var.vpc_cidr
+  subnets_configuration    = var.subnets_configuration
+  enterprise_project_id    = data.huaweicloud_enterprise_project.ep.id
+  vpc_tags                 = var.tags
 
-  enterprise_project_id              = data.huaweicloud_enterprise_project.ep.id
-  vpc_tags                           = var.tags
+  is_security_group_create = false
 }
 
 #######################################
@@ -245,14 +246,14 @@ resource "huaweicloud_lb_loadbalancer" "elb_public" {
   tags               = var.tags
 }
 
-module "eip_publicip" {
+module "eip_elb_publicip" {
   source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-eip/modules/eip-publicip"
 
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 
   eip_publicip_configuration  = var.eip_publicip_configuration
   eip_bandwidth_configuration = var.eip_bandwidth_configuration
-  eip_name                    = var.eip_name
+  eip_name                    = var.eip_elb_name
 
   eip_associates_configuration = [
     {
@@ -262,6 +263,92 @@ module "eip_publicip" {
   ]
 }
 
+#######################################
+# NAT Gateway
+#######################################
+module "eip_ng_publicip" {
+  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-eip/modules/eip-publicip"
+
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+
+  eip_publicip_configuration  = var.eip_publicip_configuration
+  eip_bandwidth_configuration = var.eip_bandwidth_configuration
+  eip_name                    = var.eip_ng_name
+}
+
+module "nat_gateway" {
+  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-nat/modules/nat-public-gateway"
+
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+
+  gateway_vpc_id        = module.vpc_service.vpc_id
+  gateway_subnet_id     = try(element(module.vpc_service.subnet_ids, 0), "")
+  gateway_name          = var.ng_name
+  gateway_specification = var.ng_spec
+  gateway_description   = var.ng_description
+
+  snat_rules_configuration = [
+    {
+      floating_ip_id = module.eip_ng_publicip.eip_id
+      subnet_id      = try(element(module.vpc_service.subnet_ids, 0), "")
+    }
+  ]
+}
+
+#######################################
+# CCE
+#######################################
+data "huaweicloud_vpc_subnet" "subnet_cce_eni" {
+  name = "vpc-subnet-cce-eni"
+}
+
+data "huaweicloud_vpc_subnet" "subnet_cce" {
+  name = "vpc-subnet-cce"
+}
+
+module "eip_cce_publicip" {
+  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-eip/modules/eip-publicip"
+
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+
+  eip_publicip_configuration  = var.eip_publicip_configuration
+  eip_bandwidth_configuration = var.eip_bandwidth_configuration
+  eip_name                    = var.eip_cce_name
+}
+
+resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
+    alias                        = var.cce_cluster_name
+    authentication_mode          = var.cce_authentication_mode 
+    charging_mode                = var.cce_charging_mode
+    cluster_type                 = var.cce_cluster_type
+    cluster_version              = var.cce_k8s_version
+    container_network_cidr       = null
+    container_network_type       = var.cce_network_type
+    custom_san                   = []
+    description                  = null
+    enable_distribute_management = false
+    eni_subnet_cidr              = null
+    eni_subnet_id                = data.huaweicloud_vpc_subnet.subnet_cce_eni.ipv4_subnet_id
+    enterprise_project_id        = data.huaweicloud_enterprise_project.ep.id
+    flavor_id                    = var.cce_cluster_flavor
+    highway_subnet_id            = null
+    ipv6_enable                  = false
+    kube_proxy_mode              = "iptables"
+    name                         = var.cce_cluster_name
+    region                       = var.region
+    security_group_id            = huaweicloud_networking_secgroup.sg_cce.id
+    service_network_cidr         = data.huaweicloud_vpc_subnet.subnet_cce.cidr
+    subnet_id                    = data.huaweicloud_vpc_subnet.subnet_cce.id
+    support_istio                = true
+    tags                         = var.tags
+    timezone                     = "America/Lima"
+    vpc_id                       = module.vpc_service.vpc_id
+    eip                          = module.eip_cce_publicip.eip_ipv4_address
+
+    masters {
+        availability_zone = data.huaweicloud_availability_zones.myaz.names[0]
+    }
+}
 
 /*
 #######################################
