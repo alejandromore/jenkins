@@ -299,11 +299,11 @@ module "nat_gateway" {
 # CCE
 #######################################
 data "huaweicloud_vpc_subnet" "subnet_cce_eni" {
-  name = "vpc-subnet-cce-eni"
+  id = element(module.vpc_service.subnet_ids, 2)
 }
 
 data "huaweicloud_vpc_subnet" "subnet_cce" {
-  name = "vpc-subnet-cce"
+  id = element(module.vpc_service.subnet_ids, 1)
 }
 
 module "eip_cce_publicip" {
