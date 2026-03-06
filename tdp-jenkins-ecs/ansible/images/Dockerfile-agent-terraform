@@ -19,8 +19,7 @@ ARG SOPS_VERSION=3.11.0
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         locales curl git wget jq unzip iptables procps xz-utils \
-        ca-certificates gnupg lsb-release software-properties-common rsync ansible \
-        gettext-base && \
+        ca-certificates gnupg lsb-release rsync ansible gettext-base && \
     echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
     locale-gen en_US.UTF-8
 
