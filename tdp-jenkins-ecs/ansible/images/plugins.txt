@@ -3,9 +3,13 @@ workflow-aggregator
 pipeline-model-definition
 pipeline-stage-view
 pipeline-utility-steps
+workflow-cps-global-lib
 ansicolor
 timestamper
 uno-choice
+
+# Folders
+cloudbees-folder
 
 # Containers
 docker-plugin
@@ -26,6 +30,10 @@ gitlab-plugin
 ansible
 job-dsl
 
+# Reports
+cucumber-reports
+gatling
+
 # Notifications
 mailer
 
@@ -34,6 +42,7 @@ configuration-as-code
 
 # UI
 blueocean
+pipeline-graph-view
 
 # Files
 file-parameters
