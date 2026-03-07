@@ -14,20 +14,50 @@ jenkins:
             uri: "unix:///var/run/docker.sock"
 
         templates:
-          - labelString: "docker-agent"
-            name: "docker-agent"
+          - labelString: "agent-terraform"
+            name: "agent-terraform"
             mode: EXCLUSIVE
             pullStrategy: PULL_ALWAYS
-
             retentionStrategy:
               idleMinutes: 5
-
             remoteFs: "/home/jenkins"
-
             connector:
               attach:
                 user: "jenkins"
+            dockerTemplateBase:
+              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-terraform:1.0"
+              pullCredentialsId: "swr-jenkins"
+              tty: true
+              mounts:
+                - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
 
+          - labelString: "agent-huawei"
+            name: "agent-huawei"
+            mode: EXCLUSIVE
+            pullStrategy: PULL_ALWAYS
+            retentionStrategy:
+              idleMinutes: 5
+            remoteFs: "/home/jenkins"
+            connector:
+              attach:
+                user: "jenkins"
+            dockerTemplateBase:
+              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-terraform:1.0"
+              pullCredentialsId: "swr-jenkins"
+              tty: true
+              mounts:
+                - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
+
+          - labelString: "genesisBackJdk21"
+            name: "genesisBackJdk21"
+            mode: EXCLUSIVE
+            pullStrategy: PULL_ALWAYS
+            retentionStrategy:
+              idleMinutes: 5
+            remoteFs: "/home/jenkins"
+            connector:
+              attach:
+                user: "jenkins"
             dockerTemplateBase:
               image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-agent-huawei:1.0"
               pullCredentialsId: "swr-jenkins"

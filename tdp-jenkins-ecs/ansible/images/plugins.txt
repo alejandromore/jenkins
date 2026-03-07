@@ -25,6 +25,7 @@ ssh-agent
 git
 github
 gitlab-plugin
+bitbucket-push-and-pull-request
 
 # DevOps
 ansible
