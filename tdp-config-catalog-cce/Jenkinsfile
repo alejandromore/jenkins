@@ -2,7 +2,7 @@
 
 pipeline {
     agent {
-        label 'agent-terraform'
+        label 'agent-huawei'
     }
 
     options {
