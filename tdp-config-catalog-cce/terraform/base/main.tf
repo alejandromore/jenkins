@@ -8,27 +8,6 @@ data "huaweicloud_availability_zones" "myaz" {}
 #######################################
 # VPC, Subnet and Security Groups
 #######################################
-/*
-locals {
-  subnets_configuration = [
-    for s in var.subnets_configuration :
-    merge(s, { dns_list = var.dns_list })
-  ]
-}
-
-module "vpc_service" {
-  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-vpc"
-
-  availability_zone        = data.huaweicloud_availability_zones.myaz.names[0]
-  vpc_name                 = var.vpc_name
-  vpc_cidr                 = var.vpc_cidr
-  subnets_configuration    = local.subnets_configuration
-  enterprise_project_id    = data.huaweicloud_enterprise_project.ep.id
-  vpc_tags                 = var.tags
-
-  is_security_group_create = false
-}
-*/
 resource "huaweicloud_vpc" "vpc_service" {
   name   = var.vpc_name
   cidr   = var.vpc_cidr
@@ -298,17 +277,6 @@ resource "huaweicloud_lb_loadbalancer" "elb_public" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
   tags               = var.tags
 }
-/*
-module "eip_elb_publicip" {
-  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-eip/modules/eip-publicip"
-
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-
-  eip_publicip_configuration  = var.eip_publicip_configuration
-  eip_bandwidth_configuration = var.eip_bandwidth_configuration
-  eip_name                    = var.eip_elb_name
-}
-*/
 
 resource "huaweicloud_vpc_eip" "eip_elb" {
   name         = var.eip_elb_name
@@ -334,17 +302,6 @@ resource "huaweicloud_vpc_eip_associate" "eip_1" {
 #######################################
 # NAT Gateway
 #######################################
-/*
-module "eip_ng_publicip" {
-  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-eip/modules/eip-publicip"
-
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-
-  eip_publicip_configuration  = var.eip_publicip_configuration
-  eip_bandwidth_configuration = var.eip_bandwidth_configuration
-  eip_name                    = var.eip_ng_name
-}
-*/
 resource "huaweicloud_vpc_eip" "eip_ng" {
   name         = var.eip_ng_name
   publicip {
@@ -359,26 +316,7 @@ resource "huaweicloud_vpc_eip" "eip_ng" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
   tags = var.tags
 }
-/*
-module "nat_gateway" {
-  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-nat/modules/nat-public-gateway"
 
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-
-  gateway_vpc_id        = huaweicloud_vpc.vpc_service.id
-  gateway_subnet_id     = huaweicloud_vpc_subnet.vpc_subnet_public.id
-  gateway_name          = var.ng_name
-  gateway_specification = var.ng_spec
-  gateway_description   = var.ng_description
-
-  snat_rules_configuration = [
-    {
-      floating_ip_id = huaweicloud_vpc_eip.eip_ng.id
-      subnet_id      = huaweicloud_vpc_subnet.vpc_subnet_public.id
-    }
-  ]
-}
-*/
 # NAT Gateway (solo el recurso NAT)
 resource "huaweicloud_nat_gateway" "cce_nat_gateway" {
   name                = var.ng_name
@@ -409,17 +347,6 @@ resource "huaweicloud_nat_snat_rule" "snat_cce_pods" {
 #######################################
 # CCE
 #######################################
-/*
-module "eip_cce_publicip" {
-  source = "github.com/terraform-huaweicloud-modules/terraform-huaweicloud-eip/modules/eip-publicip"
-
-  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
-
-  eip_publicip_configuration  = var.eip_publicip_configuration
-  eip_bandwidth_configuration = var.eip_bandwidth_configuration
-  eip_name                    = var.eip_cce_name
-}
-*/
 resource "huaweicloud_vpc_eip" "eip_cce" {
   name         = var.eip_cce_name
   publicip {
