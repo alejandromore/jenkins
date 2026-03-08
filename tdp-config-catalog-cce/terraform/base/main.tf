@@ -457,7 +457,7 @@ resource "huaweicloud_cce_cluster" "cce_cluster_turbo" {
     region                       = var.region
     security_group_id            = huaweicloud_networking_secgroup.sg_cce.id
     service_network_cidr         = var.cce_network_cidr
-    subnet_id                    = huaweicloud_vpc_subnet.vpc_subnet_cce.ipv4_subnet_id
+    subnet_id                    = huaweicloud_vpc_subnet.vpc_subnet_cce.id
     support_istio                = true
     tags                         = var.tags
     timezone                     = "America/Lima"
