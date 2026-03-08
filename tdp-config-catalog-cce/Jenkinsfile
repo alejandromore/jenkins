@@ -93,8 +93,7 @@ pipeline {
                             action: params.ACTION,
                             outputs: [
                                 'elb_public_ip', 
-                                'elb_public_id',
-                                'kubeconfig'
+                                'elb_public_id'
                             ]
                         )
 
