@@ -1,0 +1,96 @@
+variable "region" {
+  description = "Nombre de la region"
+  type        = string
+  default = ""
+}
+
+variable "project_id" {
+  description = "ID del proyecto"
+  type        = string
+  default = ""
+}
+
+variable "access_key" {
+  description = "Nombre del Grupo de Securidad"
+  type        = string
+  default = ""
+}
+
+variable "secret_key" {
+  description = "Nombre del Grupo de Securidad"
+  type        = string
+  default = ""
+}
+
+variable "enterprise_project_name" {
+  description = "Nombre del proyecto empresarial"
+  type        = string
+}
+
+variable "key_pair_name" {
+  description = "Nombre del Key Pair para los nodos"
+  type        = string
+}
+
+variable "tags" {
+  description = "Tags to assign to the ECS"
+  type        = map(string)
+  default     = {}
+}
+
+variable "client_id" {
+  description = "Client ID for OIDC provider"
+  type        = string
+}
+
+variable "group_name_obs" {
+  description = "Name of the IAM group for the OBS workload"
+  type        = string
+}
+
+variable "group_name_dew" {
+  description = "Name of the IAM group for the Dew workload"
+  type        = string
+}
+
+############################################
+# Parametros del TF VARS
+############################################
+variable "oidc_jwks" {
+  description = "JWKS from CCE cluster"
+  type        = string
+}
+
+variable "namespace" {
+  description = "Namespace of the workload"
+  type        = string
+  default     = "default"
+}
+
+variable "obs_service_account_name" {
+  description = "Name of the service account"
+  type        = string
+  default     = ""
+}
+
+variable "dew_service_account_name" {
+  description = "Name of the service account"
+  type        = string
+  default     = ""
+}
+
+# ============================================================================
+# VARIABLES PARA EL DEW
+# ============================================================================
+
+variable "dew_secret_name" {
+  description = "Nombre del Secret"
+  type        = string
+  default = ""
+}
+
+variable "dew_secret_description" {
+  description = "Descripcion del Secret"
+  type        = string
+  default = ""
+}
