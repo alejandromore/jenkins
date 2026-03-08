@@ -45,17 +45,54 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "subnets_configuration" {
-  description = "List of subnet configurations"
-  type = list(object({
-    name     = string
-    cidr     = string
-  }))
-}
-
 variable "dns_list" {
   description = "DNS List"
   type = list(string)
+}
+
+# ============================================================================
+# VARIABLES PARA LA VPC Subnet
+# ============================================================================
+variable "vpc_subnet_public_name" {
+  description = "Name of the VPC Subnet Public"
+  type        = string
+}
+
+variable "vpc_subnet_public_cidr" {
+  description = "CIDR block for the VPC Subnet Public"
+  type        = string
+}
+variable "vpc_subnet_public_gateway_ip" {
+  description = "Gateway IP for the VPC Subnet Public"
+  type        = string
+}
+
+variable "vpc_subnet_cce_name" {
+  description = "Name of the VPC Subnet CCE"
+  type        = string
+}
+
+variable "vpc_subnet_cce_cidr" {
+  description = "CIDR block for the VPC Subnet CCE"
+  type        = string
+}
+variable "vpc_subnet_cce_gateway_ip" {
+  description = "Gateway IP for the VPC Subnet CCE"
+  type        = string
+}
+
+variable "vpc_subnet_cce_eni_name" {
+  description = "Name of the VPC Subnet CCE ENI"
+  type        = string
+}
+
+variable "vpc_subnet_cce_eni_cidr" {
+  description = "CIDR block for the VPC Subnet CCE ENI"
+  type        = string
+}
+variable "vpc_subnet_cce_eni_gateway_ip" {
+  description = "Gateway IP for the VPC Subnet CCE ENI"
+  type        = string
 }
 
 # ============================================================================
@@ -79,6 +116,14 @@ variable "security_group_cce_eni" {
 # ============================================================================
 # VARIABLES PARA EL ELB - EIP
 # ============================================================================
+variable "bandwidth_name" {
+  type = string
+}
+
+variable "bandwidth_size" {
+  type = number
+}
+
 variable "eip_elb_name" {
   type = string
 }

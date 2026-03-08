@@ -13,23 +13,21 @@ tags                             = {
 # VARIABLES PARA LA VPC
 # ============================================================================
 dns_list = ["100.125.1.250", "100.125.21.250"]
+
 vpc_name = "vpc-tdp-config-catalog-cce"
 vpc_cidr = "10.0.0.0/16"
 
-subnets_configuration = [
-  {
-    name = "vpc-subnet-public"
-    cidr = "10.0.1.0/24"
-  },
-  {
-    name = "vpc-subnet-cce"
-    cidr = "10.0.2.0/24"
-  },
-  {
-    name = "vpc-subnet-cce-eni"
-    cidr = "10.0.3.0/24"
-  }
-]
+vpc_subnet_public_name        = "vpc-subnet-public"
+vpc_subnet_public_cidr        = "10.0.1.0/24"
+vpc_subnet_public_gateway_ip  = "10.0.1.1"
+
+vpc_subnet_cce_name           = "vpc-subnet-cce"
+vpc_subnet_cce_cidr           = "10.0.2.0/24"
+vpc_subnet_cce_gateway_ip     = "10.0.2.1"
+
+vpc_subnet_cce_eni_name       = "vpc-subnet-cce-eni"
+vpc_subnet_cce_eni_cidr       = "10.0.3.0/24"
+vpc_subnet_cce_eni_gateway_ip = "10.0.3.1"
 
 security_group_public             = "sg-tdp-config-catalog-cce-public"
 security_group_cce_eni            = "sg-tdp-config-catalog-cce-eni"
@@ -38,6 +36,9 @@ security_group_cce                = "sg-tdp-config-catalog-cce-node"
 # ============================================================================
 # VARIABLES PARA EL ELB - EIP
 # ============================================================================
+bandwidth_name = "bw-shared"
+bandwidth_size = 5
+
 eip_elb_name = "eip-elb-public"
 eip_ng_name  = "eip-ng-public"
 eip_cce_name  = "eip-cce-public"
