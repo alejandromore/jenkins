@@ -67,6 +67,18 @@ resource "huaweicloud_networking_secgroup_rule" "nodes_from_elb" {
   description       = "Allow ELB to access Kubernetes NodePort services on worker nodes"
 }
 
+# Huawei ELB health checks -> NodePort
+resource "huaweicloud_networking_secgroup_rule" "nodes_from_elb_healthcheck" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 30000
+  port_range_max    = 32767
+  remote_ip_prefix  = "100.125.0.0/16"
+  description       = "Allow Huawei ELB health checks to NodePort services"
+}
+
 # Internal cluster communication
 resource "huaweicloud_networking_secgroup_rule" "cce_internal_cluster" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
