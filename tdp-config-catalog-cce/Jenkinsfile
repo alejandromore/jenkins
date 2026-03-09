@@ -241,7 +241,7 @@ pipeline {
                         echo "Namespace: ${NAMESPACE}"
                         echo "=========================================="
 
-                        helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx . \
+                        helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx \
                         -n ${NAMESPACE} \
                         --create-namespace \
                         --wait \
