@@ -38,7 +38,7 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
 # CCE Addon - Nginx Ingress
 #######################################
 resource "huaweicloud_cce_addon" "nginx_ingress" {
-  cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
+  cluster_id    = huaweicloud_cce_cluster.cce_cluster_standard.id
   template_name = "nginx-ingress"
   version       = "2.4.5"
   values {
