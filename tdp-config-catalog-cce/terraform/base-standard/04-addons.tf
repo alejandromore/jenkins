@@ -70,8 +70,19 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
   template_name = "nginx-ingress"
   version       = "6.0.1"
 
-  lifecycle {
-    ignore_changes = [values]
+  values {
+
+    custom = {
+      service = jsonencode({
+        type = "LoadBalancer"
+
+        annotations = {
+          "kubernetes.io/elb.class" = "union"
+          "kubernetes.io/elb.id"    = huaweicloud_lb_loadbalancer.elb_public.id
+        }
+      })
+    }
+
   }
 
 }
