@@ -21,6 +21,11 @@ pipeline {
             description: 'Selecciona el tipo de infraestructura base CCE'
         )
         booleanParam(
+            name: 'RUN_HELM_ADDONS',
+            defaultValue: false,
+            description: 'Instalar Addons (nginx-ingress)'
+        )    
+        booleanParam(
             name: 'RUN_TERRAFORM_WORKLOAD_IDENTITY',
             defaultValue: false,
             description: 'Construir infraestructura con Terraform Workload Identity'
@@ -36,6 +41,7 @@ pipeline {
         TF_DIR_TURBO    = 'tdp-config-catalog-cce/terraform/base-turbo'
         TF_DIR_STANDARD = 'tdp-config-catalog-cce/terraform/base-standard'
         TF_DIR_WK       = 'tdp-config-catalog-cce/terraform/workload-identity'
+        HELM_DIR_ADDONS = 'tdp-config-catalog-cce/helm/addons'
         HELM_DIR_WK     = 'tdp-config-catalog-cce/helm/demo-app/workload-identity'
         REGION          = 'la-south-2'
     }
@@ -183,6 +189,69 @@ pipeline {
 
                 }
                 
+            }
+        }
+
+        // -----------------------------
+        // Helm instalar Addons
+        // -----------------------------
+        stage('Deploy Demo App con Workload Identity') {
+
+            when {
+                expression { params.RUN_HELM_ADDONS }
+            }
+
+            environment {
+                NAMESPACE = "ingress-nginx"
+                TIMEOUT_SECONDS = "60"
+            }
+
+            steps {
+                script {
+                    // Lectura de archivos generados en stages previos
+                    env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                }
+
+                dir(env.HELM_DIR_ADDONS) {
+
+                    withCredentials([
+                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                    ]) {
+
+                        sh '''
+                        set -eo pipefail
+
+                        export KUBECONFIG=$KUBECONFIG
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Validando acceso al cluster CCE..."
+                        echo "=========================================="
+                        kubectl get nodes
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Adding Helm repository..."
+                        echo "=========================================="
+                        helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+                        helm repo update
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Namespace: ${NAMESPACE}"
+                        echo "Chart Dir: workload-identity"
+                        echo "=========================================="
+
+                        helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx . \
+                        -n ${NAMESPACE} \
+                        --create-namespace \
+                        --wait \
+                        --timeout ${TIMEOUT_SECONDS}s \
+                        --set controller.service.kubernetes.io/elb.id=${elb_public_id}
+
+                        '''
+                    }
+                }
             }
         }
 

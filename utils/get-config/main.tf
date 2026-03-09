@@ -1,4 +1,5 @@
 #resource "huaweicloud_cce_cluster" "mi_cluster_turbo" {
+#  id    = "17b294eb-1bbe-11f1-8f6f-0255ac10023b"
 #}
 
 #resource "huaweicloud_identity_agency" "ecs-obs-agency"{
@@ -13,12 +14,18 @@
 
 
 resource "huaweicloud_cce_addon" "ingress_controller" {
-  cluster_id    = "a63e1ee2-0e5f-11f1-9307-0255ac100249"
+  cluster_id    = "17b294eb-1bbe-11f1-8f6f-0255ac10023b"
   template_name = "nginx-ingress"
   version       = "6.0.1"
 }
 
 
+/*
+resource "huaweicloud_cce_addon" "nginx_ingress" {
+  cluster_id    = "17b294eb-1bbe-11f1-8f6f-0255ac10023b"
+  template_name = "nginx-ingress"
+}
+*/
 
 /*
 data "huaweicloud_enterprise_project" "ep" {

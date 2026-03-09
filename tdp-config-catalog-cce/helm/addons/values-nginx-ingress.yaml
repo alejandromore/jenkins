@@ -1,0 +1,37 @@
+controller:
+  replicaCount: 2
+
+  ingressClassResource:
+    name: nginx
+    enabled: true
+    default: true
+
+  service:
+    type: LoadBalancer
+    annotations:
+      kubernetes.io/elb.class: union
+      kubernetes.io/elb.id: c676fe88-e4e9-4bbf-96a3-5ca367488e36
+
+  admissionWebhooks:
+    enabled: true
+
+  metrics:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+defaultBackend:
+  enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
