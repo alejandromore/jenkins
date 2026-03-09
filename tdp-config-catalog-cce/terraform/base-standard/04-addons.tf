@@ -81,17 +81,20 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
     }
 
     custom = {
+
+      "kubernetes.io/elb.id" = "c676fe88-e4e9-4bbf-96a3-5ca367488e36"
+
       service = jsonencode({
         type = "LoadBalancer"
 
         annotations = {
           "kubernetes.io/elb.class" = "union"
-          "kubernetes.io/elb.id"    = huaweicloud_lb_loadbalancer.elb_public.id
         }
 
-        loadBalancerIP = ""
       })
+
     }
 
   }
+
 }
