@@ -15,11 +15,11 @@ tags                             = {
 dns_list = ["100.125.1.250", "100.125.21.250"]
 
 vpc_name = "vpc-tdp-config-catalog-cce"
-vpc_cidr = "10.0.0.0/16"
+vpc_cidr = "10.0.0.0/24"
 
 vpc_subnet_cce_name           = "vpc-subnet-cce"
-vpc_subnet_cce_cidr           = "10.0.2.0/24"
-vpc_subnet_cce_gateway_ip     = "10.0.2.1"
+vpc_subnet_cce_cidr           = "10.0.0.0/26"
+vpc_subnet_cce_gateway_ip     = "10.0.0.1"
 
 security_group_elb            = "sg-tdp-config-catalog-cce-elb"
 security_group_cce            = "sg-tdp-config-catalog-cce"
