@@ -105,6 +105,24 @@ resource "huaweicloud_networking_secgroup_rule" "elb_egress_nodeport" {
 #######################################
 # Security Group CCE Nodes - Rules
 #######################################
+resource "huaweicloud_networking_secgroup_rule" "elb_to_nodes_all" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction        = "ingress"
+  ethertype        = "IPv4"
+  protocol         = "0"
+  remote_group_id  = huaweicloud_networking_secgroup.sg_elb.id
+  description = "Allow all traffic from ELB to worker nodes for load balancing and health checks"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "elb_egress_nodes" {
+  security_group_id = huaweicloud_networking_secgroup.sg_elb.id
+  direction        = "egress"
+  ethertype        = "IPv4"
+  protocol         = "0"
+  remote_group_id  = huaweicloud_networking_secgroup.sg_cce.id
+  description = "Allow ELB to communicate with worker nodes"
+}
+
 # Kubernetes API external access
 resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
