@@ -91,14 +91,6 @@ resource "huaweicloud_networking_secgroup_rule" "cce_kubelet" {
   remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
 }
 
-resource "huaweicloud_networking_secgroup_rule" "cce_nodes_internal" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "0"
-  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
-}
-
 resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction = "ingress"
