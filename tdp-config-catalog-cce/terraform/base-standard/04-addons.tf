@@ -118,6 +118,8 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
           "kubernetes.io/elb.pass-through" = "true"
         }
 
+        loadBalancerIP = ""
+
         enableHttp  = true
         enableHttps = true
 
