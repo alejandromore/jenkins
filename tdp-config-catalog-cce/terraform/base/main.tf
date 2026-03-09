@@ -164,7 +164,8 @@ resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
   port_range_min    = 10250
   port_range_max    = 10250
   #remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
-  remote_ip_prefix = "0.0.0.0/0"
+  #remote_ip_prefix = "0.0.0.0/0"
+  remote_ip_prefix  = "100.64.0.0/10"
   description       = "Allow kubelet access from control plane and nodes"
 }
 
