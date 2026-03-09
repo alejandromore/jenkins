@@ -195,7 +195,7 @@ pipeline {
         // -----------------------------
         // Helm instalar Addons
         // -----------------------------
-        stage('Deploy Demo App con Workload Identity') {
+        stage('Deploy Addon Ingress') {
 
             when {
                 expression { params.RUN_HELM_ADDONS }
