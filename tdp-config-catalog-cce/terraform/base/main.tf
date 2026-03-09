@@ -17,18 +17,6 @@ resource "huaweicloud_vpc" "vpc_service" {
   tags = var.tags
 }
 
-resource "huaweicloud_vpc_subnet" "vpc_subnet_public" {
-  vpc_id             = huaweicloud_vpc.vpc_service.id
-  name               = var.vpc_subnet_public_name
-  cidr               = var.vpc_subnet_public_cidr
-  gateway_ip         = var.vpc_subnet_public_gateway_ip
-  description        = "VPC Subnet Public"
-  dns_list           = var.dns_list
-  dhcp_enable        = true
-  availability_zone  = data.huaweicloud_availability_zones.myaz.names[0]
-  tags               = var.tags
-}
-
 resource "huaweicloud_vpc_subnet" "vpc_subnet_cce" {
   vpc_id             = huaweicloud_vpc.vpc_service.id
   name               = var.vpc_subnet_cce_name
@@ -60,8 +48,8 @@ resource "huaweicloud_vpc_bandwidth" "bandwidth_shared" {
 #######################################
 # Security Group
 #######################################
-resource "huaweicloud_networking_secgroup" "sg_public" {
-  name               = var.security_group_public
+resource "huaweicloud_networking_secgroup" "sg_elb" {
+  name               = var.security_group_elb
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
@@ -76,47 +64,48 @@ resource "huaweicloud_networking_secgroup" "sg_cce" {
 }
 
 #######################################
-# Security Group Rules - Public
+# Security Group Rules - ELB
 #######################################
-# Reglas para ELB
-resource "huaweicloud_networking_secgroup_rule" "public_ingress_http" {
-  security_group_id = huaweicloud_networking_secgroup.sg_public.id
+# Internet → ELB
+resource "huaweicloud_networking_secgroup_rule" "elb_ingress_http" {
+  security_group_id = huaweicloud_networking_secgroup.sg_elb.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 80
   port_range_max    = 80
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ELB (80)"
+  description       = "Internet → ELB HTTP"
 }
-# ELB necesita comunicarse con ECS para tráfico de aplicación
-resource "huaweicloud_networking_secgroup_rule" "public_egress_to_private" {
-  security_group_id = huaweicloud_networking_secgroup.sg_public.id
+
+# Internet → ELB HTTPS
+resource "huaweicloud_networking_secgroup_rule" "elb_ingress_https" {
+  security_group_id = huaweicloud_networking_secgroup.sg_elb.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 443
+  port_range_max    = 443
+  remote_ip_prefix  = "0.0.0.0/0"
+  description       = "Internet → ELB HTTPS"
+}
+
+# ELB → NodePort
+resource "huaweicloud_networking_secgroup_rule" "elb_egress_nodeport" {
+  security_group_id = huaweicloud_networking_secgroup.sg_elb.id
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 8081
-  port_range_max    = 8081
+  port_range_min    = 30000
+  port_range_max    = 32767
   remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
-  description       = "ELB → CCE (8081)"
-}
-
-# ELB necesita puertos efímeros para health checks y sesiones
-resource "huaweicloud_networking_secgroup_rule" "public_egress_ephemeral_health" {
-  security_group_id = huaweicloud_networking_secgroup.sg_public.id
-  direction         = "egress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 32768  # Puertos efímeros típicos de Linux
-  port_range_max    = 60999
-  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
-  description       = "ELB → CCE para health check y sesiones"
+  description       = "ELB → Kubernetes NodePort"
 }
 
 #######################################
-# Security Group CCE Node - Rules 
+# Security Group CCE Nodes
 #######################################
-# --- ACCESO EXTERNO (ADMINISTRACIÓN) ---
+# API externa Kubernetes
 resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
@@ -125,10 +114,9 @@ resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   port_range_min    = 5443
   port_range_max    = 5443
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Permitir acceso a la API de Kubernetes (kubectl) desde el exterior"
 }
 
-# --- COMUNICACIÓN CON CONTROL PLANE (MASTER) ---
+# Control plane → kubelet
 resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
@@ -136,11 +124,21 @@ resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
   protocol          = "tcp"
   port_range_min    = 10250
   port_range_max    = 10250
-  #remote_ip_prefix  = "100.125.0.0/16"
-  remote_ip_prefix  = "0.0.0.0/0" # SOLO PARA PRUEBA TEMPORAL
-  description       = "Permitir al Control Plane acceder al API del Kubelet para logs y exec"
+  remote_ip_prefix  = "100.125.0.0/16"
 }
 
+# Control interno CCE Turbo
+resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 5444
+  port_range_max    = 5444
+  remote_ip_prefix  = "100.125.0.0/16"
+}
+
+# Addons turbo
 resource "huaweicloud_networking_secgroup_rule" "cce_turbo_addon_comm" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
@@ -151,69 +149,34 @@ resource "huaweicloud_networking_secgroup_rule" "cce_turbo_addon_comm" {
   remote_ip_prefix  = "100.125.0.0/16"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 5444
-  port_range_max    = 5444
-  remote_ip_prefix  = "100.125.0.0/16"
-  description       = "Puerto de control interno mandatorio para clusters CCE Turbo"
-}
-
+# ICMP control plane
 resource "huaweicloud_networking_secgroup_rule" "cce_node_icmp" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "icmp"
   remote_ip_prefix  = "100.125.0.0/16"
-  description       = "Permitir ICMP desde el Control Plane para monitoreo de salud del nodo"
 }
 
-# --- TRÁFICO DE SERVICIOS (NODEPORT Y ELB) ---
-resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_tcp" {
+# ELB → Nodes (NodePort)
+resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
   port_range_min    = 30000
   port_range_max    = 32767
-  remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Acceso externo a servicios de red de Kubernetes via NodePort (TCP)"
+  remote_group_id   = huaweicloud_networking_secgroup.sg_elb.id
+  description       = "ELB → NodePort"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport_udp" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "udp"
-  port_range_min    = 30000
-  port_range_max    = 32767
-  remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Acceso externo a servicios de red de Kubernetes via NodePort (UDP)"
-}
-
-resource "huaweicloud_networking_secgroup_rule" "private_ingress_elb_health_8080" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "tcp"
-  port_range_min    = 8080
-  port_range_max    = 8080
-  remote_ip_prefix  = "100.125.0.0/16"
-  description       = "Permitir Health Checks del ELB de Huawei Cloud (puerto 8080)"
-}
-
-# --- CONFIANZA INTERNA (RED DEL CLUSTER) ---
+# Comunicación interna cluster
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_worker_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_ip_prefix  = var.vpc_subnet_cce_cidr
-  #remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
-  description       = "Permitir comunicacion total entre nodos dentro de su propia subnet"
 }
 
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
@@ -222,17 +185,15 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
   ethertype         = "IPv4"
   protocol          = "0"
   remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
-  description       = "Permitir confianza total entre todos los miembros de este security group"
 }
 
-# --- SALIDA A INTERNET (EGRESS) ---
+# Salida
 resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Permitir salida total a internet para descarga de imagenes y actualizaciones"
 }
 
 #######################################
@@ -270,10 +231,9 @@ resource "huaweicloud_networking_secgroup_rule" "cce_eni_egress_all" {
 #######################################
 resource "huaweicloud_lb_loadbalancer" "elb_public" {
   name               = "elb-public"
-  #vip_subnet_id      = module.subnet_public.ipv4_subnet_id
-  vip_subnet_id     = huaweicloud_vpc_subnet.vpc_subnet_public.ipv4_subnet_id
+  vip_subnet_id     = huaweicloud_vpc_subnet.vpc_subnet_cce.ipv4_subnet_id
 
-  security_group_ids = [huaweicloud_networking_secgroup.sg_public.id]
+  security_group_ids = [huaweicloud_networking_secgroup.sg_elb.id]
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
   tags               = var.tags
 }

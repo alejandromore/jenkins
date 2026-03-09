@@ -53,20 +53,6 @@ variable "dns_list" {
 # ============================================================================
 # VARIABLES PARA LA VPC Subnet
 # ============================================================================
-variable "vpc_subnet_public_name" {
-  description = "Name of the VPC Subnet Public"
-  type        = string
-}
-
-variable "vpc_subnet_public_cidr" {
-  description = "CIDR block for the VPC Subnet Public"
-  type        = string
-}
-variable "vpc_subnet_public_gateway_ip" {
-  description = "Gateway IP for the VPC Subnet Public"
-  type        = string
-}
-
 variable "vpc_subnet_cce_name" {
   description = "Name of the VPC Subnet CCE"
   type        = string
@@ -98,7 +84,7 @@ variable "vpc_subnet_cce_eni_gateway_ip" {
 # ============================================================================
 # SECURITY GROUPS
 # ============================================================================
-variable "security_group_public" {
+variable "security_group_elb" {
   description = "Nombre del Grupo de Seguridad Public"
   type        = string
 }
