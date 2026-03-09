@@ -19,11 +19,13 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
     }
 
     custom = {
-      replica_count = "2"
-
-      annotations = jsonencode({
-        "kubernetes.io/elb.id" = huaweicloud_lb_loadbalancer.elb_public.id
-      })
+      agency_name            = ""
+      rotation_poll_interval = "2m"
+      aksk_secret_name       = "paas.elb"
+      driver_writes_secrets  = "false"
+      get_version_burst      = "5"
+      get_version_qps        = "5"
+      project_id             = data.huaweicloud_enterprise_project.ep.id
     }
 
     flavor = {
@@ -48,6 +50,10 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
     }
     custom = {
       replica_count = "2"
+
+      annotations = jsonencode({
+        "kubernetes.io/elb.id" = huaweicloud_lb_loadbalancer.elb_public.id
+      })
     }
     flavor = {
       name = "default"
