@@ -22,7 +22,7 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
       replica_count = "2"
 
       annotations = jsonencode({
-        "kubernetes.io/elb.id" = huaweicloud_elb_loadbalancer.elb_public.id
+        "kubernetes.io/elb.id" = huaweicloud_lb_loadbalancer.elb_public.id
       })
     }
 
