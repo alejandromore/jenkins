@@ -121,22 +121,6 @@ variable "eip_ng_name" {
 variable "eip_cce_name" {
   type = string
 }
-
-variable "eip_publicip_configuration" {
-  type = list(object({
-    type       = string
-    ip_version = string
-  }))
-}
-
-variable "eip_bandwidth_configuration" {
-  type = list(object({
-    share_type = string
-    name       = string
-    size       = number
-  }))
-}
-
 # ============================================================================
 # VARIABLES PARA EL DEW
 # ============================================================================

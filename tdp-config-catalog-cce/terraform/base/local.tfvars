@@ -39,17 +39,6 @@ eip_elb_name  = "eip-elb-public"
 eip_ng_name   = "eip-ng-public"
 eip_cce_name  = "eip-cce-public"
 
-eip_publicip_configuration = {
-  type = "5_bgp"
-}
-
-eip_bandwidth_configuration = {
-  name        = "elb-bandwidth"
-  size        = 5
-  share_type  = "PER"
-  charge_mode = "traffic"
-}
-
 # ============================================================================
 # VARIABLES PARA NAT Gateway
 # ============================================================================
