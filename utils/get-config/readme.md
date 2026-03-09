@@ -5,7 +5,11 @@ terraform import -var-file="local.tfvars" huaweicloud_identity_agency.ecs-obs-ag
 
 terraform import -var-file="local.tfvars" huaweicloud_cce_addon.secrets_manager_dew a63e1ee2-0e5f-11f1-9307-0255ac100249/dew-provider
 
+terraform import -var-file="local.tfvars" huaweicloud_cce_addon.ingress_controller 7a7ea723-1b73-11f1-9307-0255ac100249/nginx-ingress
+
+
 terraform import huaweicloud_cce_addon.secrets_manager_dew a63e1ee2-0e5f-11f1-9307-0255ac100249/3f8d3c5e-xxxx-xxxx
+
 
 terraform show > cce-turbo.log
 terraform state show huaweicloud_cce_addon.secrets_manager_dew
