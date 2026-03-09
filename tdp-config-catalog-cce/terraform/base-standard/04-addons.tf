@@ -88,24 +88,25 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
       resources = jsonencode([
         {
           name        = "cceaddon-nginx-ingress-controller"
+          replicas    = 2
           limitsCpu   = "500m"
           requestsCpu = "200m"
           limitsMem   = "512Mi"
           requestsMem = "256Mi"
-          replicas    = 2
         },
         {
           name        = "cceaddon-nginx-ingress-default-backend"
+          replicas    = 2
           limitsCpu   = "200m"
           requestsCpu = "50m"
           limitsMem   = "128Mi"
           requestsMem = "64Mi"
-          replicas    = 2
         }
       ])
     }
 
     custom = {
+
       ingressClass = "nginx"
 
       service = jsonencode({
@@ -132,6 +133,26 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
           https = "https"
         }
       })
+
+      config = jsonencode({
+        allow-backend-server-header      = "false"
+        allow-cross-namespace-resources  = "true"
+        enable-underscores-in-headers    = "false"
+        generate-request-id              = "true"
+        ignore-invalid-headers           = "true"
+        keep-alive-requests              = "100"
+        max-worker-connections           = "65536"
+        proxy-body-size                  = "20m"
+        proxy-connect-timeout            = "10"
+        reuse-port                       = "true"
+        server-tokens                    = "false"
+        ssl-redirect                     = "false"
+        strict-validate-path-type        = "false"
+        upstream-keepalive-connections   = "320"
+        upstream-keepalive-timeout       = "900"
+        worker-cpu-affinity              = "auto"
+      })
+
     }
 
   }
