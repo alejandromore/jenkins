@@ -1,5 +1,5 @@
-#resource "huaweicloud_cce_cluster" "mi_cluster_turbo" {
-#}
+resource "huaweicloud_cce_cluster" "mi_cluster_turbo" {
+}
 
 #resource "huaweicloud_identity_agency" "ecs-obs-agency"{
 #}
@@ -10,7 +10,7 @@
 #  template_name = "dew-provider"
 #  version       = "1.1.95"
 #}
-
+/*
 data "huaweicloud_enterprise_project" "ep" {
   name = "enterprise-app"
 }
@@ -27,3 +27,4 @@ resource "huaweicloud_identity_group_role_assignment" "csms_assignment" {
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
 }
 
+*/

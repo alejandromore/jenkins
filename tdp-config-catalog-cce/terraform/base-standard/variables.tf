@@ -67,20 +67,6 @@ variable "vpc_subnet_cce_gateway_ip" {
   type        = string
 }
 
-variable "vpc_subnet_cce_eni_name" {
-  description = "Name of the VPC Subnet CCE ENI"
-  type        = string
-}
-
-variable "vpc_subnet_cce_eni_cidr" {
-  description = "CIDR block for the VPC Subnet CCE ENI"
-  type        = string
-}
-variable "vpc_subnet_cce_eni_gateway_ip" {
-  description = "Gateway IP for the VPC Subnet CCE ENI"
-  type        = string
-}
-
 # ============================================================================
 # SECURITY GROUPS
 # ============================================================================
@@ -91,11 +77,6 @@ variable "security_group_elb" {
 
 variable "security_group_cce" {
   description = "Nombre del Grupo de Seguridad CCE Nodes"
-  type        = string
-}
-
-variable "security_group_cce_eni" {
-  description = "Nombre del Grupo de Seguridad CCE ENI"
   type        = string
 }
 

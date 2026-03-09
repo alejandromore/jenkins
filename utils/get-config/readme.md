@@ -7,7 +7,7 @@ terraform import -var-file="local.tfvars" huaweicloud_cce_addon.secrets_manager_
 
 terraform import huaweicloud_cce_addon.secrets_manager_dew a63e1ee2-0e5f-11f1-9307-0255ac100249/3f8d3c5e-xxxx-xxxx
 
-terraform show
+terraform show > cce-turbo.log
 terraform state show huaweicloud_cce_addon.secrets_manager_dew
 
 #terraform import huaweicloud_identity_group_role_assignment.obs_assignment <group_id>/<role_id>/<project_id>
