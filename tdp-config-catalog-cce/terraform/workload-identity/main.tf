@@ -166,7 +166,7 @@ resource "time_sleep" "wait_iam" {
     huaweicloud_identity_role.dew_read_policy
   ]
 
-  create_duration = "20s"
+  create_duration = "60s"
 }
 
 ############################################
