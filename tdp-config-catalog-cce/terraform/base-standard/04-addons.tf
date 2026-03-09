@@ -109,12 +109,14 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
 
       ingressClass = "nginx"
 
+      # 👇 necesario para que el API valide el ELB
+      "kubernetes.io/elb.id" = "c676fe88-e4e9-4bbf-96a3-5ca367488e36"
+
       service = jsonencode({
         type = "LoadBalancer"
 
         annotations = {
           "kubernetes.io/elb.class"        = "union"
-          "kubernetes.io/elb.id"           = "c676fe88-e4e9-4bbf-96a3-5ca367488e36"
           "kubernetes.io/elb.pass-through" = "true"
         }
 
@@ -137,25 +139,30 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
       })
 
       config = jsonencode({
-        allow-backend-server-header      = "false"
-        allow-cross-namespace-resources  = "true"
-        enable-underscores-in-headers    = "false"
-        generate-request-id              = "true"
-        ignore-invalid-headers           = "true"
-        keep-alive-requests              = "100"
-        max-worker-connections           = "65536"
-        proxy-body-size                  = "20m"
-        proxy-connect-timeout            = "10"
-        reuse-port                       = "true"
-        server-tokens                    = "false"
-        ssl-redirect                     = "false"
-        strict-validate-path-type        = "false"
-        upstream-keepalive-connections   = "320"
-        upstream-keepalive-timeout       = "900"
-        worker-cpu-affinity              = "auto"
+        allow-backend-server-header     = "false"
+        allow-cross-namespace-resources = "true"
+        enable-underscores-in-headers   = "false"
+        generate-request-id             = "true"
+        ignore-invalid-headers          = "true"
+        keep-alive-requests             = "100"
+        max-worker-connections          = "65536"
+        proxy-body-size                 = "20m"
+        proxy-connect-timeout           = "10"
+        reuse-port                      = "true"
+        server-tokens                   = "false"
+        ssl-redirect                    = "false"
+        strict-validate-path-type       = "false"
+        upstream-keepalive-connections  = "320"
+        upstream-keepalive-timeout      = "900"
+        worker-cpu-affinity             = "auto"
       })
 
     }
 
   }
+
+  lifecycle {
+    ignore_changes = [values]
+  }
+
 }
