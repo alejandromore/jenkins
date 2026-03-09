@@ -1,12 +1,10 @@
 #######################################
-# CCE Addons
+# CCE Addon - DEW Provider
 #######################################
 resource "huaweicloud_cce_addon" "secrets_manager_dew" {
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_turbo.id
   template_name = "dew-provider"
   version       = "1.1.95"
-
-  depends_on = [huaweicloud_cce_cluster.cce_cluster_turbo]
 
   values {
 
@@ -18,6 +16,16 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
       swr_user                   = "hwofficial"
       rbac_enabled               = "true"
       cluster_version            = var.cce_k8s_version
+    }
+
+    custom = {
+      agency_name            = ""
+      rotation_poll_interval = "2m"
+      aksk_secret_name       = "paas.elb"
+      driver_writes_secrets  = "false"
+      get_version_burst      = "5"
+      get_version_qps        = "5"
+      project_id             = data.huaweicloud_enterprise_project.ep.id
     }
 
     flavor = {
