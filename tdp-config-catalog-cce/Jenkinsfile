@@ -20,11 +20,11 @@ pipeline {
             choices: ['', 'turbo', 'standard'],
             description: 'Selecciona el tipo de infraestructura base CCE'
         )
-        booleanParam(
+        choice(
             name: 'RUN_HELM_ADDONS',
-            defaultValue: false,
-            description: 'Instalar Addons (nginx-ingress)'
-        )    
+            choices: ['', 'nginx-ingress', 'envoy-gateway'],
+            description: 'Selecciona el tipo de infraestructura base CCE'
+        )
         booleanParam(
             name: 'RUN_TERRAFORM_WORKLOAD_IDENTITY',
             defaultValue: false,
@@ -41,7 +41,8 @@ pipeline {
         TF_DIR_TURBO    = 'tdp-config-catalog-cce/terraform/base-turbo'
         TF_DIR_STANDARD = 'tdp-config-catalog-cce/terraform/base-standard'
         TF_DIR_WK       = 'tdp-config-catalog-cce/terraform/workload-identity'
-        HELM_DIR_ADDONS = 'tdp-config-catalog-cce/helm/addons'
+        HELM_DIR_AO_NI  = 'tdp-config-catalog-cce/helm/addons/nginx-ingress'
+        HELM_DIR_AO_EG  = 'tdp-config-catalog-cce/helm/addons/envoy-gateway'
         HELM_DIR_WK     = 'tdp-config-catalog-cce/helm/demo-app/workload-identity'
         REGION          = 'la-south-2'
     }
@@ -195,10 +196,10 @@ pipeline {
         // -----------------------------
         // Helm instalar Addons
         // -----------------------------
-        stage('Deploy Addon Ingress') {
+        stage('Deploy Ingress Nginx') {
 
             when {
-                expression { params.RUN_HELM_ADDONS }
+                expression { params.RUN_HELM_ADDONS == 'nginx-ingress' }
             }
 
             environment {
@@ -212,7 +213,7 @@ pipeline {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                 }
 
-                dir(env.HELM_DIR_ADDONS) {
+                dir(env.HELM_DIR_AO_NI) {
 
                     withCredentials([
                         file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
@@ -249,6 +250,79 @@ pipeline {
                         --values values-nginx-ingress.yaml \
                         --set controller.service.annotations.kubernetes\\.io/elb\\.id=${elb_public_id}
 
+                        '''
+                    }
+                }
+            }
+        }
+
+
+        stage('Deploy Gateway API - Envoy Gateway') {
+
+            when {
+                expression { params.RUN_HELM_ADDONS == 'envoy-gateway' }
+            }
+
+            environment {
+                NAMESPACE = "envoy-gateway-system"
+                TIMEOUT_SECONDS = "300"
+            }
+
+            steps {
+                script {
+                    env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                }
+
+                dir(env.HELM_DIR_AO_EG) {
+
+                    withCredentials([
+                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                    ]) {
+
+                        sh '''
+                        set -eo pipefail
+
+                        export KUBECONFIG=$KUBECONFIG
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Validando acceso al cluster CCE..."
+                        echo "=========================================="
+                        kubectl get nodes
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Installing Gateway API CRDs..."
+                        echo "=========================================="
+                        kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.1.0/standard-install.yaml
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Adding Envoy Gateway Helm repository..."
+                        echo "=========================================="
+                        helm repo add envoy-gateway https://helm.envoyproxy.io
+                        helm repo update
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Installing Envoy Gateway..."
+                        echo "=========================================="
+
+                        helm upgrade --install envoy-gateway envoy-gateway/gateway-helm \
+                        -n ${NAMESPACE} \
+                        --create-namespace \
+                        --wait \
+                        --timeout ${TIMEOUT_SECONDS}s \
+                        --set service.type=LoadBalancer \
+                        --set service.annotations.kubernetes\\.io/elb\\.id=${elb_public_id}
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Gateway API installation completed"
+                        echo "=========================================="
+
+                        kubectl get gatewayclass
+                        kubectl get gateways -A || true
                         '''
                     }
                 }
