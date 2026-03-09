@@ -111,6 +111,7 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
           "kubernetes.io/elb.id"           = huaweicloud_lb_loadbalancer.elb_public.id
           "kubernetes.io/elb.pass-through" = "true"
         }
+        loadBalancerIP = "0.0.0.0"
         enableHttp  = true
         enableHttps = true
         externalTrafficPolicy = "Local"
@@ -122,7 +123,6 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
           http  = "http"
           https = "https"
         }
-
       })
     }
 
