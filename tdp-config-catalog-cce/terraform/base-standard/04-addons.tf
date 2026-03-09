@@ -63,3 +63,66 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
   }
 }
 */
+
+resource "huaweicloud_cce_addon" "ingress_controller" {
+  cluster_id    = huaweicloud_cce_cluster.cce_cluster_standard.id
+  template_name = "nginx-ingress"
+  version       = "6.0.1"
+
+  values = jsonencode({
+    basic = {
+      swr_addr        = "swr.la-south-2.myhuaweicloud.com"
+      swr_user        = "hwofficial"
+      tag             = "v1.14.0_6.0.1"
+      rbac_enabled    = true
+      cluster_version = "v1.33"
+    }
+
+    flavor = {
+      name        = "custom-resources"
+      description = "custom resources"
+      size        = "custom"
+
+      resources = [
+        {
+          name        = "cceaddon-nginx-ingress-controller"
+          limitsCpu   = "500m"
+          requestsCpu = "200m"
+          limitsMem   = "512Mi"
+          requestsMem = "256Mi"
+          replicas    = 2
+        },
+        {
+          name        = "cceaddon-nginx-ingress-default-backend"
+          limitsCpu   = "200m"
+          requestsCpu = "50m"
+          limitsMem   = "128Mi"
+          requestsMem = "64Mi"
+          replicas    = 2
+        }
+      ]
+    }
+
+    custom = {
+      ingressClass = "nginx"
+
+      service = {
+        type = "LoadBalancer"
+
+        annotations = {
+          "kubernetes.io/elb.class"        = "union"
+          "kubernetes.io/elb.id"           = huaweicloud_lb_loadbalancer.elb_public.id
+          "kubernetes.io/elb.pass-through" = "true"
+        }
+
+        enableHttp  = true
+        enableHttps = true
+
+        ports = {
+          http  = 80
+          https = 443
+        }
+      }
+    }
+  })
+}
