@@ -72,6 +72,14 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
 
   values {
 
+    basic = {
+      swr_addr        = "swr.la-south-2.myhuaweicloud.com"
+      swr_user        = "hwofficial"
+      tag             = "v1.14.0_6.0.1"
+      rbac_enabled    = "true"
+      cluster_version = "v1.33"
+    }
+
     custom = {
       service = jsonencode({
         type = "LoadBalancer"
@@ -86,3 +94,4 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
   }
 
 }
+
