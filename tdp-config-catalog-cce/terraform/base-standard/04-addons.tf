@@ -73,19 +73,15 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
   values {
 
     basic = {
+      cluster_version = "v1.33"
+      rbac_enabled    = "true"
       swr_addr        = "swr.la-south-2.myhuaweicloud.com"
       swr_user        = "hwofficial"
       tag             = "v1.14.0_6.0.1"
-      rbac_enabled    = "true"
-      cluster_version = "v1.33"
     }
 
     custom = {
-      ingressClass = "nginx"
-
       service = jsonencode({
-        type = "LoadBalancer"
-
         annotations = {
           "kubernetes.io/elb.class" = "union"
           "kubernetes.io/elb.id"    = "c676fe88-e4e9-4bbf-96a3-5ca367488e36"
@@ -94,4 +90,5 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
     }
 
   }
+
 }
