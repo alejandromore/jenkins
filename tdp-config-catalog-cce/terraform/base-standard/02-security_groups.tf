@@ -89,6 +89,17 @@ resource "huaweicloud_networking_secgroup_rule" "cce_internal_cluster" {
   description       = "Allow full communication between nodes, pods and control plane within CCE subnet"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "cce_vxlan_overlay" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "udp"
+  port_range_min    = 8472
+  port_range_max    = 8472
+  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+  description       = "Allow VXLAN overlay traffic between CCE nodes"
+}
+
 # Self security group communication
 resource "huaweicloud_networking_secgroup_rule" "cce_internal_sg" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
