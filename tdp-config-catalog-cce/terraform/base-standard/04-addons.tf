@@ -64,26 +64,28 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
 }
 */
 
-resource "huaweicloud_cce_addon" "ingress_controller" {
+resource "huaweicloud_cce_addon" "nginx_ingress" {
+
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_standard.id
   template_name = "nginx-ingress"
   version       = "6.0.1"
 
-  values = jsonencode({
+  values {
+
     basic = {
       swr_addr        = "swr.la-south-2.myhuaweicloud.com"
       swr_user        = "hwofficial"
       tag             = "v1.14.0_6.0.1"
-      rbac_enabled    = true
+      rbac_enabled    = "true"
       cluster_version = "v1.33"
     }
 
     flavor = {
-      name        = "custom-resources"
       description = "custom resources"
+      name        = "custom-resources"
       size        = "custom"
 
-      resources = [
+      resources = jsonencode([
         {
           name        = "cceaddon-nginx-ingress-controller"
           limitsCpu   = "500m"
@@ -100,13 +102,14 @@ resource "huaweicloud_cce_addon" "ingress_controller" {
           requestsMem = "64Mi"
           replicas    = 2
         }
-      ]
+      ])
     }
 
     custom = {
       ingressClass = "nginx"
 
-      service = {
+      service = jsonencode({
+
         type = "LoadBalancer"
 
         annotations = {
@@ -122,7 +125,16 @@ resource "huaweicloud_cce_addon" "ingress_controller" {
           http  = 80
           https = 443
         }
-      }
+
+        targetPorts = {
+          http  = "http"
+          https = "https"
+        }
+
+        externalTrafficPolicy = "Local"
+
+      })
     }
-  })
+
+  }
 }
