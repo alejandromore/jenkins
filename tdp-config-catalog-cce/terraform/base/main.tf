@@ -123,6 +123,17 @@ resource "huaweicloud_networking_secgroup_rule" "elb_egress_nodes" {
   description = "Allow ELB to communicate with worker nodes"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "cce_control_plane_nodeport" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 30000
+  port_range_max    = 32767
+  remote_ip_prefix  = "100.125.0.0/16"
+  description = "Allow CCE control plane to perform ELB health checks on Kubernetes NodePort services"
+}
+
 # Kubernetes API external access
 resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
