@@ -64,9 +64,9 @@ resource "huaweicloud_networking_secgroup" "sg_cce" {
 }
 
 #######################################
-# Security Group Rules - ELB
+# Security Group ELB - Rules
 #######################################
-# Internet → ELB
+# Internet → ELB HTTP
 resource "huaweicloud_networking_secgroup_rule" "elb_ingress_http" {
   security_group_id = huaweicloud_networking_secgroup.sg_elb.id
   direction         = "ingress"
@@ -75,7 +75,7 @@ resource "huaweicloud_networking_secgroup_rule" "elb_ingress_http" {
   port_range_min    = 80
   port_range_max    = 80
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ELB HTTP"
+  description = "Allow inbound HTTP traffic from the Internet to the Elastic Load Balancer"
 }
 
 # Internet → ELB HTTPS
@@ -87,10 +87,10 @@ resource "huaweicloud_networking_secgroup_rule" "elb_ingress_https" {
   port_range_min    = 443
   port_range_max    = 443
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Internet → ELB HTTPS"
+  description = "Allow inbound HTTPS traffic from the Internet to the Elastic Load Balancer"
 }
 
-# ELB → NodePort
+# ELB → Kubernetes NodePort
 resource "huaweicloud_networking_secgroup_rule" "elb_egress_nodeport" {
   security_group_id = huaweicloud_networking_secgroup.sg_elb.id
   direction         = "egress"
@@ -99,13 +99,13 @@ resource "huaweicloud_networking_secgroup_rule" "elb_egress_nodeport" {
   port_range_min    = 30000
   port_range_max    = 32767
   remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
-  description       = "ELB → Kubernetes NodePort"
+  description = "Allow the ELB to forward traffic to Kubernetes NodePort services running on worker nodes"
 }
 
 #######################################
-# Security Group CCE Nodes
+# Security Group CCE Nodes - Rules
 #######################################
-# API externa Kubernetes
+# Kubernetes API external access
 resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
@@ -114,6 +114,7 @@ resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   port_range_min    = 5443
   port_range_max    = 5443
   remote_ip_prefix  = "0.0.0.0/0"
+  description = "Allow external access to the Kubernetes API server exposed by the CCE cluster"
 }
 
 # Control plane → kubelet
@@ -125,9 +126,10 @@ resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
   port_range_min    = 10250
   port_range_max    = 10250
   remote_ip_prefix  = "100.125.0.0/16"
+  description = "Allow CCE control plane to access kubelet on worker nodes for logs, exec and metrics"
 }
 
-# Control interno CCE Turbo
+# Internal control communication
 resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
@@ -136,9 +138,10 @@ resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
   port_range_min    = 5444
   port_range_max    = 5444
   remote_ip_prefix  = "100.125.0.0/16"
+  description = "Allow internal control communication required by CCE Turbo clusters"
 }
 
-# Addons turbo
+# Addon communication
 resource "huaweicloud_networking_secgroup_rule" "cce_turbo_addon_comm" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
@@ -147,18 +150,20 @@ resource "huaweicloud_networking_secgroup_rule" "cce_turbo_addon_comm" {
   port_range_min    = 9443
   port_range_max    = 9443
   remote_ip_prefix  = "100.125.0.0/16"
+  description = "Allow communication between the CCE control plane and cluster addons"
 }
 
-# ICMP control plane
+# Control plane health checks
 resource "huaweicloud_networking_secgroup_rule" "cce_node_icmp" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "icmp"
   remote_ip_prefix  = "100.125.0.0/16"
+  description = "Allow ICMP traffic from the CCE control plane for node health monitoring"
 }
 
-# ELB → Nodes (NodePort)
+# ELB → NodePort
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
@@ -167,63 +172,80 @@ resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_nodeport" {
   port_range_min    = 30000
   port_range_max    = 32767
   remote_group_id   = huaweicloud_networking_secgroup.sg_elb.id
-  description       = "ELB → NodePort"
+  description = "Allow traffic from the Elastic Load Balancer to Kubernetes NodePort services"
 }
 
-# Comunicación interna cluster
+# Worker node internal communication
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_worker_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_ip_prefix  = var.vpc_subnet_cce_cidr
+  description = "Allow full communication between worker nodes within the CCE subnet"
 }
 
+# Worker nodes within same security group
 resource "huaweicloud_networking_secgroup_rule" "cce_node_ingress_self" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+  description = "Allow unrestricted communication between instances belonging to the same security group"
 }
 
-# Salida
+# Outbound internet access
 resource "huaweicloud_networking_secgroup_rule" "cce_node_egress_all" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_ip_prefix  = "0.0.0.0/0"
+  description = "Allow outbound internet access for worker nodes to pull container images and access external services"
 }
 
 #######################################
-# Security Group CCE ENI - Rules 
+# Security Group CCE ENI - Rules
 #######################################
+# Pods accessible within VPC
 resource "huaweicloud_networking_secgroup_rule" "cce_eni_ingress_cidr" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_ip_prefix  = var.vpc_cidr
-  description       = "Used by worker nodes to access each other and to access the master node."
+  description = "Allow traffic within the VPC so worker nodes and services can communicate with pods using ENI IPs"
 }
 
+# Pods communication within ENI group
 resource "huaweicloud_networking_secgroup_rule" "cce_eni_ingress_self" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_group_id   = huaweicloud_networking_secgroup.sg_cce_eni.id
-  description       = "Traffic from the source IP addresses defined in the security group must be allowed."
+  description = "Allow communication between pods that belong to the same ENI security group"
 }
 
+# Worker nodes → pods
+resource "huaweicloud_networking_secgroup_rule" "cce_eni_from_nodes" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "0"
+  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+  description = "Allow worker nodes to communicate with pods attached through ENI network interfaces"
+}
+
+# Pods outbound
 resource "huaweicloud_networking_secgroup_rule" "cce_eni_egress_all" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
   direction         = "egress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_ip_prefix  = "0.0.0.0/0"
-  description       = "Default egress security group rule for CCE ENI"
+  description = "Allow outbound traffic from pods to external services or the internet"
 }
 
 #######################################
