@@ -65,11 +65,9 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
 */
 
 resource "huaweicloud_cce_addon" "nginx_ingress" {
-
   cluster_id    = huaweicloud_cce_cluster.cce_cluster_standard.id
   template_name = "nginx-ingress"
   version       = "6.0.1"
-
   values {
 
     basic = {
@@ -84,7 +82,6 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
       description = "custom resources"
       name        = "custom-resources"
       size        = "custom"
-
       resources = jsonencode([
         {
           name        = "cceaddon-nginx-ingress-controller"
@@ -107,31 +104,24 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
 
     custom = {
       ingressClass = "nginx"
-
       service = jsonencode({
-
         type = "LoadBalancer"
-
         annotations = {
           "kubernetes.io/elb.class"        = "union"
           "kubernetes.io/elb.id"           = huaweicloud_lb_loadbalancer.elb_public.id
           "kubernetes.io/elb.pass-through" = "true"
         }
-
         enableHttp  = true
         enableHttps = true
-
+        externalTrafficPolicy = "Local"
         ports = {
           http  = 80
           https = 443
         }
-
         targetPorts = {
           http  = "http"
           https = "https"
         }
-
-        externalTrafficPolicy = "Local"
 
       })
     }
