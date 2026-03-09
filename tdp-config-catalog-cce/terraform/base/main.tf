@@ -134,6 +134,15 @@ resource "huaweicloud_networking_secgroup_rule" "cce_control_plane_nodeport" {
   description = "Allow CCE control plane to perform ELB health checks on Kubernetes NodePort services"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "cce_control_plane_all" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction        = "ingress"
+  ethertype        = "IPv4"
+  protocol         = "0"
+  remote_ip_prefix = "100.125.0.0/16"
+  description = "Allow all traffic from CCE control plane to worker nodes (logs, exec, metrics, health checks)"
+}
+
 # Kubernetes API external access
 resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
