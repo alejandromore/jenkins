@@ -33,7 +33,7 @@ resource "huaweicloud_cce_addon" "secrets_manager_dew" {
     }
   }
 }
-/*
+
 #######################################
 # CCE Addon - Nginx Ingress
 #######################################
@@ -57,4 +57,3 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
     }
   }
 }
-*/
