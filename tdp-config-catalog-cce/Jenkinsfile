@@ -239,7 +239,6 @@ pipeline {
                         echo ""
                         echo "=========================================="
                         echo "Namespace: ${NAMESPACE}"
-                        echo "Chart Dir: workload-identity"
                         echo "=========================================="
 
                         helm upgrade --install nginx-ingress ingress-nginx/ingress-nginx . \
@@ -247,6 +246,7 @@ pipeline {
                         --create-namespace \
                         --wait \
                         --timeout ${TIMEOUT_SECONDS}s \
+                        --values values-nginx-ingress.yaml
                         --set controller.service.kubernetes.io/elb.id=${elb_public_id}
 
                         '''
