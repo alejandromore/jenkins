@@ -15,25 +15,10 @@ pipeline {
             choices: ['deploy', 'destroy'],
             description: 'Acción sobre el ambiente'
         )
-        string(
-            name: '==== BASE ====',
-            defaultValue: '',
-            description: ''
-        )
-        booleanParam(
-            name: 'RUN_TERRAFORM_BASE_TURBO',
-            defaultValue: false,
-            description: 'Construir infraestructura con Terraform Base - CCE Turbo'
-        )
-        booleanParam(
-            name: 'RUN_TERRAFORM_BASE_STANDARD',
-            defaultValue: false,
-            description: 'Construir infraestructura con Terraform Base - CCE Standard'
-        )
-        string(
-            name: '==== Workload Identity ====',
-            defaultValue: '',
-            description: ''
+        choice(
+            name: 'CCE_BASE_TYPE',
+            choices: ['', 'turbo', 'standard'],
+            description: 'Selecciona el tipo de infraestructura base CCE'
         )
         booleanParam(
             name: 'RUN_TERRAFORM_WORKLOAD_IDENTITY',
@@ -68,7 +53,7 @@ pipeline {
         // -----------------------------
         stage('Terraform Deploy Base Turbo') {
             when {
-                expression { params.RUN_TERRAFORM_BASE_TURBO }
+                expression { params.CCE_BASE_TYPE == 'turbo' }
             }
             steps {
                 withCredentials([
