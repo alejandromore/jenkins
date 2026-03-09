@@ -88,10 +88,10 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
           "kubernetes.io/elb.class" = "union"
           "kubernetes.io/elb.id"    = huaweicloud_lb_loadbalancer.elb_public.id
         }
+
+        loadBalancerIP = ""
       })
     }
 
   }
-
 }
-
