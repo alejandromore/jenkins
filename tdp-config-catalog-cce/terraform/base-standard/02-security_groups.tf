@@ -100,6 +100,17 @@ resource "huaweicloud_networking_secgroup_rule" "cce_vxlan_overlay" {
   description       = "Allow VXLAN overlay traffic between CCE nodes"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "cce_controlplane_webhook" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 443
+  port_range_max    = 443
+  remote_ip_prefix  = "100.64.0.0/10"
+  description       = "Allow CCE control plane to access admission webhooks"
+}
+
 # Self security group communication
 resource "huaweicloud_networking_secgroup_rule" "cce_internal_sg" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
