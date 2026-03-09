@@ -81,6 +81,24 @@ resource "huaweicloud_networking_secgroup_rule" "cce_control_plane_all" {
   remote_ip_prefix = "100.125.0.0/16"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "cce_kubelet" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 10250
+  port_range_max    = 10250
+  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+}
+
+resource "huaweicloud_networking_secgroup_rule" "cce_nodes_internal" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "0"
+  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+}
+
 resource "huaweicloud_networking_secgroup_rule" "cce_api_external_access" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction = "ingress"
