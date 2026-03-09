@@ -51,9 +51,10 @@ resource "huaweicloud_cce_addon" "nginx_ingress" {
     custom = {
       replica_count = "2"
 
-      annotations = jsonencode({
-        "kubernetes.io/elb.id" = huaweicloud_lb_loadbalancer.elb_public.id
-      })
+      annotations = {
+        "kubernetes.io/elb.id"    = huaweicloud_lb_loadbalancer.elb_public.id
+        "kubernetes.io/elb.class" = "union"
+      }
     }
     flavor = {
       name = "default"
