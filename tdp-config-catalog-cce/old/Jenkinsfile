@@ -15,20 +15,25 @@ pipeline {
             choices: ['deploy', 'destroy'],
             description: 'Acción sobre el ambiente'
         )
+        booleanParam(
+            name: 'RUN_TERRAFORM_BASE',
+            defaultValue: false,
+            description: 'Construir infraestructura con Terraform Base'
+        )
         string(
-            name: '==== BASE ====',
+            name: '==== Secret Store + Service Principal Legacy ====',
             defaultValue: '',
             description: ''
         )
         booleanParam(
-            name: 'RUN_TERRAFORM_BASE_TURBO',
+            name: 'RUN_TERRAFORM_SECRETS_STORE',
             defaultValue: false,
-            description: 'Construir infraestructura con Terraform Base - CCE Turbo'
+            description: 'Construir infraestructura con Terraform Secrets Store'
         )
         booleanParam(
-            name: 'RUN_TERRAFORM_BASE_STANDARD',
+            name: 'RUN_HELM_SECRETS_STORE',
             defaultValue: false,
-            description: 'Construir infraestructura con Terraform Base - CCE Standard'
+            description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
         )
         string(
             name: '==== Workload Identity ====',
@@ -48,9 +53,12 @@ pipeline {
     }
 
     environment {
-        TF_DIR_TURBO = 'tdp-config-catalog-cce/terraform/base-turbo'
-        TF_DIR_STANDARD = 'tdp-config-catalog-cce/terraform/base-standard'
+        //TF_VAR_access_key = credentials('hwc-access-key')
+        //TF_VAR_secret_key = credentials('hwc-secret-key')
+        TF_DIR_BASE = 'tdp-config-catalog-cce/terraform/base'
         TF_DIR_WK   = 'tdp-config-catalog-cce/terraform/workload-identity'
+        TF_DIR_ST   = 'tdp-config-catalog-cce/terraform/secrets-store'
+        HELM_DIR_ST = 'tdp-config-catalog-cce/helm/demo-app/secrets-store'
         HELM_DIR_WK = 'tdp-config-catalog-cce/helm/demo-app/workload-identity'
         REGION      = 'la-south-2'
     }
@@ -64,11 +72,11 @@ pipeline {
         }
 
         // -----------------------------
-        // Terraform: infraestructura base Turbo CCE
+        // Terraform: infraestructura base
         // -----------------------------
-        stage('Terraform Deploy Base Turbo') {
+        stage('Terraform Deploy Base') {
             when {
-                expression { params.RUN_TERRAFORM_BASE_TURBO }
+                expression { params.RUN_TERRAFORM_BASE }
             }
             steps {
                 withCredentials([
@@ -80,7 +88,7 @@ pipeline {
                     script {
 
                         terraformDeploy(
-                            dir: env.TF_DIR_TURBO,
+                            dir: env.TF_DIR_BASE,
                             varsFile: 'local.tfvars',
                             action: params.ACTION,
                             outputs: [
@@ -167,6 +175,150 @@ pipeline {
 
                 }
                 
+            }
+        }
+
+        // -----------------------------
+        // Terraform: infraestructura Secrets Store
+        // -----------------------------
+        stage('Terraform Deploy Secrets Store') {
+            when {
+                expression { params.RUN_TERRAFORM_SECRETS_STORE }
+            }
+            steps {
+                dir(env.TF_DIR_ST) {
+
+                    withCredentials([
+                        file(credentialsId: 'sops-gpg-key', variable: 'GPG_KEY_FILE')
+                    ]) {
+
+                        sh '''
+                        set -eo pipefail
+
+                        export GNUPGHOME=$(mktemp -d)
+
+                        gpg --batch --import "$GPG_KEY_FILE"
+
+                        echo "Desencriptando..."
+                        sops -d secrets/secrets-enc.yaml > secrets/secrets-dec.yaml
+
+                        '''
+                    }
+                }
+
+                withCredentials([
+                    string(credentialsId: 'hwc-access-key', variable: 'HW_ACCESS_KEY'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'HW_SECRET_KEY'),
+                    string(credentialsId: 'hwc-access-key', variable: 'AWS_ACCESS_KEY_ID'),
+                    string(credentialsId: 'hwc-secret-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                ]) {
+                    script {
+
+                        terraformDeploy(
+                            dir: env.TF_DIR_ST,
+                            varsFile: 'local.tfvars',
+                            action: params.ACTION,
+                            outputs: []
+                        )
+
+                    }
+                }
+
+            }
+        }
+
+        // -----------------------------
+        // Helm desplegar las aplicaciones para Secrets Store
+        // -----------------------------
+        stage('Deploy Demo App con Secrets Store') {
+
+            when {
+                expression { params.RUN_HELM_SECRETS_STORE }
+            }
+
+            environment {
+                NAMESPACE = "demo-app"
+                RELEASE_NAME = "demo-app"
+                TIMEOUT_SECONDS = "300"
+            }
+
+            steps {
+                script {
+                    // Lectura de archivos generados en stages previos
+                    env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
+                }
+                // Leer archivo de credentiales CSV
+                dir(env.TF_DIR_ST) {
+                    script {
+                        def content = readFile(file: 'credentials-cce-programmatic-user.csv')
+                        def lines = content.split('\n')
+                        def values = lines[1].split(',')
+
+                        env.HW_USER_ID = values[0].trim()
+                        env.HW_AK = values[1].trim()
+                        env.HW_SK = values[2].trim()
+
+                        echo "Access Key cargado correctamente"
+                    }
+                }
+
+                dir(env.HELM_DIR_ST) {
+
+                    withCredentials([
+                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                    ]) {
+
+                        sh '''
+                        set -eo pipefail
+
+                        export KUBECONFIG=$KUBECONFIG
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Validando acceso al cluster CCE..."
+                        echo "=========================================="
+
+                        kubectl get nodes
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Desplegando Helm Release: ${RELEASE_NAME}"
+                        echo "Namespace: ${NAMESPACE}"
+                        echo "Chart Dir: demo-app"
+                        echo "=========================================="
+
+                        kubectl delete namespace ${NAMESPACE} --ignore-not-found=true
+
+                        helm upgrade --install ${RELEASE_NAME} . \
+                        -n ${NAMESPACE} \
+                        --create-namespace \
+                        --wait \
+                        --timeout ${TIMEOUT_SECONDS}s \
+                        --set elb.id=${elb_public_id} \
+                        --set secretsStoreCreds.access_key=${HW_AK} \
+                        --set secretsStoreCreds.secret_key=${HW_SK}
+
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Iniciando Health Check público..."
+                        echo "ELB IP: ${elb_public_ip}"
+                        echo "=========================================="
+
+                        for i in \$(seq 1 20); do
+                        echo "Intento \$i..."
+                        if curl -sf http://${elb_public_ip}/index.html; then
+                            echo ""
+                            echo "Aplicación disponible y funcionando correctamente."
+                            exit 0
+                        fi
+                        sleep 10
+                        done
+
+                        '''
+                    }
+                }
             }
         }
 

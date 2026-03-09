@@ -4,12 +4,6 @@ variable "region" {
   default = ""
 }
 
-variable "project_id" {
-  description = "ID del proyecto"
-  type        = string
-  default = ""
-}
-
 variable "access_key" {
   description = "Nombre del Grupo de Securidad"
   type        = string
@@ -24,11 +18,6 @@ variable "secret_key" {
 
 variable "enterprise_project_name" {
   description = "Nombre del proyecto empresarial"
-  type        = string
-}
-
-variable "key_pair_name" {
-  description = "Nombre del Key Pair para los nodos"
   type        = string
 }
 

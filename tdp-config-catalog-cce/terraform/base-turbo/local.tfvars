@@ -62,7 +62,6 @@ cce_node_password                 = "P@ssw0rdSecure123!"
 
 key_pair_name                     = "basic-project-key"
 
-
 dew_secret_name                   = "secret-app1-dev"
 dew_secret_description            = "App Dev Secrets"
 
