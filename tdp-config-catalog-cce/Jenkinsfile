@@ -84,7 +84,7 @@ pipeline {
         // -----------------------------
         stage('Terraform Deploy Base Standard') {
             when {
-                expression { params.RUN_TERRAFORM_BASE_STANDARD }
+               expression { params.CCE_BASE_TYPE == 'standard' }
             }
             steps {
                 withCredentials([
