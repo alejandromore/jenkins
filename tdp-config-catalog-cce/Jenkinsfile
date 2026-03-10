@@ -318,7 +318,7 @@ pipeline {
                         echo "Installing Envoy Gateway..."
                         echo "=========================================="
 
-                        helm upgrade --install gateway-infra . \
+                        helm upgrade --install gateway-infra oci://docker.io/envoyproxy/gateway-helm \
                         -n ${NAMESPACE} \
                         --create-namespace \
                         --wait \
