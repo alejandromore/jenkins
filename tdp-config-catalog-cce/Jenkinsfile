@@ -308,14 +308,22 @@ pipeline {
 
                         echo ""
                         echo "=========================================="
-                        echo "Installing Envoy Gateway..."
+                        echo "Installing Envoy Gateway Controller ..."
                         echo "=========================================="
 
                         helm upgrade --install gateway-infra oci://docker.io/envoyproxy/gateway-helm \
                         -n ${NAMESPACE} \
                         --create-namespace \
                         --wait \
-                        --timeout ${TIMEOUT_SECONDS}s \
+                        --timeout ${TIMEOUT_SECONDS}s 
+
+                        echo ""
+                        echo "=========================================="
+                        echo "Installing Envoy Gateway Infraestructure ..."
+                        echo "=========================================="
+
+                        helm upgrade --install gateway-infra . \
+                        -n ${NAMESPACE} \
                         --set-string elb.id=${elb_public_id}
 
                         echo ""
