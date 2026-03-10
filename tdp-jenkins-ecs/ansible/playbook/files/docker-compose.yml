@@ -11,6 +11,9 @@ services:
       - jenkins.env
       - secrets.env
 
+    environment:
+      - TZ=America/Lima
+
     volumes:
       - /data/jenkins_home:/var/jenkins_home
       - ./casc.yaml:/var/jenkins_home/casc.yaml

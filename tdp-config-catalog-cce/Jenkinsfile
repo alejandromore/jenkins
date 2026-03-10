@@ -318,13 +318,12 @@ pipeline {
                         echo "Installing Envoy Gateway..."
                         echo "=========================================="
 
-                        helm upgrade --install envoy-gateway envoy-gateway/gateway-helm \
+                        helm upgrade --install gateway-infra . \
                         -n ${NAMESPACE} \
                         --create-namespace \
                         --wait \
                         --timeout ${TIMEOUT_SECONDS}s \
-                        --set service.type=LoadBalancer \
-                        --set service.annotations.kubernetes\\.io/elb\\.id=${elb_public_id}
+                        --set-string elb.id=${elb_public_id}
 
                         echo ""
                         echo "=========================================="
