@@ -222,7 +222,7 @@ pipeline {
                 dir(env.HELM_DIR_AO_NI) {
 
                     withCredentials([
-                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                        //file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
                     ]) {
 
                         sh '''
