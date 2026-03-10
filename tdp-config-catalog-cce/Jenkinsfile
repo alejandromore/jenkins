@@ -228,7 +228,7 @@ pipeline {
                         sh '''
                         set -eo pipefail
 
-                        export KUBECONFIG=$KUBECONFIG
+                        export KUBECONFIG=$kubeconfig
 
                         echo ""
                         echo "=========================================="
