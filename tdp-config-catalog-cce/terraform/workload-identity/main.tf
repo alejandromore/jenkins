@@ -181,7 +181,7 @@ locals {
     }
   )
 }
-
+/*
 module "dew_secret" {
   source = "../../../terraform-modules/dew"
 
@@ -190,4 +190,13 @@ module "dew_secret" {
   secret_payload        = local.dew_secret_payload
 
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+}
+*/
+
+resource "huaweicloud_csms_secret" "dew_secret" {
+  name                  = var.dew_secret_name
+  description           = var.dew_secret_description
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+
+  secret_text = jsonencode(local.dew_secret_payload)
 }
