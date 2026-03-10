@@ -1,4 +1,4 @@
-{{- if .Values.demoClient.enabled }}
+{{- if and .Values.demoClient.enabled (eq .Values.demoClient.exposure.type "ingress") }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:

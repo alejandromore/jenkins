@@ -22,7 +22,7 @@ pipeline {
         )
         choice(
             name: 'RUN_HELM_ADDONS',
-            choices: ['', 'nginx-ingress', 'envoy-gateway'],
+            choices: ['', 'ingress', 'gateway'],
             description: 'Selecciona el tipo de infraestructura base CCE'
         )
         booleanParam(
@@ -204,7 +204,7 @@ pipeline {
         stage('Deploy Ingress Nginx') {
 
             when {
-                expression { params.RUN_HELM_ADDONS == 'nginx-ingress' }
+                expression { params.RUN_HELM_ADDONS == 'ingress' }
             }
 
             environment {
@@ -269,7 +269,7 @@ pipeline {
         stage('Deploy Gateway API - Envoy Gateway') {
 
             when {
-                expression { params.RUN_HELM_ADDONS == 'envoy-gateway' }
+                expression { params.RUN_HELM_ADDONS == 'gateway' }
             }
 
             environment {
@@ -372,6 +372,7 @@ pipeline {
                     env.idp_id = readFile("${WORKSPACE}/idp_id.txt").trim()
                     env.JWKS = sh(script: "kubectl get --raw /openid/v1/jwks | jq -c .", returnStdout: true).trim()
                     env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
+                    env.exposure_type = params.RUN_HELM_ADDONS ?: "ingress"
                 }
 
                 dir(env.HELM_DIR_WK) {
@@ -405,7 +406,8 @@ pipeline {
                         --wait \
                         --timeout ${TIMEOUT_SECONDS}s \
                         --set elb.id=${elb_public_id} \
-                        --set idp_id=${idp_id} 
+                        --set idp_id=${idp_id} \
+                        --set demoClient.exposure.type=${exposure_type}
 
                         echo ""
                         echo "=========================================="

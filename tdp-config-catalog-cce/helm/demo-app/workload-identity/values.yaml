@@ -38,6 +38,8 @@ demoClient:
   port: 80
   targetPort: 8081
   enabled: true
+  exposure:
+    type: ingress #gateway
 
 elb:
   id: ""
