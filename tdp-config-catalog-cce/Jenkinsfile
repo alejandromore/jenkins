@@ -216,7 +216,7 @@ pipeline {
                 script {
                     // Lectura de archivos generados en stages previos
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
-                    env.kubeconfig = readFile("${WORKSPACE}/kubeconfig.txt").trim()
+                    env.kubeconfig = ${WORKSPACE}/kubeconfig.txt
                 }
 
                 dir(env.HELM_DIR_AO_NI) {
@@ -228,7 +228,7 @@ pipeline {
                         sh '''
                         set -eo pipefail
 
-                        export KUBECONFIG=$kubeconfig
+                        export KUBECONFIG=$KUBECONFIG
 
                         echo ""
                         echo "=========================================="
