@@ -254,7 +254,7 @@ pipeline {
                         --wait \
                         --timeout ${TIMEOUT_SECONDS}s \
                         --values values-nginx-ingress.yaml \
-                        --set-string controller.service.annotations."kubernetes.io/elb.id"=${elb_public_id}
+                        --set-string 'controller.service.annotations.kubernetes\.io/elb\.id='${elb_public_id}
 
                         '''
                     }
