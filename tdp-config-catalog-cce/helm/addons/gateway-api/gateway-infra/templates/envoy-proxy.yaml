@@ -1,0 +1,17 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+
+metadata:
+  name: cce-envoy-proxy
+  namespace: {{ .Release.Namespace }}
+
+spec:
+  provider:
+    kubernetes:
+      envoyService:
+        type: LoadBalancer
+
+        annotations:
+          kubernetes.io/elb.id: {{ .Values.elb.id }}
+          kubernetes.io/elb.class: performance
+          kubernetes.io/elb.pass-through: onlyLocal
