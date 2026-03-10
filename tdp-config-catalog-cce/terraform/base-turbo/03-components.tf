@@ -1,10 +1,30 @@
 #######################################
 # ELB
 #######################################
+/*
 resource "huaweicloud_lb_loadbalancer" "elb_public" {
   name          = "elb-public"
   vip_subnet_id = huaweicloud_vpc_subnet.vpc_subnet_cce.ipv4_subnet_id
   security_group_ids = [huaweicloud_networking_secgroup.sg_elb.id]
+  enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
+  tags = var.tags
+}
+*/
+data "huaweicloud_elb_flavors" "l4" {
+  type = "L4"
+}
+
+resource "huaweicloud_elb_loadbalancer" "elb_public" {
+  name = "elb-public"
+  vpc_id         = huaweicloud_vpc.vpc_service.id
+  ipv4_subnet_id = huaweicloud_vpc_subnet.vpc_subnet_cce.ipv4_subnet_id
+  availability_zone = [data.huaweicloud_availability_zones.myaz.names[0]]
+
+  # Solo L4 necesario para Kubernetes
+  l4_flavor_id = data.huaweicloud_elb_flavors.l4.flavors[0].id
+
+  ipv4_eip_id = huaweicloud_vpc_eip.eip_elb.id
+
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
   tags = var.tags
 }
@@ -29,11 +49,12 @@ resource "huaweicloud_vpc_eip" "eip_elb" {
 #######################################
 # Associate EIP to ELB
 #######################################
+/*
 resource "huaweicloud_vpc_eip_associate" "eip_1" {
   public_ip = huaweicloud_vpc_eip.eip_elb.address
   port_id   = huaweicloud_lb_loadbalancer.elb_public.vip_port_id
 }
-
+*/
 #######################################
 # NAT Gateway EIP
 #######################################
