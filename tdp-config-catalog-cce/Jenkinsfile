@@ -158,11 +158,11 @@ pipeline {
                     ]) {
                         script {
                             // Lectura de archivos generados en stages previos
-                            env.kubeconfig = readFile("${WORKSPACE}/kubeconfig.txt").trim()
+                            env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
                         }
                         env.JWKS = sh(
                             script: '''
-                                export KUBECONFIG=$KUBECONFIG
+                                export KUBECONFIG=$kubeconfig
                                 kubectl get --raw /openid/v1/jwks | jq -c .
                             ''',
                             returnStdout: true
@@ -277,18 +277,19 @@ pipeline {
             steps {
                 script {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
                 }
 
                 dir(env.HELM_DIR_AO_EG) {
 
                     withCredentials([
-                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                        //file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
                     ]) {
 
                         sh '''
                         set -eo pipefail
 
-                        export KUBECONFIG=$KUBECONFIG
+                        export KUBECONFIG=$kubeconfig
 
                         echo ""
                         echo "=========================================="
@@ -357,7 +358,7 @@ pipeline {
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
                     env.idp_id = readFile("${WORKSPACE}/idp_id.txt").trim()
                     env.JWKS = sh(script: "kubectl get --raw /openid/v1/jwks | jq -c .", returnStdout: true).trim()
-                    env.kubeconfig = readFile("${WORKSPACE}/kubeconfig.txt").trim()
+                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
                 }
 
                 dir(env.HELM_DIR_WK) {
@@ -369,7 +370,7 @@ pipeline {
                         sh '''
                         set -eo pipefail
 
-                        export KUBECONFIG=$KUBECONFIG
+                        export KUBECONFIG=$kubeconfig
 
                         echo ""
                         echo "=========================================="
