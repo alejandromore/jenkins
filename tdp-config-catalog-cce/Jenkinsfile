@@ -17,7 +17,7 @@ pipeline {
         )
         choice(
             name: 'CCE_BASE_TYPE',
-            choices: ['', 'turbo', 'standard'],
+            choices: ['', 'standard', 'turbo'],
             description: 'Selecciona el tipo de infraestructura base CCE'
         )
         choice(
@@ -42,7 +42,7 @@ pipeline {
         TF_DIR_STANDARD = 'tdp-config-catalog-cce/terraform/base-standard'
         TF_DIR_WK       = 'tdp-config-catalog-cce/terraform/workload-identity'
         HELM_DIR_AO_NI  = 'tdp-config-catalog-cce/helm/addons/nginx-ingress'
-        HELM_DIR_AO_EG  = 'tdp-config-catalog-cce/helm/addons/envoy-gateway'
+        HELM_DIR_AO_GA  = 'tdp-config-catalog-cce/helm/addons/gateway-api'
         HELM_DIR_WK     = 'tdp-config-catalog-cce/helm/demo-app/workload-identity'
         REGION          = 'la-south-2'
     }
@@ -283,7 +283,7 @@ pipeline {
                     env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
                 }
 
-                dir(env.HELM_DIR_AO_EG) {
+                dir(env.HELM_DIR_AO_GA) {
 
                     withCredentials([
                         //file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
@@ -308,23 +308,32 @@ pipeline {
 
                         echo ""
                         echo "=========================================="
-                        echo "Installing Envoy Gateway Controller ..."
+                        echo "Installing Envoy Controller ..."
                         echo "=========================================="
+
+                        sed -i "s/{{ ELB_ID }}/${elb_public_id}/g" envoy-controller/values.yaml
 
                         helm upgrade --install envoy-gateway oci://docker.io/envoyproxy/gateway-helm \
                         -n ${NAMESPACE} \
                         --create-namespace \
                         --wait \
-                        --timeout ${TIMEOUT_SECONDS}s 
+                        --timeout ${TIMEOUT_SECONDS}s \
+                        -f envoy-controller/values.yaml
+
+                        echo ""
+                        echo "Waiting for Envoy Gateway deployment..."
+                        kubectl rollout status deployment/envoy-gateway -n ${NAMESPACE} --timeout=300s
 
                         echo ""
                         echo "=========================================="
-                        echo "Installing Envoy Gateway Infraestructure ..."
+                        echo "Installing Gateway API Infraestructure ..."
                         echo "=========================================="
 
-                        helm upgrade --install gateway-infra . \
+                        helm upgrade --install gateway-infra ./gateway-infra \
                         -n ${NAMESPACE} \
-                        --set-string elb.id=${elb_public_id}
+                        --create-namespace \
+                        --wait \
+                        --timeout ${TIMEOUT_SECONDS}s
 
                         echo ""
                         echo "=========================================="
@@ -333,6 +342,7 @@ pipeline {
 
                         kubectl get gatewayclass
                         kubectl get gateways -A || true
+                        kubectl get svc -n ${NAMESPACE} || true
                         '''
                     }
                 }
