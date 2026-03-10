@@ -5,9 +5,6 @@ metadata:
   name: {{ .Values.gateway.name }}
   namespace: {{ .Release.Namespace }}
 
-  annotations:
-    kubernetes.io/elb.id: {{ .Values.elb.id }}
-
 spec:
   gatewayClassName: {{ .Values.gateway.className }}
 
@@ -19,3 +16,8 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+
+      infrastructure:
+        annotations:
+          kubernetes.io/elb.id: {{ .Values.elb.id }}
+          kubernetes.io/elb.class: performance
