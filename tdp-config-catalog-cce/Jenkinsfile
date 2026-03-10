@@ -199,7 +199,7 @@ pipeline {
         }
 
         // -----------------------------
-        // Helm instalar Addons
+        // Helm instalar Addons - Nginx
         // -----------------------------
         stage('Deploy Ingress Nginx') {
 
@@ -262,6 +262,9 @@ pipeline {
             }
         }
 
+        // -----------------------------
+        // Helm instalar Addons - Envoy Gateway
+        // -----------------------------
         stage('Deploy Gateway API - Envoy Gateway') {
 
             when {
@@ -324,7 +327,8 @@ pipeline {
                     -n ${NAMESPACE} \
                     --create-namespace \
                     --wait \
-                    --timeout ${TIMEOUT_SECONDS}s
+                    --timeout ${TIMEOUT_SECONDS}s \
+                    --set-string elb.id=${elb_public_id}
 
                     echo ""
                     echo "=========================================="

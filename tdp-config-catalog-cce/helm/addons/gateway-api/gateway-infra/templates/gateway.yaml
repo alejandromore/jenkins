@@ -5,6 +5,9 @@ metadata:
   name: {{ .Values.gateway.name }}
   namespace: {{ .Release.Namespace }}
 
+  annotations:
+    kubernetes.io/elb.id: {{ .Values.elb.id }}
+
 spec:
   gatewayClassName: {{ .Values.gateway.className }}
 

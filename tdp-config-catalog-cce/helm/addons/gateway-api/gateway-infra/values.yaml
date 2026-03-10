@@ -2,3 +2,6 @@ gateway:
   name: cluster-gateway
   className: envoy
   port: 80
+
+elb:
+  id: ""

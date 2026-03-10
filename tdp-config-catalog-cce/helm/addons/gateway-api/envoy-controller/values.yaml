@@ -1,5 +1,18 @@
+deployment:
+  replicas: 1
+
 service:
   type: LoadBalancer
-
   annotations:
     kubernetes.io/elb.id: {{ ELB_ID }}
+    kubernetes.io/elb.class: performance
+
+config:
+  envoyGateway:
+    provider:
+      kubernetes:
+        envoyService:
+          type: LoadBalancer
+          annotations:
+            kubernetes.io/elb.id: {{ ELB_ID }}
+            kubernetes.io/elb.class: performance

@@ -9,7 +9,8 @@ metadata:
 spec:
   parentRefs:
     - name: cluster-gateway
-
+      namespace: envoy-gateway-system
+      
   rules:
     - matches:
         - path:
