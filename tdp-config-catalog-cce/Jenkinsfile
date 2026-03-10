@@ -209,7 +209,7 @@ pipeline {
 
             environment {
                 NAMESPACE = "ingress-nginx"
-                TIMEOUT_SECONDS = "120"
+                TIMEOUT_SECONDS = "240"
             }
 
             steps {
