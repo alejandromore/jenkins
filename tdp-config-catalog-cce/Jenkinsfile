@@ -308,13 +308,6 @@ pipeline {
 
                         echo ""
                         echo "=========================================="
-                        echo "Adding Envoy Gateway Helm repository..."
-                        echo "=========================================="
-                        helm repo add envoy-gateway https://helm.envoyproxy.io
-                        helm repo update
-
-                        echo ""
-                        echo "=========================================="
                         echo "Installing Envoy Gateway..."
                         echo "=========================================="
 
