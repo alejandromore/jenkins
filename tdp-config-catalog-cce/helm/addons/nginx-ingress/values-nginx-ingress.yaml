@@ -10,7 +10,7 @@ controller:
     type: LoadBalancer
     annotations:
       kubernetes.io/elb.class: union
-      kubernetes.io/elb.id: ""
+      #kubernetes.io/elb.id: ""
 
   admissionWebhooks:
     enabled: false
