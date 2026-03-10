@@ -16,3 +16,9 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+
+      infrastructure:
+        annotations:
+          kubernetes.io/elb.id: {{ .Values.elb.id }}
+          kubernetes.io/elb.class: performance
+          kubernetes.io/elb.pass-through: onlyLocal
