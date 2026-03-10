@@ -330,6 +330,14 @@ pipeline {
                     --timeout ${TIMEOUT_SECONDS}s \
                     --set-string elb.id=${elb_public_id}
 
+                    echo "Associating ELB with Gateway service..."
+
+                    kubectl annotate svc \
+                    -l gateway.envoyproxy.io/owning-gateway-name=cluster-gateway \
+                    -n ${NAMESPACE} \
+                    kubernetes.io/elb.id=${elb_public_id} \
+                    --overwrite
+
                     echo ""
                     echo "=========================================="
                     echo "Gateway API installation completed"
