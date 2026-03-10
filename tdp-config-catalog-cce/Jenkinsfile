@@ -77,7 +77,8 @@ pipeline {
                             action: params.ACTION,
                             outputs: [
                                 'elb_public_ip', 
-                                'elb_public_id'
+                                'elb_public_id',
+                                'kubeconfig'
                             ]
                         )
 
@@ -108,7 +109,8 @@ pipeline {
                             action: params.ACTION,
                             outputs: [
                                 'elb_public_ip', 
-                                'elb_public_id'
+                                'elb_public_id',
+                                'kubeconfig'
                             ]
                         )
 
@@ -152,9 +154,12 @@ pipeline {
                 script {
 
                     withCredentials([
-                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                        //file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
                     ]) {
-
+                        script {
+                            // Lectura de archivos generados en stages previos
+                            env.kubeconfig = readFile("${WORKSPACE}/kubeconfig.txt").trim()
+                        }
                         env.JWKS = sh(
                             script: '''
                                 export KUBECONFIG=$KUBECONFIG
@@ -211,6 +216,7 @@ pipeline {
                 script {
                     // Lectura de archivos generados en stages previos
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+                    env.kubeconfig = readFile("${WORKSPACE}/kubeconfig.txt").trim()
                 }
 
                 dir(env.HELM_DIR_AO_NI) {
@@ -351,12 +357,13 @@ pipeline {
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
                     env.idp_id = readFile("${WORKSPACE}/idp_id.txt").trim()
                     env.JWKS = sh(script: "kubectl get --raw /openid/v1/jwks | jq -c .", returnStdout: true).trim()
+                    env.kubeconfig = readFile("${WORKSPACE}/kubeconfig.txt").trim()
                 }
 
                 dir(env.HELM_DIR_WK) {
 
                     withCredentials([
-                        file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
+                        //file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
                     ]) {
 
                         sh '''
