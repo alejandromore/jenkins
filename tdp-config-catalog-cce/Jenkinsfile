@@ -335,6 +335,15 @@ pipeline {
                     --timeout ${TIMEOUT_SECONDS}s \
                     --set-string elb.id=${elb_public_id}
 
+                    echo "Waiting for Gateway LoadBalancer service..."
+
+                    until kubectl get svc -n ${NAMESPACE} \
+                    -l gateway.envoyproxy.io/owning-gateway-name=cluster-gateway \
+                    -o name | grep -q service; do
+                    sleep 5
+                    echo "Waiting for gateway service..."
+                    done
+
                     echo "Associating ELB with Gateway service..."
 
                     kubectl annotate svc \
