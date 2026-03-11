@@ -160,15 +160,6 @@ resource "huaweicloud_networking_secgroup_rule" "cce_nodes_kubelet_internal" {
   description = "Allow kubelet communication between nodes"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "cce_nodes_to_eni_subnet" {
-  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
-  direction         = "ingress"
-  ethertype         = "IPv4"
-  protocol          = "0"
-  remote_ip_prefix  = var.vpc_subnet_cce_eni_cidr
-  description = "Allow traffic from ENI pod subnet to nodes (required for logs/exec)"
-}
-
 resource "huaweicloud_networking_secgroup_rule" "eni_pods_to_kubelet" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
