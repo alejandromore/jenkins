@@ -257,6 +257,28 @@ resource "huaweicloud_networking_secgroup_rule" "cce_eni_control_plane" {
   description = "Allow CCE control plane to reach pods in ENI mode"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "cce_eni_control_plane_ports" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 1024
+  port_range_max    = 65535
+  remote_ip_prefix  = "100.125.0.0/16"
+  description = "Allow control plane connections to pods (logs, exec, proxy)"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "elb_to_pods_targetport" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 10080
+  port_range_max    = 10080
+  remote_group_id   = huaweicloud_networking_secgroup.sg_elb.id
+  description = "Allow ELB to reach Envoy target port"
+}
+
 resource "huaweicloud_networking_secgroup_rule" "cce_eni_egress_all" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
   direction = "egress"
