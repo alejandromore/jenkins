@@ -171,13 +171,13 @@ resource "huaweicloud_networking_secgroup_rule" "eni_pods_to_kubelet" {
   description = "Allow ENI pods to reach kubelet for logs/exec"
 }
 
-resource "huaweicloud_networking_secgroup_rule" "eni_pods_to_nodes_all" {
+resource "huaweicloud_networking_secgroup_rule" "pods_to_nodes" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "0"
   remote_ip_prefix  = var.vpc_subnet_cce_eni_cidr
-  description = "Allow pod ENI subnet to communicate with nodes"
+  description = "Allow pod subnet to communicate with nodes (required for logs/exec)"
 }
 
 resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet_alt" {
