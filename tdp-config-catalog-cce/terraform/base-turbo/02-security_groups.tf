@@ -41,6 +41,39 @@ resource "huaweicloud_networking_secgroup_rule" "elb_ingress_https" {
   description = "Allow inbound HTTPS traffic from the Internet to the Elastic Load Balancer"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "elb_to_pods" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
+  direction = "ingress"
+  ethertype = "IPv4"
+  protocol = "tcp"
+  port_range_min = 80
+  port_range_max = 80
+  remote_group_id = huaweicloud_networking_secgroup.sg_elb.id
+  description = "Allow ELB to reach pods directly in CCE Turbo ENI mode"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "elb_to_pods_https" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
+  direction = "ingress"
+  ethertype = "IPv4"
+  protocol = "tcp"
+  port_range_min = 443
+  port_range_max = 443
+  remote_group_id = huaweicloud_networking_secgroup.sg_elb.id
+  description = "Allow ELB to reach pods directly in CCE Turbo ENI mode"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "elb_to_pods_healthcheck" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
+  direction = "ingress"
+  ethertype = "IPv4"
+  protocol = "tcp"
+  port_range_min = 1024
+  port_range_max = 65535
+  remote_group_id = huaweicloud_networking_secgroup.sg_elb.id
+  description = "Allow ELB health checks to reach pods"
+}
+
 resource "huaweicloud_networking_secgroup_rule" "elb_egress_nodeport" {
   security_group_id = huaweicloud_networking_secgroup.sg_elb.id
   direction = "egress"
