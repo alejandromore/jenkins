@@ -149,6 +149,28 @@ resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet" {
   description = "Allow kubelet access from control plane and nodes"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "cce_nodes_kubelet_internal" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 10250
+  port_range_max    = 10250
+  remote_group_id   = huaweicloud_networking_secgroup.sg_cce.id
+  description = "Allow kubelet communication between nodes"
+}
+
+resource "huaweicloud_networking_secgroup_rule" "master_to_kubelet_alt" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce.id
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 10250
+  port_range_max    = 10250
+  remote_ip_prefix  = "100.64.0.0/10"
+  description = "Allow kubelet access from CCE control plane alternate CIDR"
+}
+
 resource "huaweicloud_networking_secgroup_rule" "cce_internal_control" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce.id
   direction = "ingress"
