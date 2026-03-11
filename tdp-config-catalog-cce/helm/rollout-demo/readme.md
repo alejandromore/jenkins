@@ -1,28 +1,57 @@
-kubectl argo rollouts get rollout demo-rollout -n rollout-demo --watch
+# dashboard
+kubectl argo rollouts dashboard --namespace rollout-demo
+http://localhost:3100/rollouts/rollout-demo
 
-STEP 1  setWeight 20
-STEP 2  pause
-STEP 3  setWeight 50
-STEP 4  pause
-
-
-kubectl argo rollouts promote demo-rollout -n rollout-demo
-
--------------------Canary
-1️⃣ Crear namespace (solo la primera vez)
+# 1. Crear namespace (solo la primera vez)
 kubectl create namespace rollout-demo
-2️⃣ Crear el service
+-------------------Canary
+[Terminal-1] Deploy y observar rollout
+# 2️. Crear el service
 kubectl apply -f base/service.yaml
-3️⃣ Desplegar versión inicial (v1)
+# 3️. Desplegar versión inicial (v1)
 kubectl apply -f v1/rollout.yaml
-kubectl argo rollouts get rollout demo-rollout -n rollout-demo
-4️⃣ Exponer el servicio
-kubectl port-forward svc/demo-service 8080:80 -n rollout-demo
-5️⃣ Generar tráfico En terminal 2:
-.\canary-watch.ps1
-6️⃣ Desplegar la nueva versión (v2)
+# 4. Observar el rollout
+kubectl argo rollouts dashboard --namespace rollout-demo
+
+[Terminal-2] Generador de tráfico dentro del cluster
+# 5. Exponer el servicio
+kubectl run load-generator -n rollout-demo --image=busybox --restart=Never `
+-- /bin/sh -c "while true; do wget -q -O- http://demo-service.rollout-demo; done"
+# 6️. Ver tráfico generado
+kubectl logs -f pod/load-generator -n rollout-demo
+
+[Terminal-3] Lanzar el Canary
+# 6️. Desplegar la nueva versión (v2)
 kubectl apply -f v2/rollout.yaml
-7️⃣ Observar el rollout
-kubectl argo rollouts get rollout demo-rollout -n rollout-demo --watch
-8️⃣ Promover si está pausado
+
+-------------------Blue - Green
+# 2. Deploy infraestructura
+kubectl apply -f base/gateway.yaml
+kubectl apply -f base/httproute.yaml
+kubectl apply -f base/active-service.yaml
+kubectl apply -f base/preview-service.yaml
+
+# Deploy Blue
+kubectl apply -f blue/rollout.yaml
+
+# Generar tráfico
+kubectl run load-generator -n rollout-demo --image=busybox --restart=Never `
+-- /bin/sh -c "while true; do wget -q -O- http://demo-active.rollout-demo; done"
+# Ver tráfico generado
+kubectl logs -f pod/load-generator -n rollout-demo
+
+# Desplegar Green
+kubectl apply -f green/rollout.yaml
+
+# Promover Green
 kubectl argo rollouts promote demo-rollout -n rollout-demo
+# Rollback
+kubectl argo rollouts undo demo-rollout -n rollout-demo
+
+
+
+kubectl delete namespace rollout-demo
+
+kubectl argo rollouts undo demo-rollou
+kubectl argo rollouts promote demo-rollout -n rollout-demo
+kubectl argo rollouts get rollout demo-rollout -n rollout-demo --watch

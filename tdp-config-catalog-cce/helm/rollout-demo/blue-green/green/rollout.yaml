@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: demo-rollout
+  namespace: rollout-demo
+spec:
+  replicas: 4
+
+  strategy:
+    blueGreen:
+      activeService: demo-active
+      previewService: demo-preview
+      autoPromotionEnabled: false
+
+  selector:
+    matchLabels:
+      app: demo
+
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo
+        image: hashicorp/http-echo:0.2.3
+        args:
+        - "-text=version2"
+        ports:
+        - containerPort: 5678
