@@ -33,7 +33,12 @@ pipeline {
         booleanParam(
             name: 'RUN_HELM_WORKLOAD_IDENTITY',
             defaultValue: false,
-            description: 'Desplegar Jenkins con Helm (cargar kubeconfig en secreto)'
+            description: 'Desplegar Jenkins con Helm'
+        )
+        booleanParam(
+            name: 'RUN_HELM_ARGO_ROLLOUTS',
+            defaultValue: false,
+            description: 'Desplegar Argo Rollouts'
         )
     }
 
@@ -426,6 +431,64 @@ pipeline {
                     done
                     '''
                 }
+            }
+        }
+
+        // -----------------------------
+        // Helm instalar Argo Rollouts
+        // -----------------------------
+        stage('Deploy Argo Rollouts') {
+
+            when {
+                expression { params.RUN_HELM_ARGO_ROLLOUTS }
+            }
+
+            environment {
+                NAMESPACE = "argo-rollouts"
+                TIMEOUT_SECONDS = "240"
+            }
+
+            steps {
+                script {
+                    // Lectura de archivos generados en stages previos
+                    env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
+
+                    // Cargar kubeconfig
+                    env.KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
+
+                    // Validar conexión al cluster
+                    sh "kubectl cluster-info"
+                }
+
+                sh '''
+                set -eo pipefail
+
+                echo ""
+                echo "=========================================="
+                echo "Adding Helm repository..."
+                echo "=========================================="
+
+                helm repo add argo https://argoproj.github.io/argo-helm
+                helm repo update
+
+                echo ""
+                echo "=========================================="
+                echo "Namespace: ${NAMESPACE}"
+                echo "=========================================="
+
+                helm install argo-rollouts argo/argo-rollouts \
+                --namespace ${NAMESPACE} \
+                --create-namespace
+
+                echo ""
+                echo "=========================================="
+                echo "Servicios desplegados"
+                echo "=========================================="
+
+                kubectl get pods -n ${NAMESPACE}
+                
+                '''
+
             }
         }
 
