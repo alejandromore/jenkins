@@ -248,6 +248,15 @@ resource "huaweicloud_networking_secgroup_rule" "cce_eni_from_nodes" {
   description = "Allow worker nodes to communicate with pods attached through ENI network interfaces"
 }
 
+resource "huaweicloud_networking_secgroup_rule" "cce_eni_control_plane" {
+  security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
+  direction = "ingress"
+  ethertype = "IPv4"
+  protocol = "0"
+  remote_ip_prefix = "100.125.0.0/16"
+  description = "Allow CCE control plane to reach pods in ENI mode"
+}
+
 resource "huaweicloud_networking_secgroup_rule" "cce_eni_egress_all" {
   security_group_id = huaweicloud_networking_secgroup.sg_cce_eni.id
   direction = "egress"
