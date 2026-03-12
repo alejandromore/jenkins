@@ -1,0 +1,45 @@
+FROM jenkins/inbound-agent:latest-jdk21
+
+LABEL container.registry="acrgenesis" \
+      image.name="agent-genesisDeploySecureLTS" \
+      version="1.0" \
+      author="hfarroc" \
+      commit-id="4149a50" \
+      build.date="2026-03-03 18:00:00"
+
+USER root
+
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
+RUN apt-get update && apt-get install -y \
+    git \
+    openssh-client \
+    curl \
+    jq \
+    locales \
+    ca-certificates \
+    docker.io \
+    tar \
+    gzip \
+    bash \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
+ && locale-gen \
+ && update-locale LANG=en_US.UTF-8
+
+# Maven
+RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz -o /tmp/maven.tar.gz \
+ && tar -xzf /tmp/maven.tar.gz -C /opt \
+ && ln -s /opt/apache-maven-3.9.9/bin/mvn /usr/local/bin/mvn \
+ && rm -rf /tmp/maven.tar.gz
+
+# Bash default
+RUN ln -sf /bin/bash /bin/sh
+
+# Permitir usar docker
+RUN groupadd -f docker && usermod -aG docker jenkins
+
+USER jenkins

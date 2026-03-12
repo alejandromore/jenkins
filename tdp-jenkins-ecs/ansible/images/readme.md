@@ -29,14 +29,19 @@ podman login -u la-south-2@HST3W130YTU3Y7BJXTCJ -p 88e96a7898dae703205f0a6a7a373
 podman build -t jenkins-genesisbackjdk21:1.0 -f ./Dockerfile-agent-genesisbackjdk21 .
 podman build -t jenkins-genesisfrontnodelts:1.0 -f ./Dockerfile-agent-genesisfrontnodelts .
 podman build -t jenkins-genesissecrets:1.0 -f ./Dockerfile-agent-genesissecrets .
+podman build -t jenkins-genesisdeploysecurelts:1.0 -f ./Dockerfile-agent-genesisdeploysecurelts .
 
 podman tag jenkins-genesisbackjdk21:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisbackjdk21:1.0
 podman tag jenkins-genesisfrontnodelts:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisfrontnodelts:1.0
 podman tag jenkins-genesissecrets:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesissecrets:1.0
+podman tag jenkins-genesisdeploysecurelts:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisdeploysecurelts:1.0
+
+
 
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisbackjdk21:1.0
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisfrontnodelts:1.0
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesissecrets:1.0
+podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisdeploysecurelts:1.0
 
 
 #En el ECS
