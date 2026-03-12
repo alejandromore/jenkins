@@ -19,7 +19,8 @@ services:
       - ./casc.yaml:/var/jenkins_home/casc.yaml
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/jenkins/workspaces:/opt/jenkins/workspaces
-
+      - /opt/jenkins/.m2:/opt/jenkins/.m2
+      
     networks:
       - jenkinsnet
 

@@ -1,11 +1,10 @@
 FROM jenkins/inbound-agent:jdk21
 
 LABEL container.registry="acrgenesis" \
-      image.name="agent-genesisSecrets" \
+      image.name="agent-genesisFrontNodeLTS" \
       version="1.0" \
-      author="hfarroc" \
-      commit-id="4149a50" \
-      build.date="2026-03-08"
+      author="devsecops" \
+      build.date="2026-03-12"
 
 USER root
 
@@ -16,7 +15,8 @@ ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8 \
     JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8" \
-    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 \
+    DEBIAN_FRONTEND=noninteractive
 
 # ------------------------------------------------
 # Instalar dependencias base
@@ -35,6 +35,11 @@ RUN apt-get update && apt-get install -y \
     locales \
     apt-transport-https \
     libicu-dev \
+    grep \
+    findutils \
+    coreutils \
+    build-essential \
+    tar \
  && rm -rf /var/lib/apt/lists/*
 
 # ------------------------------------------------
@@ -48,6 +53,11 @@ RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
 # Crear virtualenv Python (evita PEP 668)
 # ------------------------------------------------
 RUN python3 -m venv /opt/security-tools
+
+# ------------------------------------------------
+# Actualizar pip
+# ------------------------------------------------
+RUN /opt/security-tools/bin/pip install --upgrade pip
 
 # ------------------------------------------------
 # Instalar herramientas DevSecOps
@@ -80,7 +90,14 @@ RUN wget https://github.com/PowerShell/PowerShell/releases/download/v7.4.2/power
 # ------------------------------------------------
 # Instalar Azure PowerShell modules
 # ------------------------------------------------
-RUN pwsh -Command "Install-Module Az -Scope AllUsers -Force"
+RUN pwsh -Command "Install-Module Az -Scope AllUsers -Force -AllowClobber"
+
+# ------------------------------------------------
+# Instalar yq (útil para pipelines YAML)
+# ------------------------------------------------
+RUN wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
+ && mv yq_linux_amd64 /usr/local/bin/yq \
+ && chmod +x /usr/local/bin/yq
 
 # ------------------------------------------------
 # Instalar OBSUTIL (Huawei Cloud OBS CLI)
@@ -93,6 +110,20 @@ RUN echo "Installing obsutil..." \
  && rm -rf /tmp/obsutil*
 
 RUN /usr/local/bin/obsutil version
+
+# ------------------------------------------------
+# Instalar Maven
+# ------------------------------------------------
+RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz -o /tmp/maven.tar.gz \
+ && tar -xzf /tmp/maven.tar.gz -C /opt \
+ && ln -s /opt/apache-maven-3.9.9/bin/mvn /usr/local/bin/mvn \
+ && rm -rf /tmp/maven.tar.gz
+
+# ------------------------------------------------
+# Crear directorios usados por Jenkins
+# ------------------------------------------------
+RUN mkdir -p /home/jenkins/workspace \
+ && chown -R jenkins:jenkins /home/jenkins
 
 # ------------------------------------------------
 # Limpiar caches

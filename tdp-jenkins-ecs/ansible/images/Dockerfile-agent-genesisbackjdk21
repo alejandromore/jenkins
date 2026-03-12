@@ -29,6 +29,14 @@ RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
  && locale-gen \
  && update-locale LANG=en_US.UTF-8
 
+# ------------------------------------------------
+# Instalar Maven
+# ------------------------------------------------
+RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz -o /tmp/maven.tar.gz \
+ && tar -xzf /tmp/maven.tar.gz -C /opt \
+ && ln -s /opt/apache-maven-3.9.9/bin/mvn /usr/local/bin/mvn \
+ && rm -rf /tmp/maven.tar.gz
+
 # Make bash the default shell
 RUN ln -sf /bin/bash /bin/sh
 

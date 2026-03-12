@@ -28,6 +28,7 @@ gitlab-plugin
 bitbucket-push-and-pull-request
 
 # DevOps
+artifactory
 ansible
 job-dsl
 

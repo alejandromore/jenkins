@@ -65,6 +65,24 @@ jenkins:
               mounts:
                 - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
 
+          - labelString: "genesisFrontNodeLTS"
+            name: "genesisFrontNodeLTS"
+            mode: EXCLUSIVE
+            pullStrategy: PULL_ALWAYS
+            retentionStrategy:
+              idleMinutes: 5
+            remoteFs: "/home/jenkins"
+            connector:
+              attach:
+                user: "jenkins"
+            dockerTemplateBase:
+              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisfrontnodelts:1.0"
+              pullCredentialsId: "swr-jenkins"
+              tty: true
+              mounts:
+                - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
+                - "type=bind,source=/opt/jenkins/.m2,target=/home/jenkins/.m2"
+
           - labelString: "genesisSecrets"
             name: "genesisSecrets"
             mode: EXCLUSIVE

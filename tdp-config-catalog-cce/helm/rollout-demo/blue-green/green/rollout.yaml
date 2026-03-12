@@ -11,6 +11,7 @@ spec:
       activeService: demo-active
       previewService: demo-preview
       autoPromotionEnabled: false
+      scaleDownDelaySeconds: 999999
 
   selector:
     matchLabels:
