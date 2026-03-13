@@ -14,6 +14,7 @@ docker push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organizatio
 
 ##### Utilizando Podman
 podman login -u la-south-2@HST3WIMA3XEFMOOE1V9S -p c449c44026f546e0dd9340908215938c9426ac206fd33040bd5f267be336536c swr.la-south-2.myhuaweicloud.com
+podman login -u la-south-2@HST3WKXMAFEUIMWGVUAS -p 3ee7ecf5830e0455268daf11a66e9d5ba8be601232e0923e5c37c8e6e28b4aba swr.la-south-2.myhuaweicloud.com
 
 podman build -t jenkins-agent-huawei:1.0 -f ./Dockerfile-agent-huawei .
 podman build -t jenkins-agent-terraform:1.0 -f ./Dockerfile-agent-terraform .
