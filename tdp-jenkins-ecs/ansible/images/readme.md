@@ -25,17 +25,19 @@ podman build -t jenkins-controller:1.0 -f ./Dockerfile-controller .
 
 
 #Genesis Agents
-podman login -u la-south-2@HST3W130YTU3Y7BJXTCJ -p 88e96a7898dae703205f0a6a7a373e9034727208a0700d66e762ab1573580131 swr.la-south-2.myhuaweicloud.com
+podman login -u la-south-2@HST3W76SVC252GDFZY5B -p ae632fa5a8fffec8192f1cc5f92997ff109c61feacf0baf756c36a89ed41886e swr.la-south-2.myhuaweicloud.com
 
 podman build -t jenkins-genesisbackjdk21:1.0 -f ./Dockerfile-agent-genesisbackjdk21 .
 podman build -t jenkins-genesisfrontnodelts:1.0 -f ./Dockerfile-agent-genesisfrontnodelts .
 podman build -t jenkins-genesissecrets:1.0 -f ./Dockerfile-agent-genesissecrets .
 podman build -t jenkins-genesisdeploysecurelts:1.0 -f ./Dockerfile-agent-genesisdeploysecurelts .
+podman build -t jenkins-genesisimagescan:1.0 -f ./Dockerfile-agent-genesisimagescan .
 
 podman tag jenkins-genesisbackjdk21:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisbackjdk21:1.0
 podman tag jenkins-genesisfrontnodelts:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisfrontnodelts:1.0
 podman tag jenkins-genesissecrets:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesissecrets:1.0
 podman tag jenkins-genesisdeploysecurelts:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisdeploysecurelts:1.0
+podman tag jenkins-genesisimagescan:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisimagescan:1.0
 
 
 
@@ -43,6 +45,7 @@ podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organizatio
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisfrontnodelts:1.0
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesissecrets:1.0
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisdeploysecurelts:1.0
+podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisimagescan:1.0
 
 
 #En el ECS

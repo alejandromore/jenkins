@@ -14,9 +14,10 @@ kubectl apply -f base/gateway.yaml
 kubectl apply -f v1/rollout.yaml
 
 [Terminal-2] Generar trafico
-# Exponer el servicio
-kubectl run load-generator -n rollout-demo --image=busybox --restart=Never `
--- /bin/sh -c "while true; do wget -q -O- http://demo-service.rollout-demo; done"
+kubectl run load-generator -n rollout-demo `
+--image=busybox `
+--restart=Never `
+-- /bin/sh -c "while true; do wget -q -O- http://demo-stable.rollout-demo; sleep 1; done"
 
 [Terminal-1] Deploy v2
 # Desplegar la nueva versión (v2)
@@ -58,6 +59,8 @@ kubectl argo rollouts dashboard --namespace rollout-demo
 kubectl argo rollouts undo demo-rollou
 kubectl argo rollouts promote demo-rollout -n rollout-demo
 kubectl argo rollouts get rollout demo-rollout -n rollout-demo --watch
+kubectl delete rollout demo-rollout -n rollout-demo
+kubectl apply -f v1/rollout.yaml
 
 # Ver tráfico generado
 kubectl logs -f pod/load-generator -n rollout-demo

@@ -27,6 +27,10 @@ resource "huaweicloud_elb_loadbalancer" "elb_public" {
 
   enterprise_project_id = data.huaweicloud_enterprise_project.ep.id
   tags = var.tags
+
+  depends_on = [
+    huaweicloud_cce_cluster.cce_cluster_standard
+  ]
 }
 
 #######################################
