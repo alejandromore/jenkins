@@ -131,6 +131,9 @@ pipeline {
             when {
                 expression { params.RUN_TERRAFORM_WORKLOAD_IDENTITY }
             }
+            environment {
+                KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
+            }
             steps {
                 dir(env.TF_DIR_WK) {
 
@@ -157,25 +160,15 @@ pipeline {
                 }
 
                 script {
+                    // Validar conexión al cluster
+                    sh "kubectl cluster-info"
 
-                    withCredentials([
-                        //file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
-                    ]) {
-                        script {
-                            // Cargar kubeconfig
-                            env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
-                            sh "export KUBECONFIG=$kubeconfig"
-                            
-                            // Validar conexión al cluster
-                            sh "kubectl cluster-info"
-                        }
-                        env.JWKS = sh(
-                            script: '''
-                                kubectl get --raw /openid/v1/jwks | jq -c .
-                            ''',
-                            returnStdout: true
-                        ).trim()
-                    }
+                    env.JWKS = sh(
+                        script: '''
+                            kubectl get --raw /openid/v1/jwks | jq -c .
+                        ''',
+                        returnStdout: true
+                    ).trim()
                 }
 
                 withCredentials([
@@ -218,16 +211,13 @@ pipeline {
             environment {
                 NAMESPACE = "ingress-nginx"
                 TIMEOUT_SECONDS = "240"
+                KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
             }
 
             steps {
                 script {
                     // Lectura de archivos generados en stages previos
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
-
-                    // Cargar kubeconfig
-                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
-                    sh "export KUBECONFIG=$kubeconfig"
 
                     // Validar conexión al cluster
                     sh "kubectl cluster-info"
@@ -456,16 +446,13 @@ pipeline {
             environment {
                 NAMESPACE = "argo-rollouts"
                 TIMEOUT_SECONDS = "240"
+                KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
             }
 
             steps {
                 script {
                     // Lectura de archivos generados en stages previos
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
-
-                    // Cargar kubeconfig
-                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
-                    sh "export KUBECONFIG=$kubeconfig"
 
                     // Validar conexión al cluster
                     sh "kubectl cluster-info"
