@@ -287,15 +287,13 @@ pipeline {
 
             steps {
                 script {
-                    // Leer datos generados previamente
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
 
-                    // Cargar kubeconfig
-                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
-                    sh "export KUBECONFIG=$kubeconfig"
+                    def kubeconfig = "${WORKSPACE}/kubeconfig.txt"
 
-                    // Validar conexión al cluster
-                    sh "kubectl cluster-info"
+                    sh """
+                        kubectl --kubeconfig=${kubeconfig} cluster-info
+                    """
                 }
 
                 dir(env.HELM_DIR_AO_GA) {
