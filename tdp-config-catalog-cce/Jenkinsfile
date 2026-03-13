@@ -368,6 +368,7 @@ pipeline {
                 NAMESPACE = "workload-identity"
                 RELEASE_NAME = "workload-identity"
                 TIMEOUT_SECONDS = "300"
+                KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
             }
 
             steps {
@@ -376,10 +377,6 @@ pipeline {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
                     env.elb_public_ip = readFile("${WORKSPACE}/elb_public_ip.txt").trim()
                     env.idp_id = readFile("${WORKSPACE}/idp_id.txt").trim()
-
-                    // Cargar kubeconfig
-                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
-                    sh "export KUBECONFIG=$kubeconfig"
 
                     // Validar acceso al cluster
                     sh "kubectl cluster-info"
