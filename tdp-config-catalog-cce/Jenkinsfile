@@ -135,6 +135,49 @@ pipeline {
                 KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
             }
             steps {
+                script {
+                    sh '''
+                    set -euo pipefail
+
+                    echo "----------------------------------------"
+                    echo "Validando KUBECONFIG"
+                    echo "WORKSPACE: $WORKSPACE"
+                    echo "KUBECONFIG: $KUBECONFIG"
+                    echo "----------------------------------------"
+
+                    if [ -z "${KUBECONFIG:-}" ]; then
+                        echo "ERROR: KUBECONFIG no está definido"
+                        exit 1
+                    fi
+
+                    if [ ! -f "$KUBECONFIG" ]; then
+                        echo "ERROR: kubeconfig no existe en $KUBECONFIG"
+                        echo "Contenido del workspace:"
+                        ls -lah $WORKSPACE
+                        exit 1
+                    fi
+
+                    if [ ! -s "$KUBECONFIG" ]; then
+                        echo "ERROR: kubeconfig está vacío"
+                        exit 1
+                    fi
+
+                    echo "kubeconfig encontrado:"
+                    ls -lah $KUBECONFIG
+
+                    echo "Primeras líneas del kubeconfig:"
+                    head -n 10 $KUBECONFIG
+
+                    echo "----------------------------------------"
+                    echo "Probando conexión con kubectl"
+                    echo "----------------------------------------"
+
+                    kubectl config get-contexts || true
+                    kubectl config current-context || true
+                    kubectl cluster-info
+                    '''
+                }
+
                 dir(env.TF_DIR_WK) {
 
                     withCredentials([
