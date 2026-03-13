@@ -449,10 +449,9 @@ pipeline {
 
             steps {
                 script {
-                    // Lectura de archivos generados en stages previos
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
 
-                    // Validar conexión al cluster
+                    // Validar conexión
                     sh "kubectl cluster-info"
                 }
 
@@ -469,22 +468,42 @@ pipeline {
 
                 echo ""
                 echo "=========================================="
-                echo "Namespace: ${NAMESPACE}"
+                echo "Installing Argo Rollouts"
                 echo "=========================================="
 
-                helm install argo-rollouts argo/argo-rollouts \
+                helm upgrade --install argo-rollouts argo/argo-rollouts \
                 --namespace ${NAMESPACE} \
-                --create-namespace
+                --create-namespace \
+                --wait
 
                 echo ""
                 echo "=========================================="
-                echo "Servicios desplegados"
+                echo "Installing Gateway API plugin"
+                echo "=========================================="
+
+                kubectl apply -f https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/latest/download/install.yaml
+
+                echo ""
+                echo "=========================================="
+                echo "Waiting for Argo Rollouts components..."
+                echo "=========================================="
+
+                kubectl rollout status deployment/argo-rollouts \
+                -n ${NAMESPACE} \
+                --timeout=${TIMEOUT_SECONDS}s
+
+                kubectl rollout status deployment/argo-rollouts-gatewayapi-controller \
+                -n ${NAMESPACE} \
+                --timeout=${TIMEOUT_SECONDS}s
+
+                echo ""
+                echo "=========================================="
+                echo "Pods desplegados"
                 echo "=========================================="
 
                 kubectl get pods -n ${NAMESPACE}
-                
-                '''
 
+                '''
             }
         }
 
