@@ -450,8 +450,6 @@ pipeline {
             steps {
                 script {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
-
-                    // Validar conexión
                     sh "kubectl cluster-info"
                 }
 
@@ -474,14 +472,14 @@ pipeline {
                 helm upgrade --install argo-rollouts argo/argo-rollouts \
                 --namespace ${NAMESPACE} \
                 --create-namespace \
+                --set controller.extraClusterRoleRules[0].apiGroups[0]=gateway.networking.k8s.io \
+                --set controller.extraClusterRoleRules[0].resources[0]=httproutes \
+                --set controller.extraClusterRoleRules[0].verbs[0]=get \
+                --set controller.extraClusterRoleRules[0].verbs[1]=list \
+                --set controller.extraClusterRoleRules[0].verbs[2]=watch \
+                --set controller.extraClusterRoleRules[0].verbs[3]=update \
+                --set controller.extraClusterRoleRules[0].verbs[4]=patch \
                 --wait
-
-                echo ""
-                echo "=========================================="
-                echo "Installing Gateway API plugin"
-                echo "=========================================="
-
-                kubectl apply -f https://github.com/argoproj-labs/rollouts-plugin-trafficrouter-gatewayapi/releases/latest/download/install.yaml
 
                 echo ""
                 echo "=========================================="
@@ -489,10 +487,6 @@ pipeline {
                 echo "=========================================="
 
                 kubectl rollout status deployment/argo-rollouts \
-                -n ${NAMESPACE} \
-                --timeout=${TIMEOUT_SECONDS}s
-
-                kubectl rollout status deployment/argo-rollouts-gatewayapi-controller \
                 -n ${NAMESPACE} \
                 --timeout=${TIMEOUT_SECONDS}s
 
