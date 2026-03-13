@@ -283,17 +283,14 @@ pipeline {
             environment {
                 NAMESPACE = "envoy-gateway-system"
                 TIMEOUT_SECONDS = "300"
+                KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
             }
 
             steps {
                 script {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
 
-                    def kubeconfig = "${WORKSPACE}/kubeconfig.txt"
-
-                    sh """
-                        kubectl --kubeconfig=${kubeconfig} cluster-info
-                    """
+                    sh "kubectl cluster-info"
                 }
 
                 dir(env.HELM_DIR_AO_GA) {
