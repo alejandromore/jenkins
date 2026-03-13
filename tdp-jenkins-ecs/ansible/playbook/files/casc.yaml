@@ -98,6 +98,8 @@ jenkins:
               image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisdeploysecurelts:1.0"
               pullCredentialsId: "swr-jenkins"
               tty: true
+              extraGroups:
+                - "988"
               mounts:
                 - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
                 - "type=bind,source=/opt/jenkins/.m2,target=/home/jenkins/.m2"

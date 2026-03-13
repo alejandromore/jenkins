@@ -162,12 +162,15 @@ pipeline {
                         //file(credentialsId: 'cce-app-kubeconfig', variable: 'KUBECONFIG')
                     ]) {
                         script {
-                            // Lectura de archivos generados en stages previos
+                            // Cargar kubeconfig
                             env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
+                            sh "export KUBECONFIG=$kubeconfig"
+                            
+                            // Validar conexión al cluster
+                            sh "kubectl cluster-info"
                         }
                         env.JWKS = sh(
                             script: '''
-                                export KUBECONFIG=$kubeconfig
                                 kubectl get --raw /openid/v1/jwks | jq -c .
                             ''',
                             returnStdout: true
@@ -223,7 +226,8 @@ pipeline {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
 
                     // Cargar kubeconfig
-                    env.KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
+                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
+                    sh "export KUBECONFIG=$kubeconfig"
 
                     // Validar conexión al cluster
                     sh "kubectl cluster-info"
@@ -287,7 +291,8 @@ pipeline {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
 
                     // Cargar kubeconfig
-                    env.KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
+                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
+                    sh "export KUBECONFIG=$kubeconfig"
 
                     // Validar conexión al cluster
                     sh "kubectl cluster-info"
@@ -388,7 +393,8 @@ pipeline {
                     env.idp_id = readFile("${WORKSPACE}/idp_id.txt").trim()
 
                     // Cargar kubeconfig
-                    env.KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
+                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
+                    sh "export KUBECONFIG=$kubeconfig"
 
                     // Validar acceso al cluster
                     sh "kubectl cluster-info"
@@ -463,7 +469,8 @@ pipeline {
                     env.elb_public_id = readFile("${WORKSPACE}/elb_public_id.txt").trim()
 
                     // Cargar kubeconfig
-                    env.KUBECONFIG = "${WORKSPACE}/kubeconfig.txt"
+                    env.kubeconfig = "${WORKSPACE}/kubeconfig.txt"
+                    sh "export KUBECONFIG=$kubeconfig"
 
                     // Validar conexión al cluster
                     sh "kubectl cluster-info"

@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: demo-rollout
+  namespace: rollout-demo
+spec:
+  replicas: 4
+
+  strategy:
+    canary:
+      stableService: demo-stable
+      canaryService: demo-canary
+
+      trafficRouting:
+        plugins:
+          argoproj-labs/gatewayAPI:
+            httpRoute: demo-route
+            namespace: rollout-demo
+
+      steps:
+      - setWeight: 20
+      - pause: {duration: 30}
+      - setWeight: 50
+      - pause: {duration: 30}
+      - setWeight: 100
+
+  selector:
+    matchLabels:
+      app: demo
+
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo
+        image: hashicorp/http-echo:0.2.3
+        args:
+        - "-text=version1"
+        ports:
+        - containerPort: 5678
