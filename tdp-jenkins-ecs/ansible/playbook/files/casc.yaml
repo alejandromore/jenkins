@@ -105,6 +105,27 @@ jenkins:
                 - "type=bind,source=/opt/jenkins/.m2,target=/home/jenkins/.m2"
                 - "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
 
+          - labelString: "genesisHuawei"
+            name: "genesisHuawei"
+            mode: EXCLUSIVE
+            pullStrategy: PULL_ALWAYS
+            retentionStrategy:
+              idleMinutes: 5
+            remoteFs: "/home/jenkins"
+            connector:
+              attach:
+                user: "jenkins"
+            dockerTemplateBase:
+              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesishuawei:1.0"
+              pullCredentialsId: "swr-jenkins"
+              tty: true
+              extraGroups:
+                - "988"
+              mounts:
+                - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
+                - "type=bind,source=/opt/jenkins/.m2,target=/home/jenkins/.m2"
+                - "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
+
           - labelString: "genesisSecrets"
             name: "genesisSecrets"
             mode: EXCLUSIVE
@@ -133,11 +154,14 @@ jenkins:
               attach:
                 user: "jenkins"
             dockerTemplateBase:
-              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/agent-genesisimagescan:1.0"
+              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisimagescan:1.0"
               pullCredentialsId: "swr-jenkins"
               tty: true
+              extraGroups:
+                - "988"
               mounts:
                 - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
+                - "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
 
 unclassified:
   location:

@@ -31,12 +31,15 @@ podman build -t jenkins-genesisbackjdk21:1.0 -f ./Dockerfile-agent-genesisbackjd
 podman build -t jenkins-genesisfrontnodelts:1.0 -f ./Dockerfile-agent-genesisfrontnodelts .
 podman build -t jenkins-genesissecrets:1.0 -f ./Dockerfile-agent-genesissecrets .
 podman build -t jenkins-genesisdeploysecurelts:1.0 -f ./Dockerfile-agent-genesisdeploysecurelts .
+podman build -t jenkins-genesishuawei:1.0 -f ./Dockerfile-agent-genesishuawei .
 podman build -t jenkins-genesisimagescan:1.0 -f ./Dockerfile-agent-genesisimagescan .
+
 
 podman tag jenkins-genesisbackjdk21:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisbackjdk21:1.0
 podman tag jenkins-genesisfrontnodelts:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisfrontnodelts:1.0
 podman tag jenkins-genesissecrets:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesissecrets:1.0
 podman tag jenkins-genesisdeploysecurelts:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisdeploysecurelts:1.0
+podman tag jenkins-genesishuawei:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesishuawei:1.0
 podman tag jenkins-genesisimagescan:1.0 swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisimagescan:1.0
 
 
@@ -45,6 +48,7 @@ podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organizatio
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisfrontnodelts:1.0
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesissecrets:1.0
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisdeploysecurelts:1.0
+podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesishuawei:1.0
 podman push swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-genesisimagescan:1.0
 
 

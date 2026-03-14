@@ -1,7 +1,7 @@
 FROM jenkins/inbound-agent:latest-jdk21
 
 LABEL container.registry="acrgenesis" \
-      image.name="agent-genesisDeploySecureLTS" \
+      image.name="agent-genesisHuawei" \
       version="1.0" \
       author="hfarroc" \
       commit-id="4149a50" \
