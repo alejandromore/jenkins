@@ -69,7 +69,7 @@ RUN echo "Installing Huawei Cloud CLI..." \
  && chmod +x /tmp/hcloud_install.sh \
  && echo "y" | /tmp/hcloud_install.sh -y \
  && chmod +x /usr/local/bin/hcloud \
- && chown jenkins:jenkins /usr/local/bin/hcloud \
+ && chmod -R a+rx /usr/local/hcloud \
  && rm -f /tmp/hcloud_install.sh
 
 # ==========================================
