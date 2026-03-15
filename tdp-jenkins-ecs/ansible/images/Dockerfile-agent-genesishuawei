@@ -2,7 +2,7 @@ FROM jenkins/inbound-agent:latest-jdk21
 
 LABEL container.registry="acrgenesis" \
       image.name="agent-genesisHuawei" \
-      version="1.1" \
+      version="1.2" \
       author="hfarroc" \
       build.date="2026-03-15"
 
@@ -27,6 +27,9 @@ RUN apt-get update && apt-get install -y \
     gzip \
     bash \
     unzip \
+    python3 \
+    python3-pip \
+    python3-venv \
  && rm -rf /var/lib/apt/lists/*
 
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
@@ -34,9 +37,12 @@ RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
  && update-locale LANG=en_US.UTF-8
 
 # ==========================================
+# Python tools (jinja2 for helm values)
+# ==========================================
+RUN pip3 install --no-cache-dir --break-system-packages jinja2-cli
+
+# ==========================================
 # Maven
-# Fuente oficial Apache archive
-# https://archive.apache.org/dist/maven/
 # ==========================================
 RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz \
     -o /tmp/maven.tar.gz \
@@ -46,8 +52,6 @@ RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/3.9.9/binaries/apac
 
 # ==========================================
 # kubectl
-# Fuente oficial Kubernetes
-# https://dl.k8s.io/
 # ==========================================
 RUN curl -LO https://dl.k8s.io/release/v1.30.1/bin/linux/amd64/kubectl \
  && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
@@ -55,8 +59,6 @@ RUN curl -LO https://dl.k8s.io/release/v1.30.1/bin/linux/amd64/kubectl \
 
 # ==========================================
 # Helm
-# Script oficial Helm
-# https://github.com/helm/helm
 # ==========================================
 RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
@@ -74,7 +76,6 @@ RUN echo "Installing Huawei Cloud CLI..." \
 
 # ==========================================
 # yq (YAML processor)
-# https://github.com/mikefarah/yq
 # ==========================================
 RUN curl -L https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 \
     -o /usr/local/bin/yq \
