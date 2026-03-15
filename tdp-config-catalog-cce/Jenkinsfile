@@ -162,23 +162,28 @@ pipeline {
 
                 script {
 
+                script {
+
+                    sh """
+                    set -eo pipefail
+                    export KUBECONFIG=${WORKSPACE}/kubeconfig.txt
+
+                    echo "Usando kubeconfig:"
+                    ls -l \$KUBECONFIG
+
+                    echo "Validando conexión al cluster..."
+                    kubectl cluster-info
+                    """
+
                     env.JWKS = sh(
                         script: """
-                            set -eo pipefail
-
                             export KUBECONFIG=${WORKSPACE}/kubeconfig.txt
-
-                            echo "Usando kubeconfig:"
-                            ls -l \$KUBECONFIG
-
-                            echo "Validando conexión al cluster..."
-                            kubectl cluster-info
-
-                            echo "Obteniendo JWKS..."
                             kubectl get --raw /openid/v1/jwks | jq -c .
                         """,
                         returnStdout: true
                     ).trim()
+
+                    echo "JWKS obtenido (${env.JWKS.length()} chars)"
                 }
 
                 withCredentials([
