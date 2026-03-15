@@ -1,6 +1,13 @@
 controller:
   replicaCount: 2
 
+  config:
+    enable-modsecurity: "true"
+    enable-owasp-modsecurity-crs: "true"
+    modsecurity-snippet: |
+      SecRuleEngine On
+      SecRequestBodyAccess On
+
   ingressClassResource:
     name: nginx
     enabled: true
@@ -15,10 +22,6 @@ controller:
 
   admissionWebhooks:
     enabled: false
-    #patch:
-    #  enabled: true
-    #createSecretJob:
-    #  enabled: true
 
   metrics:
     enabled: true

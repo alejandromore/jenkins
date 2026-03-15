@@ -52,3 +52,5 @@ vendor/
 *.swo
 tdp-jenkins-ecs/terraform/set-env.ps1
 tdp-jenkins-ecs/terraform/tfplan
+tdp-config-catalog-cce/old/kubeconfig-cce.yaml
+tdp-config-catalog-cce/old/kubeconfig.ps1
