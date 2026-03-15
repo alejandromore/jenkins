@@ -27,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     gzip \
     bash \
     unzip \
+    ansible \
     python3 \
     python3-pip \
     python3-venv \

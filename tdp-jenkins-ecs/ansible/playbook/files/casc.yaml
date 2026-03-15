@@ -163,6 +163,23 @@ jenkins:
                 - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
                 - "type=bind,source=/var/run/docker.sock,target=/var/run/docker.sock"
 
+          - labelString: "dockerNotified"
+            name: "dockerNotified"
+            mode: EXCLUSIVE
+            pullStrategy: PULL_ALWAYS
+            retentionStrategy:
+              idleMinutes: 5
+            remoteFs: "/home/jenkins"
+            connector:
+              attach:
+                user: "jenkins"
+            dockerTemplateBase:
+              image: "swr.la-south-2.myhuaweicloud.com/cce-jenkins-integration-organization/jenkins-dockernotified:1.0"
+              pullCredentialsId: "swr-jenkins"
+              tty: true
+              mounts:
+                - "type=bind,source=/opt/jenkins/workspaces,target=/home/jenkins/workspace"
+
 unclassified:
   location:
     url: "http://jenkins:8080/"
