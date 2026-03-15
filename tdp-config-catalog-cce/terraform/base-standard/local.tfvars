@@ -45,7 +45,8 @@ ng_description                    = "NAT Gateway"
 # VARIABLES PARA CCE
 # ============================================================================
 cce_network_cidr                  = "172.16.0.0/16"
-cce_cluster_name                  = "cce-config-catalog"
+#cce_cluster_name                  = "cce-config-catalog"
+cce_cluster_name                  = "cce-huaweidemo-dev"
 cce_cluster_type                  = "VirtualMachine"
 cce_cluster_flavor                = "cce.s1.small"
 cce_k8s_version                   = "v1.33"
