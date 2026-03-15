@@ -162,8 +162,6 @@ pipeline {
 
                 script {
 
-                script {
-
                     sh """
                     set -eo pipefail
                     export KUBECONFIG=${WORKSPACE}/kubeconfig.txt
