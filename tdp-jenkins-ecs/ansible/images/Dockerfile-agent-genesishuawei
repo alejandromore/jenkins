@@ -62,13 +62,14 @@ RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm
 
 # ==========================================
 # Huawei Cloud CLI (hcloud)
-# Script oficial que ya validaste
 # ==========================================
 RUN echo "Installing Huawei Cloud CLI..." \
  && curl -sSL https://ap-southeast-3-hwcloudcli.obs.ap-southeast-3.myhuaweicloud.com/cli/latest/hcloud_install.sh \
       -o /tmp/hcloud_install.sh \
  && chmod +x /tmp/hcloud_install.sh \
  && echo "y" | /tmp/hcloud_install.sh -y \
+ && chmod +x /usr/local/bin/hcloud \
+ && chown jenkins:jenkins /usr/local/bin/hcloud \
  && rm -f /tmp/hcloud_install.sh
 
 # ==========================================
