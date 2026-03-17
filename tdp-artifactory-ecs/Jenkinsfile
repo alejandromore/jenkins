@@ -25,7 +25,7 @@ pipeline {
         )
         string(
             name: 'ECS_PUBLIC_IP',
-            defaultValue: '101.44.3.15',
+            defaultValue: '110.238.69.130',
             description: 'IP pública del ECS donde se desplegará Artifactory'
         )
     }
