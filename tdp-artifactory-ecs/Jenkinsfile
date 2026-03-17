@@ -83,12 +83,12 @@ pipeline {
                 script {
 
                     env.ecs_public_ip = params.ECS_PUBLIC_IP
-                    env.ecs_private_key = "${WORKSPACE}/ecs_private_key.pem"
+                    env.ecs_private_key = "${WORKSPACE}/ecs_private_key.txt"
 
-                    writeFile(
-                        file: env.ecs_private_key,
-                        text: new String(params.ECS_PRIVATE_KEY.decodeBase64())
-                    )
+                    //writeFile(
+                    //    file: env.ecs_private_key,
+                    //    text: new String(params.ECS_PRIVATE_KEY.decodeBase64())
+                    //)
                 }
                 // Ejecutar el playbook de instalacion
                 dir(env.ANS_DIR) {
