@@ -1,0 +1,115 @@
+- hosts: artifactory
+  become: true
+
+  tasks:
+
+    # -----------------------------
+    # Esperar que cloud-init termine
+    # -----------------------------
+    - name: Wait for cloud-init to finish
+      command: cloud-init status --wait
+      changed_when: false
+
+    # -----------------------------
+    # Sistema base
+    # -----------------------------
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+
+    # -----------------------------
+    # Docker Installation
+    # -----------------------------
+    - name: Remove old Docker packages if exist
+      apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - containerd.io
+          - runc
+        state: absent
+        purge: yes
+      ignore_errors: yes
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Update apt cache after Docker repo
+      apt:
+        update_cache: yes
+
+    - name: Install Docker Engine
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
+
+    # -----------------------------
+    # Artifactory Setup
+    # -----------------------------
+    - name: Create Artifactory directory
+      file:
+        path: /opt/artifactory
+        state: directory
+        mode: '0755'
+
+    - name: Create Artifactory data directory
+      file:
+        path: /opt/artifactory/data
+        state: directory
+        owner: 1030
+        group: 1030
+        mode: '0755'
+
+    - name: Copy docker compose
+      copy:
+        src: files/docker-compose.yml
+        dest: /opt/artifactory/docker-compose.yml
+
+    # -----------------------------
+    # Deploy Artifactory
+    # -----------------------------
+    - name: Stop previous Artifactory stack if exists
+      shell: docker compose down
+      args:
+        chdir: /opt/artifactory
+      ignore_errors: yes
+
+    - name: Pull latest Artifactory image
+      shell: docker compose pull
+      args:
+        chdir: /opt/artifactory
+
+    - name: Start Artifactory
+      shell: docker compose up -d
+      args:
+        chdir: /opt/artifactory
