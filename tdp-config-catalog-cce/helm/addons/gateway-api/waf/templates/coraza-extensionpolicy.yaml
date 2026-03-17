@@ -5,15 +5,51 @@ metadata:
   namespace: {{ .Release.Namespace }}
 
 spec:
-  targetRef:
-    group: gateway.networking.k8s.io
+  targetRefs:
+  - group: gateway.networking.k8s.io
     kind: Gateway
     name: {{ .Values.gateway.name }}
+    namespace: {{ .Release.Namespace }}
 
   wasm:
   - name: coraza
     rootID: coraza
+
     code:
       type: Image
       image:
         url: {{ .Values.waf.image }}
+
+    config:
+      value:
+        directives: |
+          Include @recommended-conf
+          SecRuleEngine On
+
+          SecRequestBodyAccess On
+          SecResponseBodyAccess Off
+
+          SecAuditEngine RelevantOnly
+          SecAuditLog /dev/stdout
+
+          SecDebugLog /dev/stdout
+          SecDebugLogLevel 0
+
+          # 👇 IMPORTANTE: base config del CRS (aunque no cargues todo)
+          Include @crs-setup-conf
+
+          # TEST: asegurar que el WAF está activo
+          SecRule REQUEST_URI ".*" \
+          "id:1000,phase:1,pass,msg:'WAF ACTIVE'"
+
+          # SQLi (sin CRS)
+          SecRule ARGS "(?i)(or 1=1|union select)" \
+          "id:1001,phase:2,deny,msg:'SQL Injection Detected'"
+
+          # XSS
+          SecRule ARGS "(?i)<script>" \
+          "id:1002,phase:2,deny,msg:'XSS Detected'"
+
+          # Scanner
+          SecRule REQUEST_HEADERS:User-Agent "(?i)(sqlmap|nikto)" \
+          "id:1003,phase:1,deny,msg:'Scanner Detected'"

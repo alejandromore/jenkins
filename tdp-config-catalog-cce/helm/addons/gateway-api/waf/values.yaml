@@ -2,4 +2,4 @@ gateway:
   name: cluster-gateway
 
 waf:
-  image: ghcr.io/corazawaf/coraza-proxy-wasm:v0.4.0
+  image: ghcr.io/corazawaf/coraza-proxy-wasm:latest

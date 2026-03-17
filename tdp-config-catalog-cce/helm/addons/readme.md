@@ -21,3 +21,5 @@ helm upgrade --install gateway-infra ./gateway-infra -n envoy-gateway-system --c
 
 helm uninstall envoy-gateway -n envoy-gateway-system
 helm uninstall gateway-infra -n envoy-gateway-system
+
+# Probar WAF
