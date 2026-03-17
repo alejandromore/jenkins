@@ -1,0 +1,19 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyExtensionPolicy
+metadata:
+  name: coraza-waf
+  namespace: {{ .Release.Namespace }}
+
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.gateway.name }}
+
+  wasm:
+  - name: coraza
+    rootID: coraza
+    code:
+      type: Image
+      image:
+        url: {{ .Values.waf.image }}

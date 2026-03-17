@@ -345,6 +345,61 @@ pipeline {
                     kubectl get gatewayclass
                     kubectl get gateways -A || true
                     kubectl get svc -n ${NAMESPACE} || true
+
+                    echo ""
+                    echo "=========================================="
+                    echo "Installing Coraza WAF ..."
+                    echo "=========================================="
+
+                    helm upgrade --install coraza-waf ./waf \
+                    -n ${NAMESPACE} \
+                    --create-namespace \
+                    --wait \
+                    --timeout ${TIMEOUT_SECONDS}s
+
+                    echo ""
+                    echo "=========================================="
+                    echo "Validating Coraza WAF installation"
+                    echo "=========================================="
+
+                    echo ""
+                    echo "Waiting for Coraza WAF policy..."
+
+                    until kubectl get envoyextensionpolicy coraza-waf -n ${NAMESPACE} >/dev/null 2>&1; do
+                    sleep 5
+                    echo "Waiting for Coraza WAF policy..."
+                    done
+
+                    echo "Coraza WAF policy detected"
+
+                    echo ""
+                    echo "Waiting for Coraza configmap..."
+
+                    until kubectl get configmap coraza-config -n ${NAMESPACE} >/dev/null 2>&1; do
+                    sleep 5
+                    echo "Waiting for coraza-config configmap..."
+                    done
+
+                    echo "Coraza configuration detected"
+
+                    echo ""
+                    echo "Waiting for OWASP CRS configmap..."
+
+                    until kubectl get configmap coraza-crs -n ${NAMESPACE} >/dev/null 2>&1; do
+                    sleep 5
+                    echo "Waiting for coraza-crs configmap..."
+                    done
+
+                    echo "OWASP CRS rules detected"
+
+                    echo ""
+                    echo "=========================================="
+                    echo "Coraza WAF + OWASP CRS successfully installed"
+                    echo "=========================================="
+
+                    kubectl get envoyextensionpolicy -n ${NAMESPACE}
+                    kubectl get configmap -n ${NAMESPACE} | grep coraza || true
+
                     '''
                 }
             }
