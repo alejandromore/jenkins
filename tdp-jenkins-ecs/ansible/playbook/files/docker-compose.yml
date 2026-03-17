@@ -13,10 +13,12 @@ services:
 
     environment:
       - TZ=America/Lima
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/casc_configs
 
     volumes:
       - /data/jenkins_home:/var/jenkins_home
-      - ./casc.yaml:/var/jenkins_home/casc.yaml
+      #- ./casc.yaml:/var/jenkins_home/casc.yaml
+      - ./casc_configs:/var/jenkins_home/casc_configs
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/jenkins/workspaces:/opt/jenkins/workspaces
       - /opt/jenkins/.m2:/opt/jenkins/.m2
