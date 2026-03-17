@@ -57,7 +57,7 @@ module "ecs_service" {
   instance_networks_configuration     = [
     {
       #uuid = try(module.vpc_service.subnet_ids[0], "")
-      uuid = try("1c44070b-381e-49ef-b3ab-5e5641cbc509", "")
+      uuid = try("f5a15968-16a2-4e54-a84c-8c8e6d9585f8", "")
     }
   ]
 
