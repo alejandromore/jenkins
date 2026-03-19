@@ -1,7 +1,8 @@
-@Library('shared-lib') _
-
 pipeline {
-    agent any
+    //agent any
+    agent {
+        label 'agent-huawei'
+    }
 
     options {
         disableConcurrentBuilds()
