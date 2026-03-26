@@ -50,3 +50,13 @@ credentials:
               secretBytes: ""
               description: Key for SOPS
               
+          - usernamePassword:
+              id: "artifactory-server"
+              username: ${ARTIFACTORY_USERNAME}
+              password: ${ARTIFACTORY_PASSWORD}
+              description: Artifactory username and password
+
+          - string:
+              id: "artifact-token"
+              secret: ${ARTIFACTORY_TOKEN}
+              description: Artifactory token
