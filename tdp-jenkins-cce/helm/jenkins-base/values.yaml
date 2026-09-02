@@ -15,7 +15,7 @@ controller:
       memory: "2Gi"
   namespace: jenkins
   adminUser: "admin"                      # default user
-  adminPassword: "P@ssw0rdSecure123!"     # default password
+  adminPassword: "CHANGEME"     # default password
 
 deployment:
   name: dp-jenkins-master

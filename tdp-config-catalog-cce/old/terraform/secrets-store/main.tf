@@ -168,7 +168,7 @@ locals {
     {
       URL      = "wwww.google.com"
       USUARIO  = "alejandro"
-      PASSWORD = "P@ssw0rdSecure123!"
+      PASSWORD = "CHANGEME"
       PORT     = "5432"
       HUAWEI_CLOUD_AK = local.HW_AK
       HUAWEI_CLOUD_SK = local.HW_SK

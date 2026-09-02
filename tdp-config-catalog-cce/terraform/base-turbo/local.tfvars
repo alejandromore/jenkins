@@ -58,7 +58,7 @@ cce_k8s_version                   = "v1.33"
 cce_network_type                  = "eni"           #Turbo
 cce_authentication_mode           = "rbac"
 cce_charging_mode                 = "postPaid"
-cce_node_password                 = "P@ssw0rdSecure123!"
+cce_node_password                 = "CHANGEME"
 
 key_pair_name                     = "basic-project-key"
 

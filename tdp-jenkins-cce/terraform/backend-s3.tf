@@ -1,8 +1,6 @@
 terraform {
   backend "s3" {
-    # Credentciales del backend
-    access_key = "8ENLOAE2QCECKCRKANEU"
-    secret_key = "vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8"
+    # Credenciales: exportar AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY
     region = "us-east-1"  # Cualquier región válida de AWS
 
     # Bucket y archivo en el OBS

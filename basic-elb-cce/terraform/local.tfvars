@@ -41,7 +41,7 @@ cce_network_type                  = "vpc-router"
 
 cce_authentication_mode           = "rbac"
 cce_charging_mode                 = "postPaid"
-cce_node_password                 = "P@ssw0rdSecure123!"
+cce_node_password                 = "CHANGEME"
 
 ng_name                           = "ng-internet"
 ng_spec                           = 1

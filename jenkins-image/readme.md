@@ -2,7 +2,7 @@
 docker compose build --no-cache
 
 # Login to SWR
-docker login -u la-south-2@HST3WYM94KP843RRQEBV -p 30a2c15562b9748a5a8a29a75393004310c5affc7006744a465d90161ff7daab swr.la-south-2.myhuaweicloud.com
+docker login -u <SWR_USER> -p <SWR_PASSWORD> swr.la-south-2.myhuaweicloud.com
 
 # Tag in SWR
 docker tag jenkins-hwc:2.0 swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:2.0
@@ -59,13 +59,13 @@ http://localhost:8080
 
 4. Obtener password inicial
 docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
-Password: 259488c2c82a450eba9366dfcf17eaf2
+Password: <INITIAL_ADMIN_PASSWORD>
 
 git update-index --skip-worktree secrets/*.txt
 
 setx HUAWEICLOUD_REGION "la-south-2"
-setx HUAWEICLOUD_ACCESS_KEY "8ENLOAE2QCECKCRKANEU"
-setx HUAWEICLOUD_SECRET_KEY "vddTKjKuG8hcNGOb1cYv3jZ03RLlkOFEEhEHphl8"
+setx HUAWEICLOUD_ACCESS_KEY "<HWC_ACCESS_KEY>"
+setx HUAWEICLOUD_SECRET_KEY "<HWC_SECRET_KEY>"
 
 # compatible con SWR
 setx DOCKER_BUILDKIT 1
@@ -83,7 +83,7 @@ docker-compose up -d --build
 
 docker tag jenkins-hwc:1.0 swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:1.0.0
 
-docker login -u la-south-2@HST3WZLQY47S41GW38DJ -p 7f1a60eeb60c684566511e1e9c68fe13a352cb6755ed1cc4d763c7a7ef9a6185 swr.la-south-2.myhuaweicloud.com
+docker login -u <SWR_USER> -p <SWR_PASSWORD> swr.la-south-2.myhuaweicloud.com
 
 docker push swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:1.0.0
 

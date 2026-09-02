@@ -32,7 +32,7 @@ vpc_subnet_data_cidr              = "10.1.64.0/19"
 vpc_subnet_data_gateway_ip        = "10.1.64.1"
 
 rds_postgres_name                 = "rds-postgres"
-rds_postgres_password             = "P@ssw0rdSecure123!"
+rds_postgres_password             = "CHANGEME"
 rds_postgres_flavor               = "rds.pg.n1.large.2"
 rds_postgres_volume_size          = 40
 

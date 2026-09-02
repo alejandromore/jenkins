@@ -234,7 +234,7 @@ locals {
     {
       URL      = "wwww.google.com"
       USUARIO  = "alejandro"
-      PASSWORD = "P@ssw0rdSecure123!"
+      PASSWORD = "CHANGEME"
       PORT     = "5432"
     }
   )
