@@ -66,28 +66,6 @@ credentials:
               password: ${SWR_AIOPS_PASSWORD:-}
               description: SWR login - cuenta aiops
 
-          # ---------- legacy (cuenta alejandro) ----------
-          # Los otros Jenkinsfiles de C:\Projects\jenkins (tdp-config-catalog-cce,
-          # tdp-deploy-cloud-platform, utils/*) siguen usando estos IDs.
-          - string:
-              id: hwc-access-key
-              scope: GLOBAL
-              secret: ${HWC_ALEJANDRO_AK}
-              description: "[legacy] Huawei Cloud Access Key (alejandro)"
-
-          - string:
-              id: hwc-secret-key
-              scope: GLOBAL
-              secret: ${HWC_ALEJANDRO_SK}
-              description: "[legacy] Huawei Cloud Secret Key (alejandro)"
-
-          - usernamePassword:
-              id: swr-jenkins
-              scope: GLOBAL
-              username: ${SWR_ALEJANDRO_USER}
-              password: ${SWR_ALEJANDRO_PASSWORD}
-              description: "[legacy] SWR Login Jenkins (alejandro)"
-
 # ============================================================
 # Un job por cuenta. El Jenkinsfile de tdp-jenkins-ecs deduce la
 # cuenta del nombre del job (deploy-jenkins-<cuenta>) y toma el

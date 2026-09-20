@@ -27,8 +27,8 @@ contenedor) y los secretos en `secrets.env` (gitignored; plantilla en
 | `swr-<cuenta>` | Username/Password | `<region>@<AK>` / token SWR | `SWR_<CUENTA>_USER`, `SWR_<CUENTA>_PASSWORD` |
 
 Cuentas actuales: `alejandro`, `aiops`. Los IDs legacy `hwc-access-key`, `hwc-secret-key` y
-`swr-jenkins` siguen existiendo apuntando a la cuenta `alejandro` porque otros Jenkinsfiles del
-repo los usan.
+`swr-jenkins` ya no existen en el Jenkins local; los Jenkinsfiles antiguos del repo que los usan
+deben migrar a `hwc-<cuenta>` / `swr-<cuenta>`.
 
 Las cuentas sin valores en `secrets.env` quedan con la credencial creada pero vacía; el pipeline
 lo detecta y falla con un mensaje claro en la etapa *Resolve account*.
