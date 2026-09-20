@@ -1,93 +1,82 @@
-# Construir localmente
-docker compose build --no-cache
+# jenkins-image — Jenkins local (controlador)
 
-# Login to SWR
-docker login -u <SWR_USER> -p <SWR_PASSWORD> swr.la-south-2.myhuaweicloud.com
+Imagen del Jenkins que corre en la máquina local (`http://localhost:8080`) y que ejecuta los
+pipelines `deploy-jenkins-<cuenta>` de
+[`tdp-jenkins-ecs`](https://github.com/alejandro-jenkins/tdp-jenkins-ecs) para desplegar un
+Jenkins en cada cuenta de Huawei Cloud.
 
-# Tag in SWR
-docker tag jenkins-hwc:2.0 swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:2.0
+| Componente | Versión |
+|---|---|
+| Jenkins | `2.568.3-lts-jdk21` (fijada en el `Dockerfile`) |
+| Terraform | 1.14.4 |
+| Ansible | 8.6.0 (venv en `/opt/venv`) |
+| Imagen | `jenkins-hwc:3.0` (`docker-compose.yml`) |
 
-# Push to SWR
-docker push swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:2.0
+## Configuración
 
-docker compose push
+Todo se declara por JCasC en [`casc.yaml`](casc.yaml) (bind-mount, se relee al reiniciar el
+contenedor) y los secretos en `secrets.env` (gitignored; plantilla en
+[`secrets.env.example`](secrets.env.example)).
 
-# Ejecutar localmente
-docker-compose up -d
+### Credenciales (una por cuenta)
 
-Secrets por defecto, estan en el archivo secrets.env, 
-Uso	                                Tipo	                        ID 
-----------------------------------------------------------------------------------------------
-Huawei Cloud Access Key	            Secret Text	                    HWC_ACCESS_KEY
-Huawei Cloud Secret Key	            Secret Text	                    HWC_SECRET_KEY
-GitHub repo	                        Username/Password o SSH Key	    github-creds
-CCE Kubeconfig file for Jenkins     file                            cce-jenkins-kubeconfig
-CCE Kubeconfig file for App         file                            ce-app-kubeconfig
-SWR Login Jenkins                   Username/Password o SSH Key     swr-jenkins
+| ID | Tipo | user / password | Variables en `secrets.env` |
+|---|---|---|---|
+| `github-creds` | Username/Password | usuario / token GitHub | `GITHUB_USER`, `GITHUB_TOKEN` |
+| `hwc-<cuenta>` | Username/Password | AK / SK (provider Terraform **y** backend OBS del state) | `HWC_<CUENTA>_AK`, `HWC_<CUENTA>_SK` |
+| `swr-<cuenta>` | Username/Password | `<region>@<AK>` / token SWR | `SWR_<CUENTA>_USER`, `SWR_<CUENTA>_PASSWORD` |
 
+Cuentas actuales: `alejandro`, `aiops`. Los IDs legacy `hwc-access-key`, `hwc-secret-key` y
+`swr-jenkins` siguen existiendo apuntando a la cuenta `alejandro` porque otros Jenkinsfiles del
+repo los usan.
 
-git update-index --skip-worktree secrets.env
+Las cuentas sin valores en `secrets.env` quedan con la credencial creada pero vacía; el pipeline
+lo detecta y falla con un mensaje claro en la etapa *Resolve account*.
 
------------------------
+### Jobs
 
-docker images
+La sección `jobs:` de `casc.yaml` crea por Job DSL un pipeline por cuenta
+(`deploy-jenkins-alejandro`, `deploy-jenkins-aiops`, ...), todos apuntando al mismo `Jenkinsfile`
+de `tdp-jenkins-ecs`. El pipeline deduce la cuenta del nombre del job.
 
-docker volume ls
+### Agregar una cuenta
 
-1. Crear imagen docker
-docker-compose up -d
-docker-compose up -d --build
+1. `secrets.env`: `HWC_<CUENTA>_AK/SK` y `SWR_<CUENTA>_USER/PASSWORD`.
+2. `casc.yaml`: credenciales `hwc-<cuenta>` / `swr-<cuenta>` y el nombre en la lista `ACCOUNTS`.
+3. En `tdp-jenkins-ecs`: entrada en `accounts.groovy` y `terraform/accounts/<cuenta>.*`.
+4. Reiniciar el contenedor (abajo).
 
-2. Detener y borrar el docker
-docker stop jenkins
-docker rm jenkins
+## Operación (podman)
 
-3. Iniciar imagen
-docker run -d `
-  --name jenkins `
-  --restart unless-stopped `
-  -p 8080:8080 `
-  -p 50000:50000 `
-  -v jenkins_home:/var/jenkins_home `
-  jenkins-terraform:1.7.5
+```powershell
+# Construir la imagen (tras cambiar Dockerfile o plugins.txt)
+podman build --platform linux/amd64 -t jenkins-hwc:3.0 -f Dockerfile .
 
-4. Ver Log
-docker logs jenkins
+# Recrear el contenedor (jenkins_data persiste: jobs, historial, plugins)
+podman rm -f jenkins-hwc
+podman run -d --name jenkins-hwc --platform linux/amd64 --restart unless-stopped `
+  -p 8080:8080 -p 50000:50000 `
+  --env-file secrets.env `
+  -e JAVA_OPTS="-Djenkins.install.runSetupWizard=false" `
+  -e CASC_JENKINS_CONFIG=/var/jenkins_home/casc.yaml `
+  -v jenkins_data:/var/jenkins_home `
+  -v "${PWD}\casc.yaml:/var/jenkins_home/casc.yaml:ro" `
+  jenkins-hwc:3.0
 
-3. Acceder a Jenkins
-http://localhost:8080
+# Solo cambió casc.yaml o secrets.env: recrear el contenedor (secrets.env se lee al crear)
+# Solo cambió casc.yaml: basta con
+podman restart jenkins-hwc
 
-4. Obtener password inicial
-docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
-Password: <INITIAL_ADMIN_PASSWORD>
+# Logs
+podman logs -f jenkins-hwc
+```
 
-git update-index --skip-worktree secrets/*.txt
+Con `docker compose` disponible, `docker compose up -d --build` hace lo mismo
+([`docker-compose.yml`](docker-compose.yml)).
 
-setx HUAWEICLOUD_REGION "la-south-2"
-setx HUAWEICLOUD_ACCESS_KEY "<HWC_ACCESS_KEY>"
-setx HUAWEICLOUD_SECRET_KEY "<HWC_SECRET_KEY>"
+## Subir de versión
 
-# compatible con SWR
-setx DOCKER_BUILDKIT 1
-setx BUILDKIT_PROVENANCE false
-setx BUILDKIT_SBOM false
-setx BUILDKIT_OUTPUT_FORMAT docker
-setx DOCKER_DEFAULT_PLATFORM linux/amd64
-
-setx DOCKER_BUILDKIT 0
-
-docker compose build --no-cache
-docker compose push
-
-docker-compose up -d --build
-
-docker tag jenkins-hwc:1.0 swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:1.0.0
-
-docker login -u <SWR_USER> -p <SWR_PASSWORD> swr.la-south-2.myhuaweicloud.com
-
-docker push swr.la-south-2.myhuaweicloud.com/cce-basic-app/jenkins-hwc:1.0.0
-
-
-
-
-
+1. Cambiar el `FROM` en el `Dockerfile` (LTS vigente en https://www.jenkins.io/changelog-stable/).
+2. Subir el tag en `docker-compose.yml` y en el comando `podman run`.
+3. Rebuild + recrear el contenedor. Antes de un bump de core, respaldar el volumen:
+   `podman volume export jenkins_data -o jenkins_data.tar`.

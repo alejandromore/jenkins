@@ -1,4 +1,6 @@
 jenkins:
+  systemMessage: "Jenkins local (controlador) - despliega Jenkins en cada cuenta Huawei Cloud"
+
   securityRealm:
     local:
       allowsSignup: false
@@ -9,6 +11,19 @@ jenkins:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
 
+# ============================================================
+# Credenciales por cuenta Huawei Cloud.
+#
+# Convencion (el Jenkinsfile de tdp-jenkins-ecs las busca por ID):
+#   hwc-<cuenta>   Username/Password  user = AK, password = SK
+#                  (Terraform provider + backend OBS del state)
+#   swr-<cuenta>   Username/Password  login a SWR de esa cuenta
+#   github-creds   Username/Password  compartida
+#
+# Los valores vienen de secrets.env (gitignored). Las cuentas sin
+# valores quedan con credencial vacia (default ":-"): el pipeline
+# falla con un mensaje claro si intenta usarlas.
+# ============================================================
 credentials:
   system:
     domainCredentials:
@@ -19,23 +34,92 @@ credentials:
               scope: GLOBAL
               username: ${GITHUB_USER}
               password: ${GITHUB_TOKEN}
-              description: GitHub credentials
+              description: GitHub credentials (compartida)
 
+          # ---------- cuenta: alejandro ----------
+          - usernamePassword:
+              id: hwc-alejandro
+              scope: GLOBAL
+              username: ${HWC_ALEJANDRO_AK}
+              password: ${HWC_ALEJANDRO_SK}
+              description: Huawei Cloud AK/SK - cuenta alejandro
+
+          - usernamePassword:
+              id: swr-alejandro
+              scope: GLOBAL
+              username: ${SWR_ALEJANDRO_USER}
+              password: ${SWR_ALEJANDRO_PASSWORD}
+              description: SWR login - cuenta alejandro
+
+          # ---------- cuenta: aiops ----------
+          - usernamePassword:
+              id: hwc-aiops
+              scope: GLOBAL
+              username: ${HWC_AIOPS_AK:-}
+              password: ${HWC_AIOPS_SK:-}
+              description: Huawei Cloud AK/SK - cuenta aiops
+
+          - usernamePassword:
+              id: swr-aiops
+              scope: GLOBAL
+              username: ${SWR_AIOPS_USER:-}
+              password: ${SWR_AIOPS_PASSWORD:-}
+              description: SWR login - cuenta aiops
+
+          # ---------- legacy (cuenta alejandro) ----------
+          # Los otros Jenkinsfiles de C:\Projects\jenkins (tdp-config-catalog-cce,
+          # tdp-deploy-cloud-platform, utils/*) siguen usando estos IDs.
           - string:
               id: hwc-access-key
               scope: GLOBAL
-              secret: ${HWC_ACCESS_KEY}
-              description: Huawei Cloud Access Key
+              secret: ${HWC_ALEJANDRO_AK}
+              description: "[legacy] Huawei Cloud Access Key (alejandro)"
 
           - string:
               id: hwc-secret-key
               scope: GLOBAL
-              secret: ${HWC_SECRET_KEY}
-              description: Huawei Cloud Secret Key
+              secret: ${HWC_ALEJANDRO_SK}
+              description: "[legacy] Huawei Cloud Secret Key (alejandro)"
 
           - usernamePassword:
               id: swr-jenkins
               scope: GLOBAL
-              username: ${SWR_USER}
-              password: ${SWR_PASSWORD}
-              description: SWR Login Jenkins
+              username: ${SWR_ALEJANDRO_USER}
+              password: ${SWR_ALEJANDRO_PASSWORD}
+              description: "[legacy] SWR Login Jenkins (alejandro)"
+
+# ============================================================
+# Un job por cuenta. El Jenkinsfile de tdp-jenkins-ecs deduce la
+# cuenta del nombre del job (deploy-jenkins-<cuenta>) y toma el
+# resto de la configuracion de accounts.groovy en ese repo.
+#
+# Para agregar una cuenta: nueva entrada en ACCOUNTS + credenciales
+# hwc-<cuenta> / swr-<cuenta> arriba + entrada en accounts.groovy.
+# ============================================================
+jobs:
+  # Sin ${...} dentro del script: JCasC interpolaria esas variables antes de
+  # que Job DSL lo ejecute.
+  - script: |
+      def ACCOUNTS = ['alejandro', 'aiops']
+
+      ACCOUNTS.each { account ->
+        pipelineJob('deploy-jenkins-' + account) {
+          description('Despliega Jenkins en la cuenta Huawei Cloud "' + account + '" (tdp-jenkins-ecs). La cuenta se deduce del nombre del job; la configuracion vive en accounts.groovy del repo.')
+          logRotator { numToKeep(30) }
+          definition {
+            cpsScm {
+              scm {
+                git {
+                  remote {
+                    url('https://github.com/alejandro-jenkins/tdp-jenkins-ecs.git')
+                    credentials('github-creds')
+                  }
+                  branch('*/main')
+                }
+              }
+              scriptPath('Jenkinsfile')
+              lightweight(true)
+            }
+          }
+        }
+      }

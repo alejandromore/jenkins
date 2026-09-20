@@ -1,6 +1,6 @@
 services:
   jenkins:
-    image: jenkins-hwc:2.0
+    image: jenkins-hwc:3.0
     container_name: jenkins-hwc
     platform: linux/amd64
 

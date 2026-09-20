@@ -1,4 +1,6 @@
-FROM jenkins/jenkins:lts-jdk21
+# LTS fijada (no "lts-jdk21" flotante): asi el tag de la imagen dice que Jenkins lleva.
+# Para subir: cambiar aqui, rebuild y bump del tag en docker-compose.yml.
+FROM jenkins/jenkins:2.568.3-lts-jdk21
 
 USER root
 
@@ -38,7 +40,7 @@ RUN curl -fL https://obs-community.obs.cn-north-1.myhuaweicloud.com/obsutil/curr
 # Terraform
 # ===============================
 RUN curl -fsSL \
-    https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip \
+    https://releases.hashicorp.com/terraform/1.14.4/terraform_1.14.4_linux_amd64.zip \
     -o /tmp/terraform.zip && \
     unzip /tmp/terraform.zip -d /usr/local/bin && \
     rm /tmp/terraform.zip

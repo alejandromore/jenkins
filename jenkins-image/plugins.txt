@@ -30,3 +30,6 @@ configuration-as-code
 
 # File Parameters Plugin
 file-parameters
+
+# Tema visual (color de header por proyecto, configurado por JCasC)
+simple-theme-plugin
